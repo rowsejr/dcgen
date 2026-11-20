@@ -115,6 +115,7 @@ def layout_site(scene: Scene, cat: Catalogue, core_bbox, anchors: dict) -> None:
     """Adds roads, gate, guardhouse and ancillaries to a scene whose core is already placed."""
     S = cat["site"]
     rd = S["roads"]
+    CL = S["clearances"]
     rl = scene.redline_poly()
     buildable = scene.buildable_poly()
     log = scene.log
@@ -142,8 +143,8 @@ def layout_site(scene: Scene, cat: Catalogue, core_bbox, anchors: dict) -> None:
         if L < 1e-6:
             continue
         u = v / L
-        a_ext = (a.x - u[0] * 2, a.y - u[1] * 2)
-        b_in = (b.x + u[0] * 1, b.y + u[1] * 1)
+        a_ext = (a.x - u[0] * CL["spur_extension"], a.y - u[1] * CL["spur_extension"])
+        b_in = (b.x + u[0] * CL["spur_overlap"], b.y + u[1] * CL["spur_overlap"])
         spur = LineString([a_ext, b_in]).buffer(rd["width"] / 2, cap_style="flat").intersection(rl)
         spurs.append(spur)
         roads.append(_poly_el(f"RD-SPUR{k + 1}", "road", "Main access" if k == 0 else f"Access {k + 1}", spur))
@@ -151,14 +152,14 @@ def layout_site(scene: Scene, cat: Catalogue, core_bbox, anchors: dict) -> None:
             gate_info = (np.array([a.x, a.y]), u, L)
 
     # ---- guardhouse + gate on the main spur
-    blocked = [outer.buffer(2.0)] + [s.buffer(1.0) for s in spurs]
+    blocked = [outer.buffer(CL["ring_keepout"])] + [s.buffer(CL["spur_keepout"]) for s in spurs]
     if gate_info is not None:
         a, u, L = gate_info
         n = np.array([-u[1], u[0]])
         g = S["guardhouse"]
-        dist = min(g["from_gate"], max(8.0, L - g["length"] - 6))
+        dist = min(g["from_gate"], max(CL["guardhouse_min_from_gate"], L - g["length"] - CL["guardhouse_end_margin"]))
         for side in (1, -1):
-            c = a + u * (dist + g["length"] / 2) + side * n * (rd["width"] / 2 + 2.0 + g["width"] / 2)
+            c = a + u * (dist + g["length"] / 2) + side * n * (rd["width"] / 2 + CL["guardhouse_to_road"] + g["width"] / 2)
             hl, hw = u * g["length"] / 2, n * g["width"] / 2
             corners = [c - hl - hw, c + hl - hw, c + hl + hw, c - hl + hw]
             gh = Polygon(corners)
@@ -171,8 +172,8 @@ def layout_site(scene: Scene, cat: Catalogue, core_bbox, anchors: dict) -> None:
                 else:
                     el = _poly_el("GH", "guardhouse", "Guardhouse", gh, h=g["height"], solid=True)
                 scene.elements.append(el)
-                blocked.append(el.footprint().buffer(3.0))
-                gp = a + u * (dist + g["length"] + 4)
+                blocked.append(el.footprint().buffer(CL["guardhouse_keepout"]))
+                gp = a + u * (dist + g["length"] + CL["gate_beyond_guardhouse"])
                 gate = LineString([gp - n * rd["width"] / 2, gp + n * rd["width"] / 2]).buffer(0.4)
                 scene.elements.append(_poly_el("GATE1", "gate", "Security gate / HVM line", gate, h=1.2))
                 break
@@ -193,7 +194,7 @@ def layout_site(scene: Scene, cat: Catalogue, core_bbox, anchors: dict) -> None:
                                if e.kind in ("genset", "transformer") or e.props.get("enclosed")])
     connectors = []
 
-    def place(kind, sizes, score_fn, clearance=3.0, region=None):
+    def place(kind, sizes, score_fn, clearance=CL["ancillary_gap"], region=None):
         nonlocal free, road_union
         area = free if region is None else free.intersection(region)
         best = _best(area, sizes, score_fn)
@@ -209,7 +210,7 @@ def layout_site(scene: Scene, cat: Catalogue, core_bbox, anchors: dict) -> None:
             conn = conn.union(Point(p_road.x, p_road.y).buffer(rd["connector_width"] / 2)).intersection(rl)
             connectors.append((kind, conn))
             road_union = road_union.union(conn)
-            free = free.difference(conn.buffer(1.0))
+            free = free.difference(conn.buffer(CL["connector_keepout"]))
         return (bx, by, w, d)
 
     # ---- substation (towards the utility, near the electrical rooms)
@@ -295,7 +296,7 @@ def layout_site(scene: Scene, cat: Catalogue, core_bbox, anchors: dict) -> None:
         sizes += [(L, D), (D, L)]
     def park_score(c, boxes):
         return np.linalg.norm(c - ent, axis=1) + 2.0 * road_dist(boxes)
-    r = place("parking", sizes, park_score, clearance=2.0)
+    r = place("parking", sizes, park_score, clearance=CL["parking_gap"])
     if r:
         bx, by, w, d = r
         scene.elements.append(Element(id="PARK", kind="parking", name=f"Parking ({n} spaces)", x=bx, y=by,

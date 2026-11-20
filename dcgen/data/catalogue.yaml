@@ -71,8 +71,8 @@ heat_rejection:
     length: 12.0
     width: 2.3
     height: 2.6
-    side_clear: 2.0            # end-to-end gap in a row
-    row_clear: 3.5             # between rows (air intake / recirculation)
+    intake_clear: 3.0          # gap between long sides of adjacent units (air intake); units stand perpendicular to the facade
+    row_clear: 3.5             # end-to-end gap between rows (discharge / maintenance)
     lw_dba: 92
     operating_kg: 13000
   dc_vbank_1100:
@@ -85,7 +85,7 @@ heat_rejection:
     length: 12.2
     width: 2.4
     height: 2.7
-    side_clear: 2.0
+    intake_clear: 3.0
     row_clear: 3.5
     lw_dba: 88
     operating_kg: 6000
@@ -100,7 +100,7 @@ heat_rejection:
     length: 12.2
     width: 2.4
     height: 2.8
-    side_clear: 2.0
+    intake_clear: 3.0
     row_clear: 3.5
     lw_dba: 89
     operating_kg: 6500
@@ -118,6 +118,32 @@ halls:
   support_length: 24.0         # admin, NOC, loading, build rooms (along the building)
   parapet: 1.5
   roof_edge: 3.0               # clear zone to roof edge for roof plant
+  round_to: 0.6                # planning module: hall dimensions round up to this (0 = off)
+  fire_wall: 0.4               # fire-rated wall between adjacent halls (compartment line)
+  cross_corridor_width: 3.0    # escape/service corridor linking main corridor to the mech gallery
+  cross_corridor_every: 2      # halls between cross corridors (0 = none)
+
+layout:                        # building-core assembly gaps (m)
+  band_step: 2.0               # electrical band grows in steps of this when rooms do not fit
+  tx_to_building: 2.0          # building face to first transformer row
+  tx_to_gen_yard: 3.0          # last transformer row to first genset row
+  genset_tier_gap: 0.8         # vertical gap between stacked genset tiers
+  hr_yard_offset: 3.0          # mech gallery wall to first ground heat rejection row
+  hr_yard_margin: 2.0          # beyond the last heat rejection row
+  hr_group_lane: 0.0           # extra lane between per-hall heat rejection groups (0 = hall/fire-wall lines only)
+
+egress:                        # PLACEHOLDERS: set from the project fire strategy
+  travel_one_dir_m: 25.0       # max travel where only one escape direction exists
+  travel_two_dir_m: 45.0       # max travel with alternative routes
+  dead_end_m: 18.0             # max dead-end corridor length
+  door_width: 1.2
+  doors_per_hall_wall: 2       # hall doors on each of the corridor and gallery walls
+  exit_lane_width: 1.5         # clear outside lane from a final exit
+  exit_lane_length: 12.0       # lane length that must be clear of plant (to open space/road)
+  stair: {length: 6.0, width: 3.0}
+  support_exits: 2
+  hr_lane_width: 3.0           # escape lane between per-hall heat rejection groups (gallery exits discharge here)
+  plant_room_exits: false      # true = direct final exit from each ground-level electrical room (needs clear lanes through TX/gen yard)
 
 site:
   substation:                  # utility compound by supply voltage
@@ -139,6 +165,19 @@ site:
     min_to_building: 10.0      # placeholder: confirm with fire engineer / insurer
     min_to_boundary: 6.0
   roads: {width: 7.3, clearance: 3.0, connector_width: 6.0}
+  clearances:                  # placement gaps (m) used by the site engine
+    ring_keepout: 2.0          # beyond the ring road: no ancillaries
+    spur_keepout: 1.0
+    spur_extension: 2.0        # spur extends beyond the redline
+    spur_overlap: 1.0          # spur extends into the ring road
+    guardhouse_min_from_gate: 8.0
+    guardhouse_end_margin: 6.0 # spare spur length beyond the guardhouse
+    guardhouse_to_road: 2.0
+    guardhouse_keepout: 3.0
+    gate_beyond_guardhouse: 4.0
+    ancillary_gap: 3.0         # between placed ancillaries
+    parking_gap: 2.0
+    connector_keepout: 1.0
   parking: {bay_w: 2.5, bay_d: 5.0, aisle: 6.0}
   checks:
     max_road_distance: 10.0    # ancillaries within this of a road

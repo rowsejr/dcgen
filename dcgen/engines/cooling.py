@@ -14,11 +14,44 @@ from ..catalogue import Catalogue
 from ..schema import Brief
 
 
+def interp(xs: list[float], ys: list[float], x: float) -> float:
+    """Piecewise-linear lookup, clamped at the ends (xs ascending)."""
+    if x <= xs[0]:
+        return float(ys[0])
+    if x >= xs[-1]:
+        return float(ys[-1])
+    for i in range(1, len(xs)):
+        if x <= xs[i]:
+            f = (x - xs[i - 1]) / (xs[i] - xs[i - 1])
+            return float(ys[i - 1] + f * (ys[i] - ys[i - 1]))
+    return float(ys[-1])
+
+
+def curve_capacity_kw(unit: dict, t_amb: float, fluid_in_c: float) -> float | None:
+    """Capacity from manufacturer curves if the unit carries them.
+      curve:  {ambient_c: [...], capacity_kw: [...]}                     (one set of conditions)
+      curves: [{fluid_in_c: 45, ambient_c: [...], capacity_kw: [...]}]   (bilinear on fluid-in and ambient)
+    Curves are read at the effective ambient (after adiabatic pre-cooling, for adiabatic units)."""
+    if "curves" in unit and unit["curves"]:
+        cs = sorted(unit["curves"], key=lambda c: c["fluid_in_c"])
+        vals = [interp(c["ambient_c"], c["capacity_kw"], t_amb) for c in cs]
+        return max(0.0, interp([c["fluid_in_c"] for c in cs], vals, fluid_in_c))
+    if "curve" in unit and unit["curve"]:
+        c = unit["curve"]
+        return max(0.0, interp(c["ambient_c"], c["capacity_kw"], t_amb))
+    return None
+
+
 def unit_capacity_kw(unit: dict, brief: Brief) -> float:
     t = brief.ambient_design_c
     if t > unit.get("max_ambient_c", 99):
         return 0.0
     typ = unit["type"]
+    if typ == "adiabatic_dry_cooler" and ("curve" in unit or "curves" in unit):
+        t = t - unit.get("adiabatic_effectiveness", 0.0) * (t - brief.ambient_design_wb_c)
+    cap = curve_capacity_kw(unit, t, brief.fwr_c)
+    if cap is not None:
+        return cap
     if typ == "air_cooled_chiller":
         return unit["capacity_kw"] * (1 - unit["derate_per_k"] * max(0.0, t - unit["rated_ambient_c"]))
     if typ == "adiabatic_dry_cooler":

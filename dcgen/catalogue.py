@@ -37,6 +37,33 @@ def _load(path: str) -> dict[str, Any]:
         return yaml.safe_load(f)
 
 
-def load_catalogue(path: str | Path | None = None) -> Catalogue:
+def load_catalogue(path: str | Path | None = None, overrides: dict | None = None) -> Catalogue:
     import copy
-    return Catalogue(copy.deepcopy(_load(str(path or DEFAULT_PATH))))
+    cat = Catalogue(copy.deepcopy(_load(str(path or DEFAULT_PATH))))
+    return with_overrides(cat, overrides) if overrides else cat
+
+
+def with_overrides(cat: Catalogue, overrides: dict | None) -> Catalogue:
+    """Project-level overrides of catalogue values, keyed by dotted path, e.g.
+    {"halls.corridor_depth": 5.0, "egress.plant_room_exits": True}. The path must already exist
+    (typos fail loudly). The catalogue file itself is never changed: overrides live in the brief."""
+    import copy
+    if not overrides:
+        return cat
+    out = Catalogue(copy.deepcopy(dict(cat)))
+    for path, value in overrides.items():
+        keys = path.split(".")
+        node = out
+        for k in keys[:-1]:
+            if not isinstance(node, dict) or k not in node:
+                raise KeyError(f"Override path not in catalogue: {path}")
+            node = node[k]
+        if not isinstance(node, dict) or keys[-1] not in node:
+            raise KeyError(f"Override path not in catalogue: {path}")
+        node[keys[-1]] = value
+    return out
+
+
+def for_brief(brief, cat: Catalogue | None = None) -> Catalogue:
+    """The catalogue as this project sees it: base catalogue plus the brief's overrides."""
+    return with_overrides(cat or load_catalogue(), getattr(brief, "overrides", None))

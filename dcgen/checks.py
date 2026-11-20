@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import shapely
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, box
 from shapely.strtree import STRtree
 
 from .catalogue import Catalogue
@@ -100,6 +100,61 @@ def run_checks(scene: Scene, cat: Catalogue) -> list[Check]:
         out.append(Check(id="noise.boundary", severity="pass" if lp.max() <= lim2 else "fail",
                          value=round(float(lp.max()), 1), limit=lim2,
                          message=f"Max at redline {lp.max():.1f} dB(A) vs {lim2:.0f}"))
+
+    # 7b. maintenance envelopes (half the catalogue gap each side, so neighbours just touch)
+    plant = [e for e in solids if "clear_xy" in e.props]
+    bad_zone: dict[str, list[str]] = {}
+    for p in plant:
+        cx, cy = p.props["clear_xy"]
+        zone = box(p.x - cx, p.y - cy, p.x + p.w + cx, p.y + p.d + cy)
+        for j in tree.query(zone, predicate="intersects"):
+            o = solids[j]
+            if o is p or min(o.top, p.top) - max(o.z, p.z) <= 0.05:
+                continue
+            if fps[j].intersection(zone).area > 0.05:
+                bad_zone.setdefault(p.id, []).append(o.id)
+    out.append(Check(id="maint.zones", severity="warn" if bad_zone else "pass",
+                     element_ids=sorted(bad_zone),
+                     message=(f"{len(bad_zone)} unit(s) have another element inside their maintenance clearance: "
+                              + ", ".join(f"{k}/{v[0]}" for k, v in list(bad_zone.items())[:5])
+                              if bad_zone else "Maintenance clearances clear on all plant")))
+
+    # 7c. escape routes (placeholder limits from the catalogue egress block)
+    eg = scene.designs.get("core", {}).get("egress")
+    if eg:
+        lim = eg["limits"]
+        for cid, val, key, what in (
+                ("egress.hall", eg["hall_interior_travel_m"], "travel_one_dir_m", "Hall: deepest point to a hall door"),
+                ("egress.hall_exit", eg["hall_to_exit_m"], "travel_two_dir_m", "Hall: deepest point to a final exit"),
+                ("egress.plant_rooms", eg["plant_room_travel_m"], "travel_two_dir_m",
+                 f"Electrical rooms: worst ({eg['plant_room_worst']}) to a final exit")):
+            ok = val <= lim[key] + 1e-6
+            direct = cat["egress"].get("plant_room_exits")
+            hint = "" if ok else (" - add cross corridors (halls.cross_corridor_every) or doors" if cid != "egress.plant_rooms"
+                                  else (" - upper-level rooms need more stair/exit cores" if direct else
+                                        " - consider direct plant-room exits (egress.plant_room_exits)"))
+            out.append(Check(id=cid, severity="pass" if ok else "warn", value=val, limit=lim[key],
+                             message=f"{what}: {val:.0f} m vs {lim[key]:.0f} m (placeholder limit){hint}"))
+        ex = scene.by_kind("exit")
+        out.append(Check(id="egress.exits", severity="pass" if len(ex) >= 2 else "fail", value=len(ex), limit=2,
+                         message=f"{len(ex)} final exits, {eg['cross_corridors']} cross corridor(s), {eg['stairs']} stair core(s)"))
+        lw, ll = cat["egress"]["exit_lane_width"], cat["egress"]["exit_lane_length"]
+        blockers = [o for o in solids if not o.props.get("enclosed") and o.kind != "exit"]
+        blocked = []
+        for x in ex:
+            d = x.props.get("lane_dir", "n")
+            cxm, cym = x.x + x.w / 2, x.y + x.d / 2
+            lane = {"n": box(cxm - lw / 2, x.y + x.d, cxm + lw / 2, x.y + x.d + ll),
+                    "s": box(cxm - lw / 2, x.y - ll, cxm + lw / 2, x.y),
+                    "e": box(x.x + x.w, cym - lw / 2, x.x + x.w + ll, cym + lw / 2),
+                    "w": box(x.x - ll, cym - lw / 2, x.x, cym + lw / 2)}[d]
+            hit = [o.id for o in blockers if o.z < 2.4 and o.footprint().intersection(lane).area > 0.01]
+            if hit:
+                blocked.append((x.id, hit[0]))
+        out.append(Check(id="egress.lanes", severity="warn" if blocked else "pass",
+                         element_ids=sorted({a for a, _ in blocked} | {b for _, b in blocked}),
+                         message=(f"Exit lane blocked: " + ", ".join(f"{a} by {b}" for a, b in blocked[:5])
+                                  if blocked else f"All final exits have a clear {lw:.1f} m x {ll:.0f} m lane outside")))
 
     # 8. plant capacity
     c = scene.designs.get("cooling", {})

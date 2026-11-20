@@ -88,6 +88,10 @@ class Brief(BaseModel):
     building_screen_db: float = Field(10.0, description="Extra attenuation when the building blocks the path")
     # --- site
     staff_parking: int = 60
+    # --- project overrides of catalogue values (client requirements), dotted paths
+    overrides: dict[str, Any] = Field(default_factory=dict, description=(
+        "Catalogue overrides for this project, e.g. {'halls.corridor_depth': 5.0, "
+        "'halls.cross_corridor_every': 1, 'egress.plant_room_exits': true}"))
 
 
 # --------------------------------------------------------------------------- scene

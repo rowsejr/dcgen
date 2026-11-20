@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from . import layout
-from .catalogue import load_catalogue
+from .catalogue import for_brief, load_catalogue
 from .io import read_redline
 from .schema import Brief, Receptor, Scene, SiteInput
 
@@ -135,7 +135,7 @@ def set_site_from_file(project: str, filename: str, data: bytes, **site_fields) 
 def update_brief(project: str, changes: dict) -> dict:
     st = state(project)
     st["brief"] = Brief.model_validate(st["brief"].model_dump() | changes)
-    n_halls, hall, elec, hr = layout.run_engines(st["brief"], load_catalogue())
+    n_halls, hall, elec, hr = layout.run_engines(st["brief"], for_brief(st["brief"]))
     save(project)
     return {"brief": st["brief"].model_dump(), "halls": n_halls, "hall_m": [hall.width_x, hall.depth_y],
             "racks_per_hall": hall.racks_provided, "electrical": elec.summary(), "cooling": hr.summary(),

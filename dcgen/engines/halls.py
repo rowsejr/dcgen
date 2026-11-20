@@ -52,6 +52,10 @@ def design_hall(brief: Brief, cat: dict) -> HallDesign:
         pod_rects.append((x0, y0, x0 + pod_w, y0 + row_len))
         aisle_rects.append((x0 + brief.rack_d, y0, x0 + brief.rack_d + h["hot_aisle"], y0 + row_len))
 
+    rt = h.get("round_to", 0)
+    if rt:
+        width_x = math.ceil(width_x / rt - 1e-9) * rt      # planning module
+        depth_y = math.ceil(depth_y / rt - 1e-9) * rt
     area = width_x * depth_y
     return HallDesign(
         it_kw=it_kw, racks_required=racks, racks_per_row=rpr, rows=rows, pods=pods,

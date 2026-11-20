@@ -13,7 +13,7 @@ from typing import Optional
 import numpy as np
 from shapely.geometry import Polygon
 
-from .catalogue import Catalogue, load_catalogue
+from .catalogue import Catalogue, for_brief, load_catalogue
 from .checks import run_checks
 from .engines import noise
 from .engines import site as site_eng
@@ -68,7 +68,7 @@ def _designs(hall, elec, hr, core, n_halls) -> dict:
 def generate(brief: Brief, site: SiteInput, variant: Variant, cat: Optional[Catalogue] = None,
              offset_index: int = 0, _prepared=None) -> Optional[Scene]:
     """One layout for one variant. Returns None if the core does not fit the redline."""
-    cat = cat or load_catalogue()
+    cat = for_brief(brief, cat)
     if _prepared is None:
         _prepared = prepare_variant(brief, site, variant, cat)
     if _prepared is None:
@@ -221,7 +221,7 @@ def enumerate_variants(brief: Brief, site: SiteInput) -> list[Variant]:
 
 def generate_options(brief: Brief, site: SiteInput, cat: Optional[Catalogue] = None,
                      max_options: int = 4, k_offsets: int = 5) -> list[Scene]:
-    cat = cat or load_catalogue()
+    cat = for_brief(brief, cat)
     best_per_variant: list[Scene] = []
     variants = enumerate_variants(brief, site)
     for v in variants:
@@ -240,7 +240,7 @@ def generate_options(brief: Brief, site: SiteInput, cat: Optional[Catalogue] = N
 
 
 def compare_topologies(brief: Brief, topologies: list[str], cat: Optional[Catalogue] = None) -> list[dict]:
-    cat = cat or load_catalogue()
+    cat = for_brief(brief, cat)
     rows = []
     for t in topologies:
         b = brief.model_copy(update={"topology": t})
@@ -257,7 +257,7 @@ def compare_topologies(brief: Brief, topologies: list[str], cat: Optional[Catalo
 # ------------------------------------------------------------------ edits (drag / agent)
 def move_element(scene: Scene, element_id: str, dx: float, dy: float, whole_group: bool = False,
                  cat: Optional[Catalogue] = None) -> Scene:
-    cat = cat or load_catalogue()
+    cat = for_brief(scene.brief, cat)
     el = scene.get(element_id)
     targets = [e for e in scene.elements if whole_group and el.group and e.group == el.group] or [el]
     ov = scene.variant.setdefault("overrides", {})
