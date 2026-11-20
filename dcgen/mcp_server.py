@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from mcp.server.apps import Apps, client_supports_apps
-from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver import Image, MCPServer
 from mcp.server.mcpserver.context import Context
 
 from . import service
@@ -27,6 +27,8 @@ from .schema import Receptor, SiteInput
 
 INSTRUCTIONS = """dcgen generates RIBA Stage 2 data centre test fits (data halls, electrical plant by
 redundancy topology, heat rejection vs ambient and noise, site roads and ancillaries).
+Look at preview before reporting; use what_if to compare options without changing the project, undo to step back,
+move_compass for 'move X 10 m north'. Brief fields and override keys: resource dcgen://brief-schema.
 Workflow: create_project -> set_site (redline) -> update_brief -> generate_options ->
 read checks/metrics -> iterate (update_brief, move_element, select_option) -> export.
 Rules: never invent geometry or plant numbers - quote tool results. Catalogue values are
@@ -125,6 +127,60 @@ def move_element(project: str, element_id: str, dx: float, dy: float, whole_grou
     """Move an element (or its whole array/group) by dx, dy metres in the layout frame,
     lock it, and re-run all checks. Same operation as dragging in the editor."""
     return service.move_element(project, element_id, dx, dy, whole_group)
+
+
+@mcp.tool()
+def move_compass(project: str, element_id: str, direction: str, distance: float, whole_group: bool = False) -> dict:
+    """Move an element `distance` m towards a TRUE compass direction (N, NE, ... NW, or degrees 0=north clockwise).
+    Use this instead of dx/dy when the instruction is "move the fuel store 10 m north"."""
+    return service.move_compass(project, element_id, direction, distance, whole_group)
+
+
+@mcp.tool()
+def move_towards(project: str, element_id: str, target_id: str, distance: float) -> dict:
+    """Move an element straight towards another element by `distance` m (negative = away)."""
+    return service.move_towards(project, element_id, target_id, distance)
+
+
+@mcp.tool()
+def undo(project: str) -> dict:
+    """Undo the last edit (move / regenerate / option change). Up to 20 steps."""
+    return service.undo(project)
+
+
+@mcp.tool()
+def regenerate(project: str) -> dict:
+    """Re-run the engines for the current brief on the selected option, keeping elements you moved."""
+    return service.regenerate(project)
+
+
+@mcp.tool()
+def what_if(project: str, changes: list[dict]) -> list[dict]:
+    """Try 1-6 alternative brief changes WITHOUT altering the project, e.g.
+    [{"topology": "2N"}, {"overrides": {"halls.cross_corridor_every": 1}}]. Returns score / fail / warn
+    deltas, which checks they fix or introduce, and plant counts. Apply the winner with update_brief."""
+    return service.what_if(project, changes)
+
+
+@mcp.tool()
+def suggest_fixes(project: str) -> list[dict]:
+    """For each failing or warning check, the levers (brief fields or override keys) worth trying. Advisory only:
+    test them with what_if before applying."""
+    return service.suggest_fixes(project)
+
+
+@mcp.tool()
+def preview(project: str, view: str = "plan", px: int = 1200, highlight: Optional[list[str]] = None) -> Image:
+    """PNG of the current layout: view = plan | overview | closeup. The plan outlines elements flagged by failed or
+    warning checks in red (or pass element ids in `highlight`). Look at it before reporting a layout."""
+    return Image(data=service.preview(project, view, px, highlight), format="png")
+
+
+@mcp.resource("dcgen://brief-schema", mime_type="application/json",
+              description="Every brief field and every catalogue override key you may set, with shipped values")
+def brief_schema_resource() -> str:
+    import json
+    return json.dumps(service.brief_schema(), indent=1, default=str)
 
 
 @mcp.tool()

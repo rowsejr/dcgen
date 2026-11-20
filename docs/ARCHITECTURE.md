@@ -91,6 +91,11 @@ boundary noise, heat rejection capacity, rack count, roof plant load warning.
 * Typical loop: "36 MW, 6 halls, 5M4, liquid cooled, site attached" -> create_project ->
   set_site -> generate_options -> "NSR2 fails by 2 dB" -> agent tries `hr_location: roof` +
   `roof_screen_db: 8`, or moves the HR array -> re-checks -> export PDF + IFC.
+* **Loop tools** (all in `service.py`, exposed by MCP, REST and partly CLI): `preview` (PNG with failing elements outlined),
+  `suggest_fixes` (check id -> levers), `what_if` (alternatives without touching the project), `regenerate` (re-run keeping
+  locked moves), `undo` (20-step snapshot stack), `move_compass` / `move_towards`. The model reasons; numbers come from tools.
+* **Data layer**: `library/` packs (CSV/YAML) -> approved records -> effective catalogue (base, library, client profile,
+  brief overrides). Approval is human-only. See docs/LIBRARY.md.
 * Later: the Claude Agent SDK can host the same tools in-process behind your own web app.
 
 ## 6. Drag and drop

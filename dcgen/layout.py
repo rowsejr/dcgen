@@ -284,3 +284,125 @@ def move_element(scene: Scene, element_id: str, dx: float, dy: float, whole_grou
         ov[e.id] = [e.x, e.y]
     scene.log.append(f"Moved {', '.join(t.id for t in targets)} by ({dx:+.1f}, {dy:+.1f}) m")
     return finalize(scene, cat)
+
+
+# ------------------------------------------------------------------ regenerate, compass moves, what-if
+def regenerate(scene: Scene, cat: Optional[Catalogue] = None) -> Optional[Scene]:
+    """Re-run the engines for the scene's own (possibly edited) brief, keeping its variant and the
+    positions of any elements the user or agent has moved. Ids that no longer exist are dropped and logged."""
+    brief, site, vd = scene.brief, scene.site, scene.variant
+    cat = for_brief(brief, cat)
+    v = Variant(vd["rotation_deg"], vd.get("mirror_x", False), vd.get("mirror_y", False), vd.get("hr_location", "ground"))
+    prep = prepare_variant(brief, site, v, cat)
+    if prep is None or not prep[4]:
+        return None
+    want = vd.get("offset", [0.0, 0.0])
+    idx = min(range(len(prep[4])), key=lambda i: math.dist(prep[4][i], want))
+    new = generate(brief, site, v, cat, idx, prep)
+    if new is None:
+        return None
+    new.option = scene.option
+    kept, dropped = {}, []
+    for eid, (x, y) in (vd.get("overrides") or {}).items():
+        try:
+            e = new.get(eid)
+        except Exception:
+            dropped.append(eid)
+            continue
+        e.x, e.y, e.locked = x, y, True
+        kept[eid] = [x, y]
+    new.variant["overrides"] = kept
+    if kept or dropped:
+        new.log.append(f"Regenerated; kept {len(kept)} moved element(s)" +
+                       (f", dropped {len(dropped)} that no longer exist: {', '.join(dropped)}" if dropped else ""))
+        finalize(new, cat)
+    return new
+
+
+COMPASS = {"N": 0, "NNE": 22.5, "NE": 45, "ENE": 67.5, "E": 90, "ESE": 112.5, "SE": 135, "SSE": 157.5,
+           "S": 180, "SSW": 202.5, "SW": 225, "WSW": 247.5, "W": 270, "WNW": 292.5, "NW": 315, "NNW": 337.5}
+
+
+def bearing_to_local(scene: Scene, bearing_deg: float, dist: float) -> tuple[float, float]:
+    """True-bearing move (0 = north, clockwise) -> (dx, dy) in the scene's local frame."""
+    b = math.radians(bearing_deg - scene.site.true_north_deg)
+    sx, sy = math.sin(b) * dist, math.cos(b) * dist          # site-grid east/north
+    t = -math.radians(scene.frame.rotation_deg)
+    return (math.cos(t) * sx - math.sin(t) * sy, math.sin(t) * sx + math.cos(t) * sy)
+
+
+def resolve_bearing(direction: str | float) -> float:
+    if isinstance(direction, (int, float)):
+        return float(direction) % 360
+    d = str(direction).strip().upper()
+    if d in COMPASS:
+        return float(COMPASS[d])
+    try:
+        return float(d) % 360
+    except ValueError:
+        raise ValueError(f"direction must be N..NW or degrees (0=north, clockwise), got {direction!r}")
+
+
+def move_towards(scene: Scene, element_id: str, target_id: str, dist: float) -> tuple[float, float]:
+    """(dx, dy) that moves element_id by `dist` m straight towards target_id (negative = away)."""
+    a, b = scene.get(element_id), scene.get(target_id)
+    vx, vy = b.cx - a.cx, b.cy - a.cy
+    n = math.hypot(vx, vy) or 1.0
+    return vx / n * dist, vy / n * dist
+
+
+def what_if(brief: Brief, site: SiteInput, changes: dict, base: Optional[Scene] = None) -> dict:
+    """Run a quick single-option layout with `changes` applied to the brief and return compact deltas
+    against `base` (or against the unchanged brief). Nothing is stored."""
+    new_brief = Brief.model_validate(brief.model_dump() | changes)
+    if base is None:
+        ref = generate_options(brief, site, max_options=1, k_offsets=2)
+        base = ref[0] if ref else None
+    cand = generate_options(new_brief, site, max_options=1, k_offsets=2)
+    if not cand:
+        return {"changes": changes, "fits": False, "message": "No arrangement fits the redline with these changes."}
+    c = cand[0]
+    row = {"changes": changes, "fits": True, "score": c.score, "fails": c.metrics["checks_failed"],
+           "warns": c.metrics["checks_warn"], "arrangement": c.variant.get("label")}
+    keys = ("gia_m2", "footprint_m2", "coverage_pct", "spare_land_ha", "road_area_m2", "substation_to_elec_m")
+    row["metrics"] = {k: c.metrics.get(k) for k in keys}
+    row["noise_margins_db"] = [r["margin_db"] for r in c.metrics["noise"]]
+    row["plant"] = {"gensets": c.designs["electrical"]["gensets"], "transformers": c.designs["electrical"]["transformers"],
+                    "heat_rejection": c.designs["cooling"].get("total"), "hall_m": [c.designs["halls"]["width_x"],
+                                                                                   c.designs["halls"]["depth_y"]]}
+    if base is not None:
+        row["delta"] = {"score": round(c.score - base.score, 1),
+                        "fails": c.metrics["checks_failed"] - base.metrics["checks_failed"],
+                        "warns": c.metrics["checks_warn"] - base.metrics["checks_warn"]}
+        b_ids, c_ids = {x.id for x in base.checks if x.severity != "pass"}, {x.id for x in c.checks if x.severity != "pass"}
+        row["fixed"], row["new_issues"] = sorted(b_ids - c_ids), sorted(c_ids - b_ids)
+    return row
+
+
+# failing check id prefix -> levers the agent can try (brief fields / override keys); advisory only
+FIX_LEVERS = {
+    "egress.plant_rooms": ["overrides: egress.plant_room_exits=true (adds south exits to ground plant rooms)",
+                           "storeys / elec levels: fewer upper levels shortens vertical escape routes",
+                           "overrides: egress.travel_two_dir_m only with fire engineer sign-off"],
+    "egress.hall": ["overrides: egress.doors_per_hall_wall (more doors shortens in-hall travel)"],
+    "egress.hall_exit": ["overrides: halls.cross_corridor_every=1 (cross corridor between every hall pair)"],
+    "egress.exits": ["overrides: egress.plant_room_exits=true"],
+    "egress.lanes": ["overrides: layout.tx_to_gen_yard / egress.hr_lane_width", "move_element on the blocking plant"],
+    "maint.zones": ["overrides: cooling.<unit>.row_clear / intake_clear; or move_element on the intruding plant"],
+    "noise": ["hr_prefer=noise", "hr_location=roof or ground (screening differs)", "hr_unit=<quieter record id>",
+              "move_element on heat rejection away from the receptor"],
+    "site.": ["storeys=2 (smaller footprint)", "overrides: site.clearances.* (engineer sign-off)", "move_element"],
+    "data.status": ["ask an engineer to approve the draft record (agents cannot), or use_drafts=false"],
+    "client.": ["read the clause in compliance(); change the lever the rule names, or record a waiver in the brief notes"],
+    "bench.outliers": ["compare against reference_designs(); check topology and genset/transformer selection"],
+}
+
+
+def suggest_fixes(scene: Scene) -> list[dict]:
+    out = []
+    for c in scene.checks:
+        if c.severity not in ("fail", "warn"):
+            continue
+        levers = next((v for k, v in FIX_LEVERS.items() if c.id.startswith(k)), [])
+        out.append({"check": c.id, "severity": c.severity, "message": c.message[:140], "levers": levers})
+    return out

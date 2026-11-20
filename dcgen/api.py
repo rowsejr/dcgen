@@ -159,6 +159,58 @@ def move(project: str, req: MoveRequest) -> dict:
     return service.move_element(project, req.element_id, req.dx, req.dy, req.whole_group)
 
 
+class CompassRequest(BaseModel):
+    element_id: str
+    direction: str = Field(description="N..NW or degrees (0 = north, clockwise)")
+    distance: float
+    whole_group: bool = False
+
+
+class WhatIfRequest(BaseModel):
+    changes: list[dict] = Field(description="1-6 sets of brief changes, e.g. [{\"topology\": \"2N\"}]")
+
+
+@app.post("/api/projects/{project}/move_compass", operation_id="moveCompass", summary="Move towards a true compass direction")
+def move_compass(project: str, req: CompassRequest) -> dict:
+    return service.move_compass(project, req.element_id, req.direction, req.distance, req.whole_group)
+
+
+@app.post("/api/projects/{project}/undo", operation_id="undo", summary="Undo the last edit")
+def undo(project: str) -> dict:
+    return service.undo(project)
+
+
+@app.get("/api/projects/{project}/history", operation_id="history", summary="Undo stack (oldest first)")
+def history(project: str) -> list[str]:
+    return service.history(project)
+
+
+@app.post("/api/projects/{project}/regenerate", operation_id="regenerate", summary="Re-run engines keeping moved elements")
+def regenerate(project: str) -> dict:
+    return service.regenerate(project)
+
+
+@app.post("/api/projects/{project}/what_if", operation_id="whatIf", summary="Try brief changes without altering the project")
+def what_if(project: str, req: WhatIfRequest) -> list[dict]:
+    return service.what_if(project, req.changes)
+
+
+@app.get("/api/projects/{project}/fixes", operation_id="suggestFixes", summary="Levers for each failing check")
+def fixes(project: str) -> list[dict]:
+    return service.suggest_fixes(project)
+
+
+@app.get("/api/projects/{project}/preview.png", operation_id="preview", summary="PNG preview (plan | overview | closeup)")
+def preview(project: str, view: Literal["plan", "overview", "closeup"] = "plan", px: int = 1200):
+    from fastapi.responses import Response
+    return Response(service.preview(project, view, px), media_type="image/png")
+
+
+@app.get("/api/schema", operation_id="briefSchema", summary="Brief fields and catalogue override keys")
+def schema() -> dict:
+    return service.brief_schema()
+
+
 @app.get("/api/projects/{project}/files/{fmt}", operation_id="getFile",
          summary="Download a deliverable for the current option (generated on demand)")
 def get_file(project: str, fmt: Literal["pdf", "ifc", "glb", "dxf", "json", "editor"]):

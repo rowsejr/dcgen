@@ -152,6 +152,7 @@ def generate_options(project: str, max_options: int = 4) -> dict:
     if not opts:
         return {"project": project, "options": [], "message": "The building does not fit the redline in any "
                 "arrangement. Try storeys=2, fewer halls, a smaller setback or a larger site."}
+    _push_history(project, "generate_options")
     st["options"], st["scene"] = opts, opts[0]
     save(project)
     for o in opts:
@@ -167,6 +168,7 @@ def select_option(project: str, option: str) -> dict:
         st["options"] = [Scene.from_json(str(p)) for p in sorted(d.glob("option_*.json"))]
     for o in st["options"]:
         if o.option == option.upper():
+            _push_history(project, f"select {o.option}")
             st["scene"] = o
             save(project)
             return summary(o)
@@ -178,11 +180,145 @@ def compare_topologies(brief: Brief | dict, topologies: Optional[list[str]] = No
     return layout.compare_topologies(b, topologies or ["4M3", "5M4", "N+1 catcher", "2N"])
 
 
-def move_element(project: str, element_id: str, dx: float, dy: float, whole_group: bool = False) -> dict:
-    sc = layout.move_element(scene_of(project), element_id, dx, dy, whole_group)
+HISTORY_CAP = 20
+
+
+def _push_history(project: str, label: str) -> None:
+    """Snapshot the current scene before any edit so it can be undone (kept in memory, capped)."""
+    st = state(project)
+    if st["scene"] is None:
+        return
+    st.setdefault("history", []).append((label, st["scene"].model_dump_json()))
+    del st["history"][:-HISTORY_CAP]
+
+
+def history(project: str) -> list[str]:
+    return [lbl for lbl, _ in state(project).get("history", [])]
+
+
+def undo(project: str) -> dict:
+    st = state(project)
+    if not st.get("history"):
+        raise ServiceError("Nothing to undo.")
+    label, snap = st["history"].pop()
+    sc = Scene.model_validate_json(snap)
+    st["scene"] = sc
+    st["options"] = [sc if o.option == sc.option else o for o in st["options"]]
     save(project)
-    return {"moved": element_id, "checks": [c.model_dump() for c in sc.checks], "noise": sc.metrics.get("noise"),
-            "score": sc.score}
+    return {"undone": label, "remaining": len(st["history"]), "summary": summary(sc)}
+
+
+def _set_scene(project: str, sc: Scene) -> None:
+    st = state(project)
+    st["scene"] = sc
+    st["options"] = [sc if o.option == sc.option else o for o in st["options"]]
+    save(project)
+
+
+def move_element(project: str, element_id: str, dx: float, dy: float, whole_group: bool = False) -> dict:
+    sc = scene_of(project)
+    _push_history(project, f"move {element_id} ({dx:+.1f},{dy:+.1f})")
+    try:
+        sc = layout.move_element(sc, element_id, dx, dy, whole_group)
+    except KeyError as exc:
+        state(project)["history"].pop()
+        raise ServiceError(f"No element {element_id!r}.") from exc
+    save(project)
+    return {"moved": element_id, "checks": [c.model_dump() for c in sc.checks if c.severity != "pass"],
+            "noise": sc.metrics.get("noise"), "score": sc.score}
+
+
+def move_compass(project: str, element_id: str, direction: str | float, distance: float, whole_group: bool = False) -> dict:
+    """Move by `distance` m towards a true compass direction (N..NW or degrees, 0 = north, clockwise)."""
+    sc = scene_of(project)
+    try:
+        brg = layout.resolve_bearing(direction)
+    except ValueError as exc:
+        raise ServiceError(str(exc)) from exc
+    dx, dy = layout.bearing_to_local(sc, brg, distance)
+    out = move_element(project, element_id, dx, dy, whole_group)
+    out["bearing_deg"], out["local_move"] = brg, [round(dx, 2), round(dy, 2)]
+    return out
+
+
+def move_towards(project: str, element_id: str, target_id: str, distance: float) -> dict:
+    """Move straight towards another element (negative distance = away)."""
+    sc = scene_of(project)
+    try:
+        dx, dy = layout.move_towards(sc, element_id, target_id, distance)
+    except KeyError as exc:
+        raise ServiceError(f"Unknown element: {exc}") from exc
+    out = move_element(project, element_id, dx, dy)
+    out["local_move"] = [round(dx, 2), round(dy, 2)]
+    return out
+
+
+def regenerate(project: str) -> dict:
+    """Re-run the engines for the current brief on the selected option, keeping moved (locked) elements."""
+    sc = scene_of(project)
+    st = state(project)
+    _push_history(project, "regenerate")
+    new = layout.regenerate(sc.model_copy(update={"brief": st["brief"]}))
+    if new is None:
+        st["history"].pop()
+        raise ServiceError("The building no longer fits the redline in this arrangement; the layout is unchanged.")
+    _set_scene(project, new)
+    return summary(new)
+
+
+def what_if(project: str, changes: list[dict]) -> list[dict]:
+    """Try brief changes (each a dict of brief fields, incl. overrides) WITHOUT altering the project.
+    Returns compact deltas against the selected option's brief; use update_brief to apply one."""
+    st = state(project)
+    if st["site"] is None:
+        raise ServiceError("No site yet - set the redline first.")
+    if not changes or len(changes) > 6:
+        raise ServiceError("Give between 1 and 6 change sets.")
+    base = layout.generate_options(st["brief"], st["site"], max_options=1, k_offsets=2)
+    base_sc = base[0] if base else None
+    rows = []
+    for ch in changes:
+        try:
+            rows.append(layout.what_if(st["brief"], st["site"], ch, base_sc))
+        except Exception as exc:                          # bad override key, invalid field
+            rows.append({"changes": ch, "fits": None, "error": str(exc)[:200]})
+    return rows
+
+
+def suggest_fixes(project: str) -> list[dict]:
+    return layout.suggest_fixes(scene_of(project))
+
+
+def preview(project: str, view: str = "plan", px: int = 1200, highlight: Optional[list[str]] = None) -> bytes:
+    from .render.preview import VIEWS, preview_png
+    if view not in VIEWS:
+        raise ServiceError(f"view must be one of {VIEWS}")
+    return preview_png(scene_of(project), view, max(600, min(px, 2400)), highlight)
+
+
+def brief_schema() -> dict:
+    """What an agent or form may set: brief fields with types/defaults, plus every override key (dotted path)."""
+    cat = load_catalogue()
+
+    def walk(d: Any, pre: str = "") -> dict:
+        out = {}
+        for k, v in d.items():
+            if k.startswith("_"):
+                continue
+            path = f"{pre}{k}"
+            if isinstance(v, dict):
+                out |= walk(v, path + ".")
+            elif isinstance(v, (int, float, bool, str)):
+                out[path] = v
+        return out
+
+    fields = {n: {"type": str(f.annotation).replace("typing.", ""), "default": f.default if f.default is not None else None,
+                  "description": f.description or ""} for n, f in Brief.model_fields.items()}
+    flat = {k: v for k, v in walk(dict(cat)).items()
+            if k.split(".")[0] in ("halls", "layout", "egress", "site", "electrical_rooms")}
+    return {"brief_fields": fields, "override_keys": flat,
+            "note": "Override keys are catalogue paths (brief.overrides). Values shown are the shipped placeholders; "
+                    "changing them is a what-if, not a sign-off."}
 
 
 def export(project: str, formats: Optional[list[str]] = None) -> dict[str, str]:

@@ -109,6 +109,26 @@ def cmd_profile(a) -> None:
     print(profiles.compliance_csv(c["rows"], {"id": c["profile"], "revision": c["revision"]}))
 
 
+def cmd_preview(a) -> None:
+    from .render.preview import preview_png
+    brief, site = load_brief(a.brief), load_site(a.site)
+    opts = layout.generate_options(brief, site, max_options=1)
+    if not opts:
+        raise SystemExit("Does not fit the redline.")
+    Path(a.out).write_bytes(preview_png(opts[0], a.view, a.px))
+    print(f"wrote {a.out}")
+
+
+def cmd_whatif(a) -> None:
+    import yaml
+    brief, site = load_brief(a.brief), load_site(a.site)
+    changes = yaml.safe_load(a.changes) if not Path(a.changes).exists() else yaml.safe_load(Path(a.changes).read_text())
+    if isinstance(changes, dict):
+        changes = [changes]
+    for ch in changes:
+        print(json.dumps(layout.what_if(brief, site, ch), default=str))
+
+
 def cmd_reference(a) -> None:
     _packs(a)
     from . import service
@@ -151,6 +171,13 @@ def main() -> None:
     pr.add_argument("--packs", nargs="*"), pr.set_defaults(fn=cmd_profile)
     rf = sub.add_parser("reference", help="reference designs: regress the engine against the recorded schemes")
     rf.add_argument("action", choices=["regress"]), rf.add_argument("--packs", nargs="*"), rf.set_defaults(fn=cmd_reference)
+    pv = sub.add_parser("preview", help="write a PNG of the best layout (plan | overview | closeup)")
+    pv.add_argument("--brief", required=True), pv.add_argument("--site", required=True), pv.add_argument("--out", default="preview.png")
+    pv.add_argument("--view", default="plan", choices=["plan", "overview", "closeup"]), pv.add_argument("--px", type=int, default=1200)
+    pv.set_defaults(fn=cmd_preview)
+    wi = sub.add_parser("whatif", help="try brief changes (YAML string or file: a list of dicts) and print score/check deltas")
+    wi.add_argument("--brief", required=True), wi.add_argument("--site", required=True), wi.add_argument("changes")
+    wi.set_defaults(fn=cmd_whatif)
     a = ap.parse_args()
     a.fn(a)
 
