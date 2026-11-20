@@ -21,7 +21,19 @@ draft -> reviewed -> approved -> superseded
 * **Imports always arrive as draft** (`dcgen library import FILE --type chiller --pack my-pack/plant --mapping MAP`).
   Mappings convert units (factor, fahrenheit, offset) from vendor spreadsheets. Optional AI extraction (`library/ai_extract.py`,
   `scripts/batch_extract.py`, untested) turns PDFs into **drafts only**.
-* `dcgen library validate` flags out-of-range or inconsistent records. Invalid records never reach the engines.
+* Mappings can also: name the `sheet` (the header row is found automatically), `split` "53/45" into two fields, clean
+  `values` (typos, synonyms), read vendor numbers (`15530/16720` options and `2532 - 2700` ranges take the max, `a + b`
+  sums modules, `1.18 MW` becomes 1,180 kW), `derive` missing fields without running code (`log10`, `add`, `format`),
+  flag anything filled that way as `assumed`, and add `caveats` and `notes_from`. Point `--mapping` at a folder to import
+  every sheet of a workbook in one go (`packs/cundall/mappings/` is the quick comparison workbook).
+* Records carry an `assumed` list: fields that are assumptions, not from the source. It shows on every output and as a
+  validation warning, so the approver sees it.
+* Chillers can carry `eer_rated`, `eer_curve_ambient_c` + `eer_curve` (full-load EER vs ambient), `chw_supply_c`,
+  `compressor`, `refrigerant` and `free_cooling`. The EER decides the chiller's input at the design air-on, which is what
+  the 600 kW IT lineup allowance limits. Gensets can give `lp_1m_dba` instead of `lw_dba`, plus `kw_dcc`.
+  `water_cooled_chillers.csv` holds water-cooled chillers for later (no plant rooms in the layout yet).
+* `dcgen library validate` flags out-of-range or inconsistent records (including chiller lengths that imply more than
+  250 kW per metre, a common module-length slip). Invalid records never reach the engines.
 * `dcgen library approve ID1,ID2 --checked-by "Name"` is a human step: it needs a clean validation and a named checker.
   It is deliberately not an MCP or REST tool.
 * Only approved records are used unless `brief.use_drafts` is true; drafts then show as `data.status` WARN on every output.

@@ -7,7 +7,7 @@ import pytest
 import yaml
 
 from dcgen import library, service
-from dcgen.catalogue import for_brief, load_catalogue
+from dcgen.catalogue import with_overrides, for_brief, load_catalogue
 from dcgen.engines.cooling import rank_heat_rejection, select_heat_rejection
 from dcgen.io import load_brief, load_site
 from dcgen.layout import generate_options
@@ -94,7 +94,7 @@ def test_import_makes_drafts_and_never_overwrites(pack, tmp_path):
     assert rep.added == 2 and "CH-OTHERCO-OC-1500" in rep.ids
     lib = Library([pack])
     rec = lib.records["chiller"]["CH-OTHERCO-OC-1500"]
-    assert rec["status"] == "draft" and rec["capacity_kw"] == 1500 and rec["entered_by"] == "JR" and rec["source"] == "selection.csv"
+    assert rec["status"] == "draft" and rec["capacity_kw"] == 1500 and rec["entered_by"] == "JR" and rec["source"] == "selection.csv row 2"
     again = import_file(_export(tmp_path), "chiller", pack / "plant", MAPPING)
     assert again.added == 0 and len(again.skipped) == 2
 
@@ -146,8 +146,13 @@ def test_library_replaces_placeholders_and_feeds_room_table(pack):
     assert [t["kw"] for t in cat["electrical_rooms"]["table"]] == [1000, 2000, 3000]
     from dcgen.engines.electrical import design_electrical
     e = design_electrical(Brief(it_load_mw=24, hall_it_mw=6), cat, 4)
-    assert e.room_width == pytest.approx(11.0) and e.genset_key == "EX-GEN-3500"
+    assert e.room_width == pytest.approx(11.0)
     assert any("reference typicals" in n for n in e.notes)
+    # mechanical plant on the IT lineup (600 kW) makes a 2 MW block need ~2.7 MVA; the 3,500 kVA set is above the
+    # 3,200 kVA framework limit, so two 2,500 kVA sets would be needed: flagged as not single source
+    assert e.genset_key == "EX-GEN-2500" and e.gensets_per_block == 2 and not e.single_source_ok
+    e2 = design_electrical(Brief(it_load_mw=24, hall_it_mw=6), with_overrides(cat, {"electrical.genset_max_kva": 3500}), 4)
+    assert e2.genset_key == "EX-GEN-3500" and e2.gensets_per_block == 1 and e2.single_source_ok
 
 
 def test_selection_follows_preference(pack):
@@ -160,7 +165,7 @@ def test_selection_follows_preference(pack):
 
 
 def test_selection_lists_runners_up_and_uses_curves(pack):
-    b = Brief(ambient_design_c=36)
+    b = Brief(ambient_design_c=36, hr_uplift_k=0)
     ranked = rank_heat_rejection(b, for_brief(b))
     assert [c.key for c in ranked] == ["EX-CH-1400", "EX-CH-1800"]
     big = next(c for c in ranked if c.key == "EX-CH-1800")
@@ -213,7 +218,9 @@ def profiled():
 
 def test_compliance_sheet_with_clause_references(profiled):
     c = profiled.designs["compliance"]
-    assert c["profile"] == "exampleco-standard" and c["summary"] == {"pass": 5, "manual": 1}
+    # v3 (gross load + uplift -> more chillers) leaves 0.2 dB margin: the 3 dB client margin (R-6.3) now warns
+    assert c["profile"] == "exampleco-standard" and c["summary"] == {"pass": 4, "warn": 1, "manual": 1}
+    assert next(r for r in c["rows"] if r["id"] == "R-6.3")["status"] == "warn"
     row = next(r for r in c["rows"] if r["id"] == "R-4.2.3")
     assert row["clause"] == "EXAMPLE-STD 4.2.3" and row["status"] == "pass" and row["value"] >= 15
     assert next(r for r in c["rows"] if r["id"] == "R-9.1")["status"] == "manual"

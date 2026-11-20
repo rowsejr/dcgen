@@ -85,7 +85,9 @@ def _sheet(title: str, scene: Scene, sheet_no: str, scale: str = "NTS", legend: 
             ("Topology", f"{e['topology']}, {e['blocks']} x {e['block_ups_kw'] / 1000:.1f} MW blocks"),
             ("Electrical rooms", f"{e['elec_rooms']} (+{e['sts_rooms']} STS, 1 MV) on {d['core']['elec_levels']} levels"),
             ("Gensets", f"{e['gensets']} x {e['genset'].replace(' genset', '')}"),
-            ("Heat rejection", f"{c['total']} x {c['unit_capacity_at_design_kw']:,} kW at {b.ambient_design_c:g}°C"),
+            ("Heat rejection", f"{c['total']} x {c['unit_capacity_at_design_kw']:,} kW at {c.get('air_on_c') or b.ambient_design_c:g}°C air-on"),
+            ("Peak PUE", f"{(scene.designs.get('peak_pue') or {}).get('peak_pue', 0):.3f} "
+                         f"({(scene.designs.get('electrical') or {}).get('mech_lineups', '')} mech lineups)"),
             ("Site / coverage", f"{m['site_area_ha']} ha / {m['coverage_pct']}%"),
             ("GIA / footprint", f"{m['gia_m2']:,} / {m['footprint_m2']:,} m²"),
             ("Spare land", f"~{m.get('spare_land_ha', 0):.1f} ha"),
@@ -391,25 +393,34 @@ def sheet_electrical(scene: Scene, topo_rows: list[dict]):
     cax.set_title("Same brief, other topologies", fontsize=7.5, fontweight="bold", loc="left", color=INK)
 
     # plant schedule
+    pk = scene.designs.get("peak_pue") or {}
+    ml = e.get("mech_lineups", "shared")
+    mech_txt = (f"shared: {e.get('mech_per_it_lineup_kw', 0):,} kW on busiest IT lineup (allowance {e.get('mech_allowance_kw', 0):,})"
+                if ml == "shared" else f"{e.get('mech_lineup_count', 0)} separate ({e.get('mech_lineup_duty', 0)} duty), "
+                                        f"{e.get('mech_genset', '')}")
     rows = [
         ["UPS blocks", f"{e['blocks']}", f"{e['block_ups_kw']:,} kW each, {e['normal_loading_pct']}% normal"],
         ["Electrical rooms", f"{e['elec_rooms']}", f"{scene.designs['core']['elec_levels']} levels, "
                                                    f"{scene.brief.blocks_per_elec_room} block(s) per room"],
         ["STS rooms", f"{e['sts_rooms']}", "catcher topologies only"],
         ["MV switchroom", "1", "customer intake"],
-        ["Transformers", f"{e['transformers']}", e["transformer"]],
-        ["Gensets", f"{e['gensets']}", f"{e['genset']}, {scene.designs['core']['gen_rows']} row(s)"],
-        ["Block facility load", "", f"{e['facility_kw_per_block']:,} kW (UPS x design PUE {scene.brief.design_pue:g})"],
-        ["Fuel", f"{e['fuel_tanks']} tanks", f"{e['fuel_m3']:,} m³ for {scene.brief.fuel_autonomy_h:g} h at design load"],
+        ["Transformers", f"{e['transformers']}", e["transformer"] + (f" + {e.get('mech_transformer', '')}" if ml == "separate" else "")],
+        ["Gensets", f"{e['gensets']}", f"{e['genset']} (max {e.get('genset_max_kva', 0):,} kVA), "
+                                       f"{scene.designs['core']['gen_rows']} row(s)"],
+        ["IT lineup demand", "", f"{e.get('it_lineup_kva', 0):,} kVA (UPS input + mechanical share)"],
+        ["Mechanical lineups", ml, mech_txt],
+        ["Peak PUE", f"{pk.get('peak_pue', 0):.3f}", f"{pk.get('air_on_c', 0):g}°C air-on, CHW {pk.get('chw_flow_c', 0):g}°C, "
+                                                    "CUN-CAL-PUE-001 method"],
+        ["Fuel", f"{e['fuel_tanks']} tanks", f"{e['fuel_m3']:,} m³ for {scene.brief.fuel_autonomy_h:g} h at peak load"],
         ["Utility intake", e["substation"], f"~{e['site_demand_mva']} MVA site demand"],
     ]
-    _heading(ax, 0.0, 0.40, "Plant schedule")
-    table(ax, 0.0, 0.355, ["Item", "Qty", "Basis"], rows, [0.16, 0.08, 0.32], fs=6.4, row_h=0.034,
+    _heading(ax, 0.0, 0.43, "Plant schedule")
+    table(ax, 0.0, 0.395, ["Item", "Qty", "Basis"], rows, [0.16, 0.08, 0.32], fs=6.2, row_h=0.0305,
           aligns=["left", "right", "left"])
     rows2 = [[r["topology"], r["blocks"], f"{r['block_kw']:,}", f"{r['installed_mw']:g}", f"{r['normal_loading_pct']}%",
               r["gensets"], r["elec_rooms"], r["sts_rooms"]] for r in topo_rows]
-    _heading(ax, 0.62, 0.40, "Topology comparison")
-    table(ax, 0.62, 0.355, ["Topology", "Blocks", "Block kW", "MW", "Normal", "Gensets", "Rooms", "STS"], rows2,
+    _heading(ax, 0.62, 0.43, "Topology comparison")
+    table(ax, 0.62, 0.395, ["Topology", "Blocks", "Block kW", "MW", "Normal", "Gensets", "Rooms", "STS"], rows2,
           [0.085, 0.042, 0.052, 0.035, 0.045, 0.048, 0.04, 0.03], fs=6.2, row_h=0.034)
     return fig
 
@@ -464,27 +475,33 @@ def sheet_noise(scene: Scene):
     c = scene.designs["cooling"]
     b = scene.brief
     _heading(rx, 0.0, 1.0, "Heat rejection selection")
-    rows = [["Heat load", f"{c['heat_load_mw']} MW", f"IT +{b.hr_overhead_frac:.0%}"],
-            ["Unit", c["type"].replace("_", " "), c["unit"].split(" ~")[0]],
-            ["Capacity at design", f"{c['unit_capacity_at_design_kw']:,} kW", f"{b.ambient_design_c:g}°C dry bulb"],
+    air_on = c.get("air_on_c") or b.ambient_design_c
+    rows = [["Heat load", f"{c['heat_load_mw']} MW", "gross CHW load"],
+            ["Unit", c["type"].replace("_", " "), c["unit"].split(" ~")[0][:30]],
+            ["Capacity at design", f"{c['unit_capacity_at_design_kw']:,} kW", f"{air_on:g}°C air-on (+{b.hr_uplift_k:g} K)"],
             ["Duty + standby", f"{c['duty']} + {c['standby']}", b.hr_redundancy],
             ["Margin (duty only)", f"{c['capacity_margin_pct']:+.1f}%", ""],
+            ["EER / input each", (f"{c['eer_at_design']:.2f} / {c['unit_input_at_design_kw']:,.0f} kW" if c.get("eer_at_design")
+                                  else "fans only"), f"100% load, CHW {b.chw_flow_c:g}°C ({c.get('eer_source') or '-'})"],
             ["Location", scene.variant.get("hr_location", ""), f"{scene.designs['core']['hr_on_roof']} roof / "
                                                               f"{scene.designs['core']['hr_on_ground']} ground"]]
     table(rx, 0.0, 0.955, ["", "Value", "Basis"], rows, [0.36, 0.30, 0.34], fs=6.4, row_h=0.032,
           aligns=["left", "right", "right"])
     # derating chart
     ch = fig.add_axes([DRAW[0] + DRAW[2] * 0.665, DRAW[1] + DRAW[3] * 0.41, DRAW[2] * 0.31, DRAW[3] * 0.23])
-    unit = next(u for u in load_catalogue()["heat_rejection"].values() if u["label"] == c["unit"])
-    ts = np.arange(15, 46, 0.5)
-    caps = [unit_capacity_kw(unit, b.model_copy(update={"ambient_design_c": float(t)})) / 1000 for t in ts]
+    from ..catalogue import for_brief
+    hr_units = for_brief(b)["heat_rejection"]
+    unit = next((u for u in hr_units.values() if u["label"] == c["unit"]), None) or next(iter(hr_units.values()))
+    ts = np.arange(15, 51, 0.5)
+    caps = [unit_capacity_kw(unit, b.model_copy(update={"ambient_design_c": float(t), "hr_uplift_k": 0.0})) / 1000
+            for t in ts]
     ch.plot(ts, caps, color=AQUA, lw=1.6)
     dc = unit_capacity_kw(unit, b) / 1000
-    ch.plot([b.ambient_design_c], [dc], marker="o", ms=5, color=AQUA, mec="white", mew=1.0, zorder=5)
-    ch.annotate(f"design {b.ambient_design_c:g}°C: {dc * 1000:,.0f} kW", (b.ambient_design_c, dc),
+    ch.plot([air_on], [dc], marker="o", ms=5, color=AQUA, mec="white", mew=1.0, zorder=5)
+    ch.annotate(f"design {air_on:g}°C air-on: {dc * 1000:,.0f} kW", (air_on, dc),
                 xytext=(-8, -16), textcoords="offset points", fontsize=5.8, ha="right", color=INK)
-    ch.set_ylim(0, max(caps) * 1.15)
-    ch.set_xlabel("Ambient dry bulb (°C)", fontsize=6.2, color=INK2)
+    ch.set_ylim(0, max(max(caps), 0.001) * 1.15)
+    ch.set_xlabel("Air-on temperature (°C)", fontsize=6.2, color=INK2)
     ch.set_ylabel("Capacity per unit (MW)", fontsize=6.2, color=INK2)
     ch.tick_params(labelsize=5.8, colors=MUTED)
     ch.grid(axis="y", color=HAIR, lw=0.5)

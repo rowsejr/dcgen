@@ -12,38 +12,53 @@ meta:
   owner: "Datacentres team"
 
 gensets:                       # containerised diesel sets, standby rating
+  # Sizes follow project benchmarks (2026-11-20): a 2.8-3.2 MW LV set at 75 dB(A) @ 1 m needs about
+  # 18-19 m x 4 m x 5.5 m including inlet/outlet attenuators and SCR, 70-100 t. Engine size changes the
+  # footprint little; 2.5 -> 3 MW mostly adds weight, fuel and flue. lw_dba = 75 dB(A) @ 1 m all round.
+  # The largest set a project may use is electrical.genset_max_kva (single-source framework limit).
   gen_2500:
-    label: "2,500 kVA genset"
+    label: "2,500 kVA genset (2.0 MW standby)"
     kva: 2500
     kwe: 2000
-    length: 12.5               # m (container + radiator), laid perpendicular to facade
-    width: 3.2
-    height: 4.2
+    length: 18.4               # m incl. attenuators and flue, laid perpendicular to facade
+    width: 4.0
+    height: 5.5
     side_clear: 1.5            # gap between adjacent sets
     end_clear: 4.0             # maintenance / fuel aisle at the outer end
-    lw_dba: 103                # enclosure sound power (emergency / test running)
+    lw_dba: 101.6              # 75 dB(A) @ 1 m
     fuel_l_per_kwh: 0.26
   gen_3000:
-    label: "3,000 kVA genset"
+    label: "3,000 kVA genset (2.4 MW standby)"
     kva: 3000
     kwe: 2400
-    length: 13.5
-    width: 3.4
-    height: 4.4
+    length: 18.5
+    width: 4.0
+    height: 5.5
     side_clear: 1.5
     end_clear: 4.0
-    lw_dba: 104
+    lw_dba: 101.7
+    fuel_l_per_kwh: 0.26
+  gen_3200:
+    label: "3,200 kVA genset (2.56 MW standby), single-source framework size"
+    kva: 3200
+    kwe: 2560
+    length: 18.5
+    width: 4.0
+    height: 5.5
+    side_clear: 1.5
+    end_clear: 4.0
+    lw_dba: 101.7
     fuel_l_per_kwh: 0.26
   gen_3500:
-    label: "3,500 kVA genset"
+    label: "3,500 kVA genset (2.8 MW standby, 2.5 MW DCC)"
     kva: 3500
     kwe: 2800
-    length: 14.5
-    width: 3.5
-    height: 4.6
+    length: 18.0
+    width: 4.0
+    height: 5.7                # with SCR
     side_clear: 1.5
     end_clear: 4.0
-    lw_dba: 105
+    lw_dba: 101.7
     fuel_l_per_kwh: 0.26
 
 transformers:                  # outdoor, bunded, with fire separation
@@ -60,10 +75,55 @@ electrical_rooms:              # UPS + batteries + LV switchboard per block
   mv_room_width: 12.0          # customer MV switchroom (one per building)
   ups_module_kw: 1250
 
+electrical:                    # LV lineup limits (project engineer, 2026-11-20). Confirm per project.
+  genset_max_kva: 3200         # largest genset allowed on a lineup (single-source Kohler framework); 3500 where Cummins/CAT allowed
+  ups_kva_per_lineup: 2200     # UPS per IT lineup; the IT block is capped at ups_kva x ups_pf
+  ups_pf: 1.0
+  mech_kw_per_lineup: 600      # mechanical load one IT lineup can carry: ~3,200 kVA x 0.8 = 2,560 kWe less the 2.2 MVA UPS
+  mech_pf: 0.9                 # mechanical load kVA = kW / mech_pf
+  ups_eff_full: 0.97           # UPS efficiency at full block load (genset sizing)
+  mech_lineup_kw: 2300         # usable kW on a dedicated mechanical lineup (one genset + transformer)
+  mech_lineup_redundancy: "N+1"
+  mech_room_width: 6.0         # mechanical LV switchroom per mechanical lineup, along the facade
+
+peak_pue:                      # design-point (peak) PUE for plant sizing, after CUN-CAL-PUE-001 (Cundall PUE calc).
+  # Values from the DC01 workbook (54 MW, 6 x 9 MW halls) unless noted; "project B" (180 MW, hot climate) shown for range.
+  # the air-on uplift (recirculation in plant arrays) is a brief value: hr_uplift_k (DC01 5 K, project B 2 K)
+  distribution_gains_frac: 0.01   # hall heat from distribution, of IT
+  fan_gains_frac: 0.05            # fan wall / CRAH heat, of hall load
+  hall_lighting_w_m2: 8.0         # hall lighting heat
+  elec_room_cooling_frac: 0.10    # UPS pods / PDU galleries on the CHW system, of IT (DC01 10%, project B 8%)
+  air_fan_kw_per_kw: 0.035        # fan walls / CRAHs, input per kW of hall load at normal duty (DC01 0.035, project B 0.031)
+  cdu_kw_per_kw: 0.004            # CDU pumps per kW of liquid-cooled load (project B)
+  liquid_share: {air_chw: 0.0, hybrid: 0.56, liquid_dtc: 0.9}   # share of IT heat on the liquid loop (DC01 hybrid 56/44)
+  chw_pump_kw_per_kw: 0.018       # CHW pumps per kW gross CHW load (DC01 0.018, project B 0.014)
+  pumps_on_ups: true              # CHW pumps UPS-backed (continuous cooling): their power carries UPS loss
+  dry_cooler_fan_kw_per_kw: 0.025 # dry / adiabatic cooler fans per kW rejected at peak
+  secondary_cooling_frac: 0.006   # CRAH / DX for MMR, IDFs, battery and switch rooms, of IT
+  ventilation_frac: 0.001         # AHU fans and ventilation, of IT
+  ups_loss_frac: 0.025            # of UPS-backed (IT) load (DC01 2.5%, project B 3.8%)
+  lv_loss_frac: 0.015             # of total LV load, IT + mechanical (DC01 1.5%, project B 2.0%)
+  busbar_loss_frac: 0.0006        # of IT
+  rmu_loss_kw: 0.5                # per IT lineup
+  tx_loss_frac: 0.0075            # per transformer at full load, of kVA (DC01 21 kW / 2.8 MVA, project B 31.5 / 3.15)
+  lighting_w_m2_gia: 0.4          # building lighting, electrical (DC01 8 W/m2 x 0.05 diversity)
+  chiller_eer:                    # generic EER at 100% load where a record has no EER data
+    ref_chw_flow_c: 20.0
+    ref_ambient_c: 35.0
+    eer_at_ref: {screw: 4.0, centrifugal: 4.3, turbocor: 4.3, scroll: 3.6, default: 4.0}
+    # EER(T) / EER(35 C): median of four 1,750 kW free-cooling chiller selections at 100% load (DC01,
+    # 25-42 C); 45 and 50 C extended with the Carnot ratio (approaches below). Clamped (and flagged) outside.
+    shape_ambient_c: [25, 30, 35, 38, 40, 42, 45, 50]
+    shape_ratio: [1.62, 1.175, 1.00, 0.911, 0.86, 0.824, 0.759, 0.671]
+    capacity_per_k_chw: 0.02      # capacity change per K of CHW flow vs the record's rated CHW (only when stated)
+    evap_approach_k: 3.0          # CHW flow correction (Carnot): evaporating = CHW flow - approach
+    cond_approach_k: 10.0         # condensing = air-on + approach
+
 heat_rejection:
   acc_fc_1400:
     type: air_cooled_chiller
     label: "Air-cooled free-cooling chiller ~1.4 MW"
+    compressor: screw
     capacity_kw: 1400          # at rated ambient and design CHW temperatures
     rated_ambient_c: 35.0
     derate_per_k: 0.012        # fraction of capacity lost per K above rated ambient

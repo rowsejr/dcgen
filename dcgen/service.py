@@ -82,8 +82,12 @@ def summary(sc: Scene) -> dict:
         "noise": [{k: r[k] for k in ("name", "lp_dba", "limit_dba", "margin_db")} for r in m.get("noise", [])],
         "electrical": {k: sc.designs["electrical"][k] for k in (
             "topology", "blocks", "block_ups_kw", "installed_ups_mw", "normal_loading_pct", "gensets", "genset",
-            "transformers", "elec_rooms", "sts_rooms", "substation")},
+            "transformers", "elec_rooms", "sts_rooms", "substation", "mech_lineups", "mech_per_it_lineup_kw",
+            "mech_allowance_kw", "it_lineup_kva", "genset_max_kva") if k in sc.designs["electrical"]},
         "cooling": sc.designs["cooling"],
+        "peak_pue": {k: (sc.designs.get("peak_pue") or {}).get(k) for k in (
+            "peak_pue", "air_on_c", "chw_flow_c", "chiller_eer", "eer_source", "mechanical_kw", "electrical_losses_kw",
+            "facility_kw", "mech_sizing_kw")},
         "plant_data": [f"{u['role']}: {u['id']} ({u['status']})" for u in sc.designs.get("library", {}).get("used", [])],
         "compliance": (sc.designs.get("compliance") or {}).get("summary"),
         "checks": [{"id": c.id, "severity": c.severity, "message": c.message} for c in sc.checks],
@@ -285,6 +289,20 @@ def what_if(project: str, changes: list[dict]) -> list[dict]:
     return rows
 
 
+def peak_pue(project: str) -> dict:
+    """Peak (design-point) PUE build-up for the selected option: what sizes the electrical plant.
+    Annual PUE is not calculated here (that is the PUE tool's job)."""
+    sc = scene_of(project)
+    pk = sc.designs.get("peak_pue")
+    if not pk:
+        raise ServiceError("No peak PUE on this layout - regenerate it.")
+    e = sc.designs["electrical"]
+    return {**pk, "mech_lineups": e.get("mech_lineups"), "mech_per_it_lineup_kw": e.get("mech_per_it_lineup_kw"),
+            "mech_allowance_kw": e.get("mech_allowance_kw"), "it_lineup_kva": e.get("it_lineup_kva"),
+            "genset_max_kva": e.get("genset_max_kva"), "site_demand_mva": e.get("site_demand_mva"),
+            "method": "CUN-CAL-PUE-001 at the design point: chillers at 100% load at design ambient + uplift"}
+
+
 def suggest_fixes(project: str) -> list[dict]:
     return layout.suggest_fixes(scene_of(project))
 
@@ -315,7 +333,7 @@ def brief_schema() -> dict:
     fields = {n: {"type": str(f.annotation).replace("typing.", ""), "default": f.default if f.default is not None else None,
                   "description": f.description or ""} for n, f in Brief.model_fields.items()}
     flat = {k: v for k, v in walk(dict(cat)).items()
-            if k.split(".")[0] in ("halls", "layout", "egress", "site", "electrical_rooms")}
+            if k.split(".")[0] in ("halls", "layout", "egress", "site", "electrical_rooms", "electrical", "peak_pue")}
     return {"brief_fields": fields, "override_keys": flat,
             "note": "Override keys are catalogue paths (brief.overrides). Values shown are the shipped placeholders; "
                     "changing them is a what-if, not a sign-off."}
@@ -381,10 +399,13 @@ def library_get(record_id: str) -> dict:
     return {"type": t, **{k: v for k, v in r.items() if not k.startswith("_")}}
 
 
-def library_import(path: str, rtype: str, pack_dir: str, mapping: Optional[str] = None, entered_by: str = "",
+def library_import(path: str, rtype: Optional[str], pack_dir: str, mapping: Optional[str] = None, entered_by: str = "",
                    sheet: Optional[str] = None) -> dict:
-    """Import a CSV/XLSX as DRAFT records into a pack. Human/CLI action; never approves."""
-    from .library.importers import import_file, load_mapping
+    """Import a CSV/XLSX as DRAFT records into a pack. Human/CLI action; never approves.
+    mapping may be a folder of mappings (one per sheet, each naming its type and sheet)."""
+    from .library.importers import import_file, import_with_mappings, load_mapping
+    if mapping and Path(mapping).is_dir():
+        return {k: r.summary() for k, r in import_with_mappings(path, mapping, pack_dir, entered_by).items()}
     rep = import_file(path, rtype, pack_dir, load_mapping(mapping) if mapping else None, entered_by, sheet=sheet)
     return rep.summary()
 
@@ -416,15 +437,20 @@ def plant_options(project: str, top: int = 5) -> dict:
     from .engines.halls import design_hall  # noqa: F401
     b = state(project)["brief"]
     cat = for_brief(b)
-    ranked = rank_heat_rejection(b, cat)
-    n_halls, _, elec, _ = layout.run_engines(b, cat)
+    n_halls, _, elec, hr = layout.run_engines(b, cat)
+    lu = layout.lineup_limits(cat, elec.plan, n_halls, sum(v for k, v in hr.peak.mech.items() if k != "heat_rejection"))
+    ranked = rank_heat_rejection(b, cat, q_kw=hr.q_kw, lineups=lu)
     meta = cat.get("_library") or {}
     return {"project": project, "preference": b.hr_prefer, "profile": meta.get("profile"),
             "drafts_allowed": b.use_drafts, "library_sections": meta.get("replaced", []),
             "heat_rejection": [{"id": c.unit.get("record_id", c.key), "label": c.unit["label"], "status": c.unit.get("status", "placeholder"),
                                 "units": c.n_total, "capacity_kw_each": round(c.cap_kw), "footprint_m2": round(c.footprint_m2),
                                 "total_lw_dba": round(c.lw_total_dba, 1), "margin_pct": round(c.margin_pct, 1),
+                                "eer_at_design": c.peak.eer.value if c.peak and c.peak.eer else None,
+                                "input_kw_each": round(c.peak.unit_full_kw) if c.peak else None,
+                                "fits_it_lineups": c.shared_ok, "why_not": c.shared_why or None,
                                 "score": round(c.score, 3)} for c in ranked[:top]],
+            "selected": {"id": hr.unit.get("record_id", hr.unit_key), "mech_lineups": hr.mech_mode},
             "genset": {"id": elec.genset.get("record_id", elec.genset_key), "label": elec.genset["label"], "per_block": elec.gensets_per_block},
             "transformer": {"id": elec.transformer.get("record_id", elec.tx_key), "label": elec.transformer["label"],
                             "per_block": elec.tx_per_block}}

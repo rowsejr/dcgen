@@ -129,6 +129,32 @@ def cmd_whatif(a) -> None:
         print(json.dumps(layout.what_if(brief, site, ch), default=str))
 
 
+def cmd_peak(a) -> None:
+    """Peak PUE build-up and lineup check for a brief (no site needed)."""
+    from .catalogue import for_brief
+    _packs(a)
+    brief = load_brief(a.brief)
+    upd = {k: v for k, v in (("chw_flow_c", a.chw), ("hr_uplift_k", a.uplift), ("mech_lineups", a.mech)) if v is not None}
+    if a.drafts:
+        upd["use_drafts"] = True
+    brief = brief.model_copy(update=upd)
+    n, hall, elec, hr = layout.run_engines(brief, for_brief(brief))
+    pk = hr.peak.summary()
+    print(f"Peak PUE {pk['peak_pue']:.3f} at {pk['air_on_c']:g} C air-on, CHW {pk['chw_flow_c']:g} C")
+    print(f"  heat rejection: {hr.n_total} x {hr.unit['label']} ({hr.unit.get('record_id', hr.unit_key)})"
+          + (f", EER {pk['chiller_eer']:.2f} ({pk['eer_source']}), {pk['unit_full_input_kw']:.0f} kW input each" if pk['chiller_eer'] else ""))
+    e = elec.summary()
+    print(f"  mechanical lineups: {e['mech_lineups']}" + (f", {e['mech_per_it_lineup_kw']} kW on busiest IT lineup "
+          f"(allowance {e['mech_allowance_kw']})" if e['mech_lineups'] == 'shared' else
+          f", {e.get('mech_lineup_count', 0)} x {e.get('mech_genset', '')}"))
+    print(f"  gensets {e['gensets']} x {e['genset']}; IT lineup {e['it_lineup_kva']} kVA (max genset {e['genset_max_kva']} kVA)")
+    for k, v in pk["breakdown_kw"].items():
+        if v:
+            print(f"    {k:20s} {v:10,.0f} kW   pPUE {1 + v / pk['it_kw']:.4f}")
+    for line in hr.notes:
+        print("  -", line)
+
+
 def cmd_reference(a) -> None:
     _packs(a)
     from . import service
@@ -160,9 +186,10 @@ def main() -> None:
     lib = sub.add_parser("library", help="plant library: init templates, import drafts, validate, approve, search")
     lib.add_argument("action", choices=["init", "docs", "import", "validate", "approve", "search"])
     lib.add_argument("target", nargs="?", default="", help="init: folder | import: file | approve: ids (comma) | search: text")
-    lib.add_argument("--type", choices=["chiller", "dry_cooler", "adiabatic_cooler", "genset", "transformer", "elec_room_typical"])
+    lib.add_argument("--type", choices=["chiller", "dry_cooler", "adiabatic_cooler", "water_cooled_chiller", "genset", "transformer",
+                                        "elec_room_typical"], help="record type (or put 'type:' in the mapping)")
     lib.add_argument("--pack", help="import: pack folder to write drafts into")
-    lib.add_argument("--mapping"), lib.add_argument("--entered-by", default=""), lib.add_argument("--checked-by", default="")
+    lib.add_argument("--mapping", help="mapping YAML, or a folder of them (one per sheet)"), lib.add_argument("--entered-by", default=""), lib.add_argument("--checked-by", default="")
     lib.add_argument("--sheet"), lib.add_argument("--limit", type=int, default=20)
     lib.add_argument("--drafts", action="store_true"), lib.add_argument("--packs", nargs="*")
     lib.set_defaults(fn=cmd_library)
@@ -171,6 +198,10 @@ def main() -> None:
     pr.add_argument("--packs", nargs="*"), pr.set_defaults(fn=cmd_profile)
     rf = sub.add_parser("reference", help="reference designs: regress the engine against the recorded schemes")
     rf.add_argument("action", choices=["regress"]), rf.add_argument("--packs", nargs="*"), rf.set_defaults(fn=cmd_reference)
+    pk = sub.add_parser("peak", help="peak PUE build-up and LV lineup check for a brief (no site needed)")
+    pk.add_argument("--brief", required=True), pk.add_argument("--chw", type=float), pk.add_argument("--uplift", type=float)
+    pk.add_argument("--mech", choices=["auto", "shared", "separate"]), pk.add_argument("--drafts", action="store_true")
+    pk.add_argument("--packs", nargs="*"), pk.set_defaults(fn=cmd_peak)
     pv = sub.add_parser("preview", help="write a PNG of the best layout (plan | overview | closeup)")
     pv.add_argument("--brief", required=True), pv.add_argument("--site", required=True), pv.add_argument("--out", default="preview.png")
     pv.add_argument("--view", default="plan", choices=["plan", "overview", "closeup"]), pv.add_argument("--px", type=int, default=1200)

@@ -1,4 +1,5 @@
-# SYNTHETIC EXAMPLE reference card. Expected values are what this version of the engine produced.
+# SYNTHETIC EXAMPLE reference card. Expected values are what this version of the engine produced
+# (engine v3, 2026-11-20: 2.2 MVA UPS per lineup, gross CHW load + 5 K uplift, mechanical lineups).
 id: REF-001
 name: SYNTHETIC EXAMPLE campus B1 (24 MW, 4M3)
 topology: 4M3
@@ -26,10 +27,10 @@ expected:
   hall_d_m: 28.2
   racks_per_hall: 300
   block_kw: 2000
-  gensets: 16
-  transformers: 16
+  gensets: 22
+  transformers: 22
   elec_rooms: 16
-  hr_units: 20
+  hr_units: 23
 tolerance:
   default_pct: 0
   hall_w_m: 0.6

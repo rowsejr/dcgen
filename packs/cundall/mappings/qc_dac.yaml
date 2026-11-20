@@ -1,0 +1,27 @@
+# Quick comparison workbook, DAC sheet -> dry cooler drafts. The sheet's link labels are often copied
+# from another row, so they are not carried into the notes. The tall BAC/Evapco 2.4-2.5 MW units look
+# like adiabatic/hybrid coolers: move them to adiabatic_coolers.csv if so.
+name: Quick comparison workbook - dry air coolers (DAC)
+type: dry_cooler
+sheet: DAC
+columns:
+  Load: capacity_kw
+  "Ambient air temperature": rated_ambient_c
+  Manufacturer: manufacturer
+  Length: length
+  Width: width
+  Height: height
+  "Dry weight": dry_kg
+  "Operating weight": operating_kg
+split:
+  "inlet / outlet fluid temperature": [rated_fluid_in_c, rated_fluid_out_c]
+units: {length: {factor: 0.001}, width: {factor: 0.001}, height: {factor: 0.001}}
+defaults:
+  intake_clear: 3.0
+  row_clear: 3.5
+derive:
+  max_ambient_c: {add: rated_ambient_c, value: 5}
+  lw_dba: {log10: capacity_kw, ref: 1100, base: 88}
+  model: {format: "{rated_fluid_in_c:g}/{rated_fluid_out_c:g} {capacity_kw:g} kW at {rated_ambient_c:g}C"}
+assumed: [intake_clear, row_clear, max_ambient_c, lw_dba]
+id_pattern: "QC-DAC-{manufacturer}-{capacity_kw:g}-{rated_ambient_c:g}"

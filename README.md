@@ -42,6 +42,8 @@ ambient 38 C. Redline is in redline.dxf, main gate on the north boundary, neares
 Tools: `create_project`, `set_site`, `update_brief`, `generate_options`, `select_option`,
 `compare_topologies`, `get_scene`, `noise_at`, `export`, `open_editor` (renders the editor inside the chat as an MCP App
 where the client supports it).
+Peak PUE and lineups: `peak_pue` (design-point build-up: sizes gensets, transformers, LV lineups, intake and fuel; annual
+PUE stays in the PUE tool). Chillers must fit the IT lineup's 600 kW mechanical allowance or get separate mechanical lineups.
 Driving a layout: `preview` (PNG, flagged elements outlined), `suggest_fixes`, `what_if` (try changes without altering the
 project), `regenerate` (keeps what you moved), `undo`, `move_element`, `move_compass` ("10 m north"), `move_towards`.
 Data: `library_search`, `library_get`, `plant_options`, `list_profiles`, `apply_profile`, `compliance`, `reference_designs`.

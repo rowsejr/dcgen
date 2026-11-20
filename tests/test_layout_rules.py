@@ -76,7 +76,7 @@ def test_interp_clamps_and_interpolates():
 
 def test_curve_capacity_overrides_linear_model():
     u = dict(CAT["heat_rejection"]["acc_fc_1400"], curve={"ambient_c": [25, 35, 45], "capacity_kw": [1600, 1400, 1000]})
-    assert unit_capacity_kw(u, Brief(ambient_design_c=40)) == pytest.approx(1200)
+    assert unit_capacity_kw(u, Brief(ambient_design_c=40, hr_uplift_k=0)) == pytest.approx(1200)
 
 
 def test_two_d_curves_interpolate_on_fluid_temperature():
@@ -173,11 +173,15 @@ def best():
 
 def test_example_golden_layout(best):
     """Golden numbers for the example. Change only on purpose and say why in the commit message
-    (v2: perpendicular heat rejection per hall, fire walls, cross corridor, 0.6 m planning module)."""
+    (v2: perpendicular heat rejection per hall, fire walls, cross corridor, 0.6 m planning module;
+    v3: gross CHW load and 5 K air-on uplift per CUN-CAL-PUE-001 -> 23 chillers; chillers do not fit the
+    600 kW IT lineup allowance -> 6 separate mechanical lineups; benchmark genset sizes)."""
     h = best.designs["halls"]
     assert (h["width_x"], h["depth_y"]) == (31.2, 28.2)
-    assert best.designs["cooling"]["total"] == 20 and best.designs["core"]["hr_per_hall"] == [5, 5, 5, 5]
-    assert best.designs["core"]["egress"]["exits"] == 7
+    assert best.designs["cooling"]["total"] == 23 and sorted(best.designs["core"]["hr_per_hall"]) == [5, 6, 6, 6]
+    e = best.designs["electrical"]
+    assert e["mech_lineups"] == "separate" and e["mech_lineup_count"] == 6 and e["gensets"] == 16 + 6
+    assert best.designs["peak_pue"]["peak_pue"] == pytest.approx(1.48, abs=0.005)
 
 
 def test_example_egress_and_clearance_checks(best):
@@ -199,7 +203,7 @@ def test_drag_unit_into_neighbour_clearance_warns(best):
 def test_blocking_an_exit_lane_warns(best):
     sc = best.model_copy(deep=True)
     ex = next(e for e in sc.elements if e.kind == "exit" and e.props["lane_dir"] in ("n", "s"))
-    unit = next(e for e in sc.elements if e.kind == "chiller")
+    unit = next(e for e in sc.elements if e.kind in ("chiller", "genset", "transformer") and not e.props.get("on_roof"))
     sc = move_element(sc, unit.id, ex.x + ex.w / 2 - unit.cx,
                       (ex.y + (6 if ex.props["lane_dir"] == "n" else -6)) - unit.cy)
     assert next(c for c in sc.checks if c.id == "egress.lanes").severity == "warn"

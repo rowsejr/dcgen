@@ -1,0 +1,37 @@
+# Quick comparison workbook, ACC sheet -> air-cooled chiller drafts.
+# The sheet has capacity at one ambient, refrigerant, compressor and size. No EER, power, noise, CHW
+# temperatures or clearances: those are filled below and flagged as assumed on every output.
+name: Quick comparison workbook - air-cooled chillers (ACC)
+type: chiller
+sheet: ACC
+columns:
+  "load (kW)": capacity_kw
+  Refrigerant: refrigerant
+  "Compressor type": compressor
+  Manufacturer: manufacturer
+  Length: length
+  Width: width
+  Height: height
+  Weight: operating_kg
+  "Ambient Tempersture": rated_ambient_c
+values:
+  manufacturer: {Stultz: Stulz, Aermerc: Aermec, Mistubishi: Mitsubishi, Airdale: Airedale, "Daikin Applied": Daikin}
+  compressor: {"Centrifugal  ": Centrifugal, "Centrifugal Turbocor": Turbocor, "Turbocor Centrifugal": Turbocor}
+numbers: {alternatives: max}          # "15530/16720/17910" (length options) -> longest
+units: {length: {factor: 0.001}, width: {factor: 0.001}, height: {factor: 0.001}}
+defaults:
+  intake_clear: 3.0
+  row_clear: 3.5
+  derate_per_k: 0.012
+  free_cooling: true
+  conditions: "CHW flow typically 20-26 degC (not recorded per selection)"
+derive:
+  max_ambient_c: {add: rated_ambient_c, value: 5}
+  lw_dba: {log10: capacity_kw, ref: 1400, base: 92}
+  model: {format: "{refrigerant} {compressor} {capacity_kw:g} kW at {rated_ambient_c:g}C"}
+assumed: [intake_clear, row_clear, derate_per_k, free_cooling, max_ambient_c, lw_dba]
+always_assumed: [eer]                 # no EER/power in the source: the generic EER model is used
+caveats:
+  operating_kg: "source column 'Weight' (dry or operating not stated)"
+notes_from: Link
+id_pattern: "QC-ACC-{manufacturer}-{capacity_kw:g}-{rated_ambient_c:g}"

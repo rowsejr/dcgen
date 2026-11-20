@@ -53,8 +53,8 @@ def effective_catalogue(brief, base, roots=None):
     meta = {"packs": [str(r) for r in lib.roots], "replaced": [], "drafts_allowed": bool(brief.use_drafts),
             "profile": ({"id": profile["id"], "revision": profile.get("revision", "")} if profile else None)}
     sec = lib.catalogue_sections(include_drafts=brief.use_drafts, **profiles.catalogue_filters(profile))
-    for name in ("heat_rejection", "gensets", "transformers"):
-        if sec[name]:
+    for name in ("heat_rejection", "gensets", "transformers", "water_cooled_chillers"):
+        if sec.get(name):
             cat[name] = sec[name]
             meta["replaced"].append(name)
     if sec["elec_table"]:

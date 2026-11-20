@@ -38,6 +38,7 @@ PROVENANCE = [
     F("checked_by", "str", desc="Engineer who checked it (set on approval)"),
     F("checked_date", "date"),
     F("notes", "str"),
+    F("assumed", "str", desc="Fields that are assumptions, not from the source (';' separated). Shown on every output"),
 ]
 
 DIMS = [
@@ -58,7 +59,15 @@ TYPES: dict[str, dict] = {
             F("curve_ambient_c", "list_float", "degC", False, "Capacity curve x: ascending ambient, ';' separated", "25;35;40;45"),
             F("curve_capacity_kw", "list_float", "kW", False, "Capacity curve y: same length as curve_ambient_c", "1500;1400;1250;1050"),
             F("chw_supply_c", "float", "degC"), F("chw_return_c", "float", "degC"), F("glycol_pct", "float", "%"),
-            F("altitude_m", "float", "m"), F("power_kw", "float", "kW", False, "Input power at rated duty"),
+            F("altitude_m", "float", "m"), F("power_kw", "float", "kW", False, "Input power at rated duty (compressors + fans)"),
+            F("refrigerant", "str", example="R1234ze"),
+            F("compressor", "str", desc="screw / centrifugal / turbocor / scroll (sets the generic EER model if no EER data)",
+              example="Screw"),
+            F("free_cooling", "bool", desc="Integrated free-cooling coil", example="true"),
+            F("eer_rated", "float", "-", False, "EER incl. fans at rated full-load conditions (capacity / power_kw)", 3.6),
+            F("eer_curve_ambient_c", "list_float", "degC", False, "Full-load EER curve x: ascending ambient", "25;35;40;45"),
+            F("eer_curve", "list_float", "-", False, "Full-load EER curve y at the rated CHW temperatures", "5.6;4.3;3.7;3.2"),
+            F("fc_full_ambient_c", "float", "degC", False, "Ambient for 100% free cooling at the rated CHW temperatures"),
             *DIMS,
             F("intake_clear", "float", "m", True, "Gap between long sides of adjacent units (air intake)", 3.0),
             F("row_clear", "float", "m", True, "End-to-end gap between rows (discharge, maintenance)", 3.5),
@@ -74,6 +83,7 @@ TYPES: dict[str, dict] = {
         "fields": PROVENANCE + [
             F("capacity_kw", "float", "kW", True, "Capacity at the rated ambient and fluid-in temperature", 1100),
             F("rated_ambient_c", "float", "degC", True, example=35), F("rated_fluid_in_c", "float", "degC", True, example=45),
+            F("rated_fluid_out_c", "float", "degC", False, example=35),
             F("max_ambient_c", "float", "degC", True, example=42),
             F("curve_ambient_c", "list_float", "degC"), F("curve_capacity_kw", "list_float", "kW"),
             F("curves_json", "json", "", False, "2-D curves: [{\"fluid_in_c\":45,\"ambient_c\":[..],\"capacity_kw\":[..]}, ...]"),
@@ -83,7 +93,7 @@ TYPES: dict[str, dict] = {
             F("lw_dba", "float", "dB(A)", True, example=88),
             F("lw_63", "float", "dB"), F("lw_125", "float", "dB"), F("lw_250", "float", "dB"), F("lw_500", "float", "dB"),
             F("lw_1k", "float", "dB"), F("lw_2k", "float", "dB"), F("lw_4k", "float", "dB"), F("lw_8k", "float", "dB"),
-            F("operating_kg", "float", "kg"),
+            F("dry_kg", "float", "kg"), F("operating_kg", "float", "kg"),
         ],
     },
     "adiabatic_cooler": {
@@ -100,14 +110,31 @@ TYPES: dict[str, dict] = {
             F("lw_dba", "float", "dB(A)", True, example=89), F("operating_kg", "float", "kg"),
         ],
     },
+    "water_cooled_chiller": {
+        "section": "water_cooled_chillers", "file": "water_cooled_chillers",
+        "title": "Water-cooled chillers (indoor plant room; not yet placed by the layout engine)",
+        "fields": PROVENANCE + [
+            F("capacity_kw", "float", "kW", True, "Cooling capacity at the rated conditions", 2400),
+            F("cond_c", "float", "degC", False, "Condenser-side temperature as stated in the source"),
+            F("chw_supply_c", "float", "degC"), F("chw_return_c", "float", "degC"),
+            F("refrigerant", "str"), F("compressor", "str"),
+            F("power_kw", "float", "kW"), F("eer_rated", "float", "-"),
+            *DIMS,
+            F("clear", "float", "m", False, "Maintenance clearance round the unit", 1.5),
+            F("lw_dba", "float", "dB(A)"), F("operating_kg", "float", "kg"),
+        ],
+    },
     "genset": {
         "section": "gensets", "file": "gensets", "title": "Standby generator sets (containerised)",
         "fields": PROVENANCE + [
             F("kva", "float", "kVA", True, "Standby rating", 3000), F("kwe", "float", "kWe", True, "Standby kW", 2400),
+            F("kw_dcc", "float", "kW", False, "Data centre continuous rating (informational)", 2500),
             *DIMS,
             F("side_clear", "float", "m", True, "Gap between adjacent sets", 1.5),
             F("end_clear", "float", "m", True, "Maintenance / fuel aisle at the outer end", 4.0),
-            F("lw_dba", "float", "dB(A)", True, "Enclosure sound power", 104),
+            F("lw_dba", "float", "dB(A)", False, "Enclosure sound power (or give lp_1m_dba)", 104),
+            F("lp_1m_dba", "float", "dB(A)", False, "Sound pressure at 1 m from every face (intake, discharge, flue)", 75),
+            F("operating_kg", "float", "kg", False, "Incl. belly tank where fitted", 90000),
             F("fuel_l_per_kwh", "float", "l/kWh", True, "At the design load", 0.26),
             F("emissions", "str", desc="e.g. Stage V, TA-Luft, EPA T2"), F("exhaust_height_m", "float", "m"),
         ],
@@ -216,6 +243,7 @@ def to_row(rtype: str, rec: dict) -> dict[str, str]:
 # ---------------------------------------------------------------- catalogue shape
 def label_of(rtype: str, r: dict) -> str:
     kind = {"chiller": "chiller", "dry_cooler": "dry cooler", "adiabatic_cooler": "adiabatic cooler",
+            "water_cooled_chiller": "water-cooled chiller",
             "genset": "genset", "transformer": "transformer", "elec_room_typical": "electrical room"}[rtype]
     size = ""
     if "capacity_kw" in r:
@@ -227,11 +255,18 @@ def label_of(rtype: str, r: dict) -> str:
     return f"{r.get('manufacturer', '')} {r.get('model', '')} {kind}{size}".replace("  ", " ").strip()
 
 
+from ..engines.noise import lw_from_lp1m  # noqa: E402  (Lp@1m -> Lw for gensets)
+
+
 _ENGINE_FIELDS = {
     "heat_rejection": ("capacity_kw", "rated_ambient_c", "max_ambient_c", "derate_per_k", "rated_fluid_in_c",
-                       "adiabatic_effectiveness", "length", "width", "height", "intake_clear", "row_clear", "lw_dba",
-                       "operating_kg", "power_kw"),
-    "gensets": ("kva", "kwe", "length", "width", "height", "side_clear", "end_clear", "lw_dba", "fuel_l_per_kwh"),
+                       "rated_fluid_out_c", "adiabatic_effectiveness", "length", "width", "height", "intake_clear",
+                       "row_clear", "lw_dba", "operating_kg", "power_kw", "refrigerant", "compressor", "free_cooling",
+                       "eer_rated", "chw_supply_c", "chw_return_c", "fc_full_ambient_c"),
+    "water_cooled_chillers": ("capacity_kw", "cond_c", "chw_supply_c", "chw_return_c", "refrigerant", "compressor",
+                              "power_kw", "eer_rated", "length", "width", "height", "clear", "lw_dba", "operating_kg"),
+    "gensets": ("kva", "kwe", "kw_dcc", "length", "width", "height", "side_clear", "end_clear", "lw_dba", "lp_1m_dba",
+                "fuel_l_per_kwh", "operating_kg"),
     "transformers": ("kva", "length", "width", "height", "clear"),
 }
 
@@ -248,7 +283,15 @@ def to_catalogue(rtype: str, r: dict) -> dict:
             e["curve"] = {"ambient_c": r["curve_ambient_c"], "capacity_kw": r["curve_capacity_kw"]}
         if r.get("curves_json"):
             e["curves"] = r["curves_json"]
+        if r.get("eer_curve_ambient_c") and r.get("eer_curve"):
+            e["eer_curve"] = {"ambient_c": r["eer_curve_ambient_c"], "eer": r["eer_curve"]}
+        if "eer_rated" not in e and r.get("power_kw") and r.get("capacity_kw"):
+            e["eer_rated"] = round(r["capacity_kw"] / r["power_kw"], 3)
+    if section == "gensets" and "lw_dba" not in e and "lp_1m_dba" in e:
+        e["lw_dba"] = lw_from_lp1m(e["lp_1m_dba"], e["length"], e["width"], e["height"])
     e["label"] = label_of(rtype, r)
+    if r.get("assumed"):
+        e["assumed"] = [a.strip() for a in str(r["assumed"]).split(";") if a.strip()]
     for k in ("record_id", "manufacturer", "model", "status", "source"):
         if k in r:
             e[k] = r[k]

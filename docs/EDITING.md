@@ -12,6 +12,7 @@ You (an engineer) can change almost everything without touching Python. Pick the
 | Change how things are **placed** | `dcgen/engines/core.py` (building core, plant rows), `engines/site.py` (roads, ancillaries) | Code review | `tests/test_layout_rules.py` |
 | Change a **rule check** | `dcgen/checks.py` | Code review | add a test |
 | Change **scoring** weights | `layout.score` | Team | none, but expect golden changes |
+| Change the **peak PUE** method or **lineup** limits | catalogue `peak_pue`, `electrical`; code in `engines/peak.py` | Engineer sign-off | `tests/test_peak.py` |
 
 Rules that stay fixed (see CLAUDE.md): engines are pure; plant numbers live only in the catalogue or library; `Scene` is the
 single source of truth; new behaviour goes in `service.py` or below, never in the front doors.
@@ -34,8 +35,30 @@ the first suitable type are ranked on footprint / noise / count with `hr_prefer`
 at each fire wall. Ground or roof is chosen per column (`hr_location`). Clearances: `intake_clear` (side, for air intake) and
 `row_clear` (end to end).
 
-**Gensets / transformers.** `Catalogue.pick_best`: fewest units, then smallest footprint, then quietest. `genset_unit` and
-`tx_unit` force a record.
+**Peak PUE (design point only).** `engines/peak.py`, after CUN-CAL-PUE-001. At design ambient + `hr_uplift_k`
+(recirculation, 5 K default): gross CHW load = (IT x 1.01 + hall lighting) x 1.05 fan gains + electrical rooms (10% of IT);
+chillers = load / EER at 100% load; fan walls, pumps, secondary cooling and ventilation at fixed specific powers; UPS 2.5%
+of IT, LV 1.5% of the installed lineup rating plus chillers and pumps, transformers 0.75% of kVA, busbar, RMU, lighting.
+It sizes the intake and fuel (`design_pue` overrides it). Annual PUE is not calculated here: that is the PUE tool's job.
+Knobs: `chw_flow_c` (20-26), `hr_uplift_k`, `pue_target_peak` (client target, checked); catalogue `peak_pue.*`.
+
+**Chiller EER.** From the record's `eer_curve_*` (manufacturer data), else `eer_rated` with the generic curve shape, else
+the generic EER for its compressor type (`peak_pue.chiller_eer`, shaped on four 1,750 kW vendor selections). CHW flow
+corrections use a Carnot ratio. Outside the data the end value is used and `pue.eer_range` warns.
+
+**LV lineups.** Each IT lineup has one genset no bigger than `electrical.genset_max_kva` (3,200 kVA single-source
+framework), a UPS up to `ups_kva_per_lineup` (2,200 kVA, which also caps the block) and up to `mech_kw_per_lineup`
+(600 kW) of mechanical load. A chiller fed from a lineup must fit that: its input at full capacity at the design air-on
+(capacity / EER) plus its share of pumps and fans, times the number of units on the busiest lineup. So the EER limits the
+chiller size, and N+1 units over 4 lineups per hall puts two on one lineup. `mech_lineups`: `auto` keeps mechanical plant
+on the IT lineups when a unit fits (it may pick a different chiller to do so, and says why), otherwise adds separate
+mechanical lineups (`mech_lineup_kw` each, N+1, own transformer, genset and LV room); `shared` / `separate` force it.
+Raising `chw_flow_c`, choosing 5M4 (5 lineups per hall) or a higher-EER chiller are the usual ways back to shared.
+
+**Gensets / transformers.** `Catalogue.pick_best` within `electrical.genset_max_kva`: fewest units, then smallest footprint,
+then quietest. `genset_unit` and `tx_unit` force a record. Sizes follow project benchmarks: a 2.8-3.2 MW set at 75 dB(A)
+@ 1 m is about 18.5 x 4.0 x 5.5 m with attenuators and SCR. `genset_lp_1m_dba` (70 / 75 / 85) sets the noise; sound power
+is derived from it and the dimensions.
 
 **Padding / clearances.** Every gap is a catalogue key: `layout.*` (plant to building, tiers), `site.clearances.*` (roads,
 guardhouse, ancillaries), maintenance envelopes per element (`clear_xy`, checked by `maint.zones`).

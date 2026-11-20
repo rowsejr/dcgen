@@ -55,8 +55,10 @@ def test_hall_fits_racks():
 
 def test_chiller_derates_above_rated_ambient():
     u = CAT["heat_rejection"]["acc_fc_1400"]
-    assert unit_capacity_kw(u, Brief(ambient_design_c=35)) == pytest.approx(1400)
-    assert unit_capacity_kw(u, Brief(ambient_design_c=40)) == pytest.approx(1400 * (1 - 0.012 * 5))
+    assert unit_capacity_kw(u, Brief(ambient_design_c=35, hr_uplift_k=0)) == pytest.approx(1400)
+    assert unit_capacity_kw(u, Brief(ambient_design_c=40, hr_uplift_k=0)) == pytest.approx(1400 * (1 - 0.012 * 5))
+    # capacity is read at the air-on temperature: ambient + recirculation uplift
+    assert unit_capacity_kw(u, Brief(ambient_design_c=35, hr_uplift_k=5)) == pytest.approx(1400 * (1 - 0.012 * 5))
 
 
 def test_heat_rejection_has_redundancy():

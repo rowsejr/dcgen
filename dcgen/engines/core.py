@@ -167,6 +167,8 @@ def build_core(brief: Brief, cat: Catalogue, hall: HallDesign, elec: ElecDesign,
         rooms.append(("elec_room", f"EB{r + 1:02d}", elec.room_width * len(b), b))
     for g in range(elec.n_sts_rooms):
         rooms.append(("sts_room", f"STS{g + 1:02d}", ER["sts_room_width"], []))
+    for m in range(elec.n_mech_lineups):     # mechanical LV switchrooms (separate mechanical lineups)
+        rooms.append(("elec_room", f"ML{m + 1:02d}", cat["electrical"]["mech_room_width"], []))
     rooms.append(("mv_room", "MV01", ER["mv_room_width"], []))
     total_w = sum(r[2] for r in rooms)
 
@@ -249,6 +251,8 @@ def build_core(brief: Brief, cat: Catalogue, hall: HallDesign, elec: ElecDesign,
                    "gallery": hall.gallery, "doors": doors}))
     for (kind, rid, w, b), (lvl, cur) in zip(rooms, placement):
         props = {"enclosed": True, "level": lvl, "blocks": b}
+        if rid.startswith("ML"):
+            props["mech_lineup"] = int(rid[2:]) - 1
         if b:
             props["ups_kw"] = round(elec.plan.block_kw * len(b))
             props["groups"] = sorted({bi // elec.topology.x for bi in b})
@@ -256,26 +260,33 @@ def build_core(brief: Brief, cat: Catalogue, hall: HallDesign, elec: ElecDesign,
                            h=lvl_h, props=props))
     els += eg.elements
 
-    # ---- south: transformers then gensets
+    # ---- south: transformers then gensets (IT lineups first, then mechanical lineups)
     tx, g = elec.transformer, elec.genset
+    mtx, mg = (elec.mech_transformer or tx), (elec.mech_genset or g)
     tx_clear_bldg, gap = LY["tx_to_building"], LY["tx_to_gen_yard"]
-    tx_pitch = tx["width"] + 2 * tx["clear"]
+    tx_c = max(tx["clear"], mtx["clear"])
+    tx_pitch = max(tx["width"], mtx["width"]) + 2 * tx_c
     tx_per_row = max(1, row_capacity(S, band_len, tx_pitch, lanes) if lanes else int(band_len // tx_pitch))
     n_tx = elec.n_transformers
+    n_it_tx = elec.n_it_tx
     tx_rows = math.ceil(n_tx / tx_per_row)
-    tx_row_d = tx["length"] + 2 * tx["clear"]
+    tx_row_d = max(tx["length"], mtx["length"]) + 2 * tx_c
     ids = []
     for r in range(tx_rows):
         n_in = min(tx_per_row, n_tx - r * tx_per_row)
         ytop = -tx_clear_bldg - r * tx_row_d
-        for k, x in enumerate(spread_avoiding(n_in, S, band_len, tx["width"], tx_pitch, lanes)):
+        for k, x in enumerate(spread_avoiding(n_in, S, band_len, max(tx["width"], mtx["width"]), tx_pitch, lanes)):
             i = r * tx_per_row + k
-            bi = i // elec.tx_per_block
+            this, key = (tx, elec.tx_key) if i < n_it_tx else (mtx, elec.mech_tx_key or elec.tx_key)
+            if i < n_it_tx:
+                bi = i // elec.tx_per_block
+                props = {"kva": this["kva"], "block": bi, "group_no": bi // elec.topology.x}
+            else:
+                props = {"kva": this["kva"], "mech_lineup": i - n_it_tx}
+            props["clear_xy"] = [this["clear"], this["clear"]]
             el = Element(id=f"TX{i + 1:02d}", kind="transformer", name=f"TX{i + 1:02d}",
-                         x=x, y=ytop - tx["length"], w=tx["width"], d=tx["length"], h=tx["height"],
-                         group="tx-array", catalogue_key=elec.tx_key,
-                         props={"kva": tx["kva"], "block": bi, "group_no": bi // elec.topology.x,
-                                "clear_xy": [tx["clear"], tx["clear"]]})
+                         x=x, y=ytop - this["length"], w=this["width"], d=this["length"], h=this["height"],
+                         group="tx-array", catalogue_key=key, props=props)
             els.append(el)
             ids.append(el.id)
     arrays.append(ArrayDef(id="tx-array", kind="transformer", count=n_tx, pitch=(tx_pitch, 0),
@@ -283,26 +294,33 @@ def build_core(brief: Brief, cat: Catalogue, hall: HallDesign, elec: ElecDesign,
     y_gen_top = -tx_clear_bldg - tx_rows * tx_row_d - gap
 
     tiers = max(1, brief.genset_tiers)
-    g_pitch = g["width"] + g["side_clear"]
+    g_side = max(g["side_clear"], mg["side_clear"])
+    g_w = max(g["width"], mg["width"])
+    g_pitch = g_w + g_side
     g_per_row = max(1, row_capacity(S, band_len, g_pitch, lanes) if lanes else int(band_len // g_pitch))
     n_gen = elec.n_gensets
+    n_it_gen = elec.n_it_gensets
     g_rows = math.ceil(n_gen / (g_per_row * tiers))
-    g_row_d = g["length"] + g["end_clear"]
+    g_row_d = max(g["length"], mg["length"]) + max(g["end_clear"], mg["end_clear"])
     ids = []
     per_level = g_per_row * g_rows
     for i in range(n_gen):
         tier, j = divmod(i, per_level)
         r, k = divmod(j, g_per_row)
         n_in = min(g_per_row, min(n_gen - tier * per_level, per_level) - r * g_per_row)
-        xs = spread_avoiding(n_in, S, band_len, g["width"], g_pitch, lanes)
-        bi = i // elec.gensets_per_block
+        xs = spread_avoiding(n_in, S, band_len, g_w, g_pitch, lanes)
+        this, key = (g, elec.genset_key) if i < n_it_gen else (mg, elec.mech_genset_key or elec.genset_key)
+        props = {"kva": this["kva"], "kwe": this["kwe"], "lw_dba": this["lw_dba"], "tier": tier,
+                 "clear_xy": [this["side_clear"] / 2, this["end_clear"] / 2]}
+        if i < n_it_gen:
+            bi = i // elec.gensets_per_block
+            props.update({"block": bi, "group_no": bi // elec.topology.x})
+        else:
+            props["mech_lineup"] = i - n_it_gen
         el = Element(id=f"GEN{i + 1:02d}", kind="genset", name=f"G{i + 1:02d}",
-                     x=xs[k], y=y_gen_top - r * g_row_d - g["length"], w=g["width"], d=g["length"],
-                     z=tier * (g["height"] + LY["genset_tier_gap"]), h=g["height"], group="gen-array",
-                     catalogue_key=elec.genset_key,
-                     props={"kva": g["kva"], "kwe": g["kwe"], "lw_dba": g["lw_dba"], "block": bi,
-                            "group_no": bi // elec.topology.x, "tier": tier,
-                            "clear_xy": [g["side_clear"] / 2, g["end_clear"] / 2]})
+                     x=xs[k], y=y_gen_top - r * g_row_d - this["length"], w=this["width"], d=this["length"],
+                     z=tier * (max(g["height"], mg["height"]) + LY["genset_tier_gap"]), h=this["height"],
+                     group="gen-array", catalogue_key=key, props=props)
         els.append(el)
         ids.append(el.id)
     if g_rows > 1:

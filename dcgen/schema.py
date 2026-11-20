@@ -71,14 +71,23 @@ class Brief(BaseModel):
     blocks_per_elec_room: int = 1
     elec_room_levels: Optional[int] = Field(None, description="None = auto (1-3)")
     genset_tiers: int = 1
-    design_pue: float = Field(1.30, description="Peak (design-day) facility/IT ratio for plant sizing")
-    mech_on_blocks: bool = Field(True, description="Mechanical load is carried by the IT blocks' gensets")
+    design_pue: Optional[float] = Field(None, description=(
+        "Override the computed peak PUE for intake and fuel sizing (None = computed, CUN-CAL-PUE-001 method)"))
+    pue_target_peak: Optional[float] = Field(None, description="Client peak PUE target, checked if given")
+    mech_lineups: Literal["auto", "shared", "separate"] = Field("auto", description=(
+        "Mechanical load on the IT lineups (shared, mech_kw_per_lineup each), on dedicated mechanical "
+        "lineups (separate), or shared when it fits (auto)"))
+    mech_on_blocks: bool = Field(True, description="Legacy: False is the same as mech_lineups='separate'")
+    genset_lp_1m_dba: Optional[float] = Field(None, description="Genset noise at 1 m all round (70 / 75 / 85 dB(A)); None = record value")
     fuel_autonomy_h: float = 24.0
     # --- heat rejection
     heat_rejection: Literal["auto", "air_cooled_chiller", "dry_cooler", "adiabatic_dry_cooler"] = "auto"
     hr_location: Literal["auto", "roof", "ground"] = "auto"
     hr_redundancy: str = Field("N+1", description="'N+1', 'N+2' or 'N+20%'")
-    hr_overhead_frac: float = Field(0.06, description="Heat on top of IT (UPS losses, lighting, fans)")
+    hr_uplift_k: float = Field(5.0, description=(
+        "Air-on uplift over design ambient for heat rejection in arrays (recirculation), K. "
+        "Applied to capacity and EER. CUN-CAL-PUE-001 used 5 K (DC01), 2 K (project B)"))
+    chw_flow_c: float = Field(20.0, description="CHW flow temperature, degC (20-26 typical); sets chiller EER")
     ambient_design_c: float = Field(35.0, description="Design dry bulb, e.g. N=20 extreme + climate uplift")
     ambient_design_wb_c: float = Field(21.0, description="Coincident wet bulb (adiabatic units)")
     fwr_c: float = Field(30.0, description="Facility water return temperature to heat rejection, degC")

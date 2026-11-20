@@ -29,6 +29,9 @@ INSTRUCTIONS = """dcgen generates RIBA Stage 2 data centre test fits (data halls
 redundancy topology, heat rejection vs ambient and noise, site roads and ancillaries).
 Look at preview before reporting; use what_if to compare options without changing the project, undo to step back,
 move_compass for 'move X 10 m north'. Brief fields and override keys: resource dcgen://brief-schema.
+Peak PUE only (design point) - it sizes the electrical plant; annual PUE belongs to the PUE tool.
+Chillers fed from IT lineups must fit the lineup's mechanical allowance (600 kW default): their EER at the
+design air-on limits their size; otherwise mechanical plant gets separate lineups (mech_lineups).
 Workflow: create_project -> set_site (redline) -> update_brief -> generate_options ->
 read checks/metrics -> iterate (update_brief, move_element, select_option) -> export.
 Rules: never invent geometry or plant numbers - quote tool results. Catalogue values are
@@ -160,6 +163,14 @@ def what_if(project: str, changes: list[dict]) -> list[dict]:
     [{"topology": "2N"}, {"overrides": {"halls.cross_corridor_every": 1}}]. Returns score / fail / warn
     deltas, which checks they fix or introduce, and plant counts. Apply the winner with update_brief."""
     return service.what_if(project, changes)
+
+
+@mcp.tool()
+def peak_pue(project: str) -> dict:
+    """Peak (design-point) PUE build-up for the selected option: chillers at 100% load at design ambient +
+    uplift, fans, pumps and electrical losses (CUN-CAL-PUE-001 method). It sizes gensets, transformers, LV
+    lineups, the intake and fuel. Annual PUE is not calculated by this tool."""
+    return service.peak_pue(project)
 
 
 @mcp.tool()

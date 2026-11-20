@@ -1,0 +1,25 @@
+# Quick comparison workbook, WCC sheet -> water-cooled chiller drafts (kept for later: the layout
+# engine does not place water-cooled plant rooms yet).
+name: Quick comparison workbook - water-cooled chillers (WCC)
+type: water_cooled_chiller
+sheet: WCC
+columns:
+  "load (kW)": capacity_kw
+  Refrigerant: refrigerant
+  "Compressor type": compressor
+  Manufacturer: manufacturer
+  Length: length
+  Width: width
+  Height: height
+  Weight: operating_kg
+  "Ambient Tempersture": cond_c
+units: {length: {factor: 0.001}, width: {factor: 0.001}, height: {factor: 0.001}}
+defaults: {clear: 1.5}
+derive:
+  model: {format: "{refrigerant} {compressor} {capacity_kw:g} kW"}
+assumed: [clear]
+caveats:
+  cond_c: "source column 'Ambient Temperature' on the water-cooled sheet (condenser side?)"
+  operating_kg: "source column 'Weight'"
+notes_from: Link
+id_pattern: "QC-WCC-{manufacturer}-{capacity_kw:g}"

@@ -18,9 +18,10 @@ from .catalogue import Catalogue, for_brief, load_catalogue
 from .checks import library_checks, run_checks
 from .engines import noise
 from .engines import site as site_eng
-from .engines.cooling import select_heat_rejection
+from .engines import peak as peak_eng
+from .engines.cooling import Lineups, select_heat_rejection
 from .engines.core import build_core, mirror_core
-from .engines.electrical import design_electrical
+from .engines.electrical import block_plan, design_electrical
 from .engines.halls import design_hall
 from .schema import Brief, Scene, SiteInput
 
@@ -50,9 +51,45 @@ def _coords(poly: Polygon) -> list[tuple[float, float]]:
     return [tuple(map(float, p)) for p in list(poly.exterior.coords)[:-1]]
 
 
+def lineup_limits(cat: Catalogue, plan, n_halls: int, other_mech_kw: float) -> Lineups:
+    """What one IT lineup can take if mechanical plant shares it: the allowance, and the largest genset
+    actually available within the framework limit."""
+    E = cat.get("electrical", {})
+    limit = E.get("genset_max_kva", 1e9)
+    avail = [g["kva"] for g in cat["gensets"].values() if g["kva"] <= limit + 1e-6]
+    return Lineups(allowance_kw=E.get("mech_kw_per_lineup", 600.0), n_blocks=plan.n_blocks, n_halls=n_halls,
+                   block_kw=plan.block_kw, other_mech_kw=other_mech_kw,
+                   genset_max_kva=max(avail) if avail else limit, ups_eff=E.get("ups_eff_full", 0.97),
+                   mech_pf=E.get("mech_pf", 0.9))
+
+
 def run_engines(brief: Brief, cat: Catalogue):
+    """Halls -> gross cooling load -> heat rejection (with the IT lineup limit) -> electrical -> peak PUE.
+    The peak PUE (design point only) sizes the intake and the fuel; it is attached to the HR design."""
     n_halls = math.ceil(brief.it_load_mw / brief.hall_it_mw - 1e-9)
-    return n_halls, design_hall(brief, cat), design_electrical(brief, cat, n_halls), select_heat_rejection(brief, cat)
+    hall = design_hall(brief, cat)
+    area = hall.area_m2 * n_halls
+    gross = peak_eng.gross_cooling(brief, cat, area)
+    other = peak_eng.other_mech_kw(brief, cat, gross)
+    _, plan = block_plan(brief, cat, n_halls)
+    E = cat.get("electrical", {})
+    lineups = lineup_limits(cat, plan, n_halls, sum(other.values()))
+    hr = select_heat_rejection(brief, cat, q_kw=gross["q_kw"], lineups=lineups)
+    sizing = hr.peak_hr.sizing_kw + sum(other.values())
+    elec = design_electrical(brief, cat, n_halls, {"mode": hr.mech_mode, "per_lineup_kw": hr.per_lineup_kw,
+                                                    "sizing_kw": sizing})
+    tx_kva = [elec.transformer["kva"]] * elec.n_it_tx + [elec.mech_transformer.get("kva", 0)] * elec.n_mech_lineups
+    rating = (lineups.allowance_kw * plan.n_blocks if hr.mech_mode == "shared"
+              else elec.n_mech_duty * E.get("mech_lineup_kw", 2300.0))
+    pk = peak_eng.peak_pue(brief, cat, gross, other, hr.peak_hr, n_it_lineups=plan.n_blocks,
+                           lineup_mech_rating_kw=rating, transformers_kva=tx_kva, hall_area_m2=area)
+    pk.mech_sizing_kw = sizing
+    hr.peak = pk
+    elec.set_demand(brief.it_load_mw * 1000 * brief.design_pue if brief.design_pue else pk.facility_kw, cat, brief)
+    if brief.design_pue:
+        elec.notes.append(f"Intake and fuel sized on the brief's design PUE {brief.design_pue:g} "
+                          f"(computed peak PUE {pk.pue:.3f}).")
+    return n_halls, hall, elec, hr
 
 
 def _designs(hall, elec, hr, core, n_halls) -> dict:
@@ -63,7 +100,10 @@ def _designs(hall, elec, hr, core, n_halls) -> dict:
         "pairs": elec.topology.load_pairs(), "block_kw": elec.plan.block_kw,
         "genset_kva": elec.genset["kva"], "tx_kva": elec.transformer["kva"],
     }
-    return {"halls": h, "electrical": e, "cooling": hr.summary(), "core": core.info}
+    out = {"halls": h, "electrical": e, "cooling": hr.summary(), "core": core.info}
+    if hr.peak is not None:
+        out["peak_pue"] = hr.peak.summary()
+    return out
 
 
 def _library_used(elec, hr, cat) -> dict:
@@ -104,7 +144,7 @@ def generate(brief: Brief, site: SiteInput, variant: Variant, cat: Optional[Cata
     scene.designs = _designs(hall, elec, hr, core, n_halls)
     scene.designs["library"] = _library_used(elec, hr, cat)
     scene.designs["anchors"] = anchors
-    scene.log += core.notes + elec.notes + hr.notes
+    scene.log += core.notes + elec.notes + hr.notes + (hr.peak.notes if hr.peak is not None else [])
     site_eng.layout_site(scene, cat, bbox, anchors)
     finalize(scene, cat)
     return scene
@@ -367,11 +407,16 @@ def what_if(brief: Brief, site: SiteInput, changes: dict, base: Optional[Scene] 
     keys = ("gia_m2", "footprint_m2", "coverage_pct", "spare_land_ha", "road_area_m2", "substation_to_elec_m")
     row["metrics"] = {k: c.metrics.get(k) for k in keys}
     row["noise_margins_db"] = [r["margin_db"] for r in c.metrics["noise"]]
+    pk = c.designs.get("peak_pue") or {}
+    row["peak_pue"] = pk.get("peak_pue")
+    row["mech_lineups"] = c.designs["electrical"].get("mech_lineups")
     row["plant"] = {"gensets": c.designs["electrical"]["gensets"], "transformers": c.designs["electrical"]["transformers"],
                     "heat_rejection": c.designs["cooling"].get("total"), "hall_m": [c.designs["halls"]["width_x"],
                                                                                    c.designs["halls"]["depth_y"]]}
     if base is not None:
+        bp = (base.designs.get("peak_pue") or {}).get("peak_pue")
         row["delta"] = {"score": round(c.score - base.score, 1),
+                        "peak_pue": round(pk["peak_pue"] - bp, 3) if pk.get("peak_pue") and bp else None,
                         "fails": c.metrics["checks_failed"] - base.metrics["checks_failed"],
                         "warns": c.metrics["checks_warn"] - base.metrics["checks_warn"]}
         b_ids, c_ids = {x.id for x in base.checks if x.severity != "pass"}, {x.id for x in c.checks if x.severity != "pass"}
@@ -388,6 +433,14 @@ FIX_LEVERS = {
     "egress.hall_exit": ["overrides: halls.cross_corridor_every=1 (cross corridor between every hall pair)"],
     "egress.exits": ["overrides: egress.plant_room_exits=true"],
     "egress.lanes": ["overrides: layout.tx_to_gen_yard / egress.hr_lane_width", "move_element on the blocking plant"],
+    "elec.mech_lineup": ["mech_lineups=separate (dedicated mechanical lineups)", "chw_flow_c higher (raises chiller EER)",
+                         "hr_unit=<higher-EER or smaller chiller>", "max_block_kw lower (more lineups per hall)"],
+    "elec.genset_limit": ["mech_lineups=separate", "max_block_kw lower", "overrides: electrical.genset_max_kva (if the "
+                          "framework allows a bigger set)"],
+    "cooling.lineup_loss": ["hr_redundancy=N+2", "match chillers to lineups (hr_unit with one unit per lineup)"],
+    "pue.peak": ["chw_flow_c higher", "hr_unit=<higher-EER chiller>", "hr_uplift_k (only with CFD evidence)",
+                 "cooling=hybrid/liquid_dtc (less fan power)"],
+    "pue.eer_range": ["add the chiller's EER curve to its library record (eer_curve_ambient_c / eer_curve)"],
     "maint.zones": ["overrides: cooling.<unit>.row_clear / intake_clear; or move_element on the intruding plant"],
     "noise": ["hr_prefer=noise", "hr_location=roof or ground (screening differs)", "hr_unit=<quieter record id>",
               "move_element on heat rejection away from the receptor"],

@@ -195,6 +195,11 @@ def what_if(project: str, req: WhatIfRequest) -> list[dict]:
     return service.what_if(project, req.changes)
 
 
+@app.get("/api/projects/{project}/peak_pue", operation_id="peakPue", summary="Peak PUE build-up (design point)")
+def peak(project: str) -> dict:
+    return service.peak_pue(project)
+
+
 @app.get("/api/projects/{project}/fixes", operation_id="suggestFixes", summary="Levers for each failing check")
 def fixes(project: str) -> list[dict]:
     return service.suggest_fixes(project)

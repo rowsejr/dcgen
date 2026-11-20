@@ -126,6 +126,7 @@ class Library:
     def brief_row(t: str, r: dict) -> dict:
         keys = {"chiller": ("capacity_kw", "lw_dba", "length", "width"), "dry_cooler": ("capacity_kw", "lw_dba", "length", "width"),
                 "adiabatic_cooler": ("capacity_kw", "lw_dba", "length", "width"),
+                "water_cooled_chiller": ("capacity_kw", "length", "width"),
                 "genset": ("kva", "kwe", "lw_dba", "length", "width"), "transformer": ("kva", "length", "width"),
                 "elec_room_typical": ("block_kw", "room_width_m")}[t]
         return {"id": r["record_id"], "type": t, "name": f"{r.get('manufacturer', '')} {r.get('model', '')}".strip(),
@@ -138,7 +139,7 @@ class Library:
         Returned: {"heat_rejection": {id: entry}, "gensets": {...}, "transformers": {...}, "elec_table": [...]}"""
         ok_status = ("approved",) + (("reviewed", "draft") if include_drafts else ())
         mf = {m.lower() for m in manufacturers or []}
-        out: dict = {"heat_rejection": {}, "gensets": {}, "transformers": {}, "elec_table": []}
+        out: dict = {"heat_rejection": {}, "gensets": {}, "transformers": {}, "water_cooled_chillers": {}, "elec_table": []}
         for t, recs in self.records.items():
             for rid, r in recs.items():
                 if r["status"] not in ok_status or (exclude_ids and rid in exclude_ids):
@@ -155,7 +156,7 @@ class Library:
                 if section == "electrical_rooms":
                     out["elec_table"].append(entry)
                 else:
-                    out[section][rid] = entry
+                    out.setdefault(section, {})[rid] = entry
         out["elec_table"].sort(key=lambda e: e["kw"])
         return out
 

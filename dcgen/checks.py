@@ -162,13 +162,29 @@ def run_checks(scene: Scene, cat: Catalogue) -> list[Check]:
         out.append(Check(id="hr.capacity", severity="pass" if c["capacity_margin_pct"] >= 0 else "fail",
                          value=c["capacity_margin_pct"],
                          message=f"{c['duty']} duty x {c['unit_capacity_at_design_kw']} kW at "
-                                 f"{scene.brief.ambient_design_c:.0f} degC = {c['capacity_margin_pct']:+.1f}% on "
-                                 f"{c['heat_load_mw']} MW, plus {c['standby']} standby"))
+                                 f"{c.get('air_on_c') or scene.brief.ambient_design_c:.0f} degC air-on = "
+                                 f"{c['capacity_margin_pct']:+.1f}% on {c['heat_load_mw']} MW, plus {c['standby']} standby"))
     e = scene.designs.get("electrical", {})
     if e:
         out.append(Check(id="elec.topology", severity="info",
                          message=f"{e['topology']}: {e['blocks']} blocks x {e['block_ups_kw']} kW, "
                                  f"{e['installed_ups_mw']} MW installed, {e['normal_loading_pct']}% normal loading"))
+        out += lineup_checks(scene, e, c)
+    pk = scene.designs.get("peak_pue")
+    if pk:
+        tgt = scene.brief.pue_target_peak
+        basis = "generic EER (no EER data)" if pk["eer_source"] == "generic" else pk["eer_source"].replace("curve", "EER curve")
+        msg = (f"Peak PUE {pk['peak_pue']:.3f} at {pk['air_on_c']:g} degC air-on, CHW {pk['chw_flow_c']:g} degC "
+               f"(chillers {pk['breakdown_kw'].get('heat_rejection', 0) / 1000:.1f} MW, {basis}"
+               + (f"; EER {pk['chiller_eer']:.2f}" if pk.get("chiller_eer") else "") + ")")
+        if tgt:
+            sev = "pass" if pk["peak_pue"] <= tgt + 1e-9 else "fail"
+            out.append(Check(id="pue.peak", severity=sev, value=pk["peak_pue"], limit=tgt, message=msg + f" vs target {tgt:g}"))
+        else:
+            out.append(Check(id="pue.peak", severity="info", value=pk["peak_pue"], message=msg))
+        if pk.get("eer_clamped"):
+            out.append(Check(id="pue.eer_range", severity="warn",
+                             message=f"Air-on {pk['air_on_c']:g} degC is outside the chiller EER data: end value used"))
     hd = scene.designs.get("halls", {})
     if hd:
         ok = hd["racks_provided"] >= hd["racks_required"]
@@ -184,6 +200,34 @@ def run_checks(scene: Scene, cat: Catalogue) -> list[Check]:
     for msg in scene.log:
         if msg.startswith("FAIL"):
             out.append(Check(id="placement", severity="fail", message=msg[6:]))
+    return out
+
+
+def lineup_checks(scene: Scene, e: dict, c: dict) -> list[Check]:
+    """LV lineup limits: mechanical allowance per IT lineup, largest genset, chillers lost with a lineup."""
+    out: list[Check] = []
+    gens = [x.id for x in scene.by_kind("genset")]
+    if e.get("mech_lineups") == "shared":
+        per, allow = e.get("mech_per_it_lineup_kw", 0), e.get("mech_allowance_kw", 0)
+        out.append(Check(id="elec.mech_lineup", severity="pass" if per <= allow + 1e-6 else "fail", value=per, limit=allow,
+                         message=(f"Mechanical load on the IT lineups: {per:,} kW on the busiest lineup vs "
+                                  f"{allow:,} kW allowance" + ("" if per <= allow + 1e-6 else
+                                  " - use separate mechanical lineups, a higher CHW flow temperature or higher-EER chillers"))))
+        k, sb = (c or {}).get("units_on_busiest_lineup") or 0, (c or {}).get("standby", 0)
+        if k > sb:
+            out.append(Check(id="cooling.lineup_loss", severity="warn", value=k, limit=sb,
+                             message=f"A lineup failure takes out {k} heat rejection units with {sb} standby "
+                                     "- dual-feed (ATS) or match units to lineups"))
+    elif e.get("mech_lineups") == "separate":
+        out.append(Check(id="elec.mech_lineup", severity="info",
+                         message=f"Separate mechanical lineups: {e.get('mech_lineup_count', 0)} "
+                                 f"({e.get('mech_lineup_duty', 0)} duty) x {e.get('mech_genset', '')}"))
+    out.append(Check(id="elec.genset_limit", severity="pass" if e.get("single_source", True) else "fail",
+                     value=e.get("it_lineup_kva"), limit=e.get("genset_max_kva"), element_ids=[] if e.get("single_source", True) else gens[:8],
+                     message=(f"IT lineup {e.get('it_lineup_kva', 0):,} kVA on one {e.get('genset', '')} "
+                              f"(largest allowed {e.get('genset_max_kva', 0):,} kVA)" if e.get("single_source", True) else
+                              f"IT lineup needs {e.get('it_lineup_kva', 0):,} kVA: more than the largest allowed genset "
+                              f"({e.get('genset_max_kva', 0):,} kVA) - smaller blocks or separate mechanical lineups")))
     return out
 
 

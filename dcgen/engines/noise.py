@@ -10,6 +10,8 @@ anything goes to an acoustician or a planning submission (BS 4142 context).
 """
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import shapely
 from shapely.geometry import Polygon
@@ -18,6 +20,13 @@ from ..schema import Brief, Scene
 
 NOISE_KINDS = ("chiller", "dry_cooler")
 
+
+
+def lw_from_lp1m(lp_1m: float, length: float, width: float, height: float) -> float:
+    """Sound power from a 1 m sound pressure all round a box on the ground (ISO 3744 parallelepiped surface)."""
+    a, b, c = length + 2.0, width + 2.0, height + 1.0
+    s = a * b + 2 * a * c + 2 * b * c
+    return round(lp_1m + 10 * math.log10(s), 1)
 
 def sources(scene: Scene, include_gensets: bool = False):
     b = scene.brief
