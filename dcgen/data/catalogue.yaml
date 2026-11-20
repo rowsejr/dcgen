@@ -1,0 +1,146 @@
+# dcgen module catalogue
+# -----------------------------------------------------------------------------
+# STATUS: INDICATIVE PLACEHOLDERS for scaffolding only.
+# Replace every value with Cundall standard module data or manufacturer data,
+# record the source + date against each entry, and get it engineer-checked.
+# The engines never hard-code plant sizes: they read them from here, so the
+# catalogue is the thing your team owns and signs off.
+# -----------------------------------------------------------------------------
+meta:
+  version: "0.1"
+  status: INDICATIVE
+  owner: "Datacentres team"
+
+gensets:                       # containerised diesel sets, standby rating
+  gen_2500:
+    label: "2,500 kVA genset"
+    kva: 2500
+    kwe: 2000
+    length: 12.5               # m (container + radiator), laid perpendicular to facade
+    width: 3.2
+    height: 4.2
+    side_clear: 1.5            # gap between adjacent sets
+    end_clear: 4.0             # maintenance / fuel aisle at the outer end
+    lw_dba: 103                # enclosure sound power (emergency / test running)
+    fuel_l_per_kwh: 0.26
+  gen_3000:
+    label: "3,000 kVA genset"
+    kva: 3000
+    kwe: 2400
+    length: 13.5
+    width: 3.4
+    height: 4.4
+    side_clear: 1.5
+    end_clear: 4.0
+    lw_dba: 104
+    fuel_l_per_kwh: 0.26
+  gen_3500:
+    label: "3,500 kVA genset"
+    kva: 3500
+    kwe: 2800
+    length: 14.5
+    width: 3.5
+    height: 4.6
+    side_clear: 1.5
+    end_clear: 4.0
+    lw_dba: 105
+    fuel_l_per_kwh: 0.26
+
+transformers:                  # outdoor, bunded, with fire separation
+  tx_2500: {label: "2,500 kVA transformer", kva: 2500, length: 3.6, width: 2.6, height: 3.2, clear: 1.5}
+  tx_3150: {label: "3,150 kVA transformer", kva: 3150, length: 3.9, width: 2.8, height: 3.4, clear: 1.5}
+  tx_4000: {label: "4,000 kVA transformer", kva: 4000, length: 4.3, width: 3.0, height: 3.6, clear: 1.5}
+
+electrical_rooms:              # UPS + batteries + LV switchboard per block
+  depth: 16.0                  # m perpendicular to the facade
+  width_base: 4.0              # m per block
+  width_per_mw: 4.0            # m per MW of block UPS rating
+  level_height: 5.5            # m per level
+  sts_room_width: 8.0          # per catcher group (static transfer switches)
+  mv_room_width: 12.0          # customer MV switchroom (one per building)
+  ups_module_kw: 1250
+
+heat_rejection:
+  acc_fc_1400:
+    type: air_cooled_chiller
+    label: "Air-cooled free-cooling chiller ~1.4 MW"
+    capacity_kw: 1400          # at rated ambient and design CHW temperatures
+    rated_ambient_c: 35.0
+    derate_per_k: 0.012        # fraction of capacity lost per K above rated ambient
+    max_ambient_c: 48.0
+    length: 12.0
+    width: 2.3
+    height: 2.6
+    side_clear: 2.0            # end-to-end gap in a row
+    row_clear: 3.5             # between rows (air intake / recirculation)
+    lw_dba: 92
+    operating_kg: 13000
+  dc_vbank_1100:
+    type: dry_cooler
+    label: "V-bank dry cooler ~1.1 MW (warm water)"
+    capacity_kw: 1100
+    rated_ambient_c: 35.0
+    rated_fluid_in_c: 45.0     # capacity scales with (fluid in - ambient)
+    max_ambient_c: 42.0
+    length: 12.2
+    width: 2.4
+    height: 2.7
+    side_clear: 2.0
+    row_clear: 3.5
+    lw_dba: 88
+    operating_kg: 6000
+  adc_1300:
+    type: adiabatic_dry_cooler
+    label: "Adiabatic dry cooler ~1.3 MW"
+    capacity_kw: 1300
+    rated_ambient_c: 35.0
+    rated_fluid_in_c: 40.0
+    adiabatic_effectiveness: 0.75
+    max_ambient_c: 46.0
+    length: 12.2
+    width: 2.4
+    height: 2.8
+    side_clear: 2.0
+    row_clear: 3.5
+    lw_dba: 89
+    operating_kg: 6500
+
+halls:
+  hot_aisle: 1.2               # contained hot aisle
+  cold_aisle: 1.8
+  end_aisle: 1.5               # at each row end
+  perimeter: 1.0               # clear zone round the rack area
+  gallery_air: 3.5             # fan-wall / CRAH gallery depth, each row end
+  gallery_liquid: 4.5          # CDU + fan-wall gallery (liquid / hybrid halls)
+  storey_height: 8.0
+  corridor_depth: 4.0          # between halls and electrical rooms
+  mech_gallery_depth: 8.0      # pipework / pumps between halls and heat rejection
+  support_length: 24.0         # admin, NOC, loading, build rooms (along the building)
+  parapet: 1.5
+  roof_edge: 3.0               # clear zone to roof edge for roof plant
+
+site:
+  substation:                  # utility compound by supply voltage
+    - {voltage: "33 kV", max_mva: 40, length: 30, width: 20, height: 4}
+    - {voltage: "132 kV", max_mva: 150, length: 75, width: 55, height: 8}
+    - {voltage: "400 kV", max_mva: 600, length: 140, width: 90, height: 12}
+  guardhouse: {length: 10, width: 6, height: 3.5, from_gate: 28}
+  sprinkler:
+    tanks: 2
+    tank_diameter: 11.0
+    tank_height: 7.0
+    pump_house: {length: 12, width: 8, height: 4}
+    gap: 3.0
+  fuel:
+    tank_m3: 100
+    tank: {length: 15.0, width: 4.0, height: 4.0}
+    tank_gap: 2.0
+    bund_margin: 1.5
+    min_to_building: 10.0      # placeholder: confirm with fire engineer / insurer
+    min_to_boundary: 6.0
+  roads: {width: 7.3, clearance: 3.0, connector_width: 6.0}
+  parking: {bay_w: 2.5, bay_d: 5.0, aisle: 6.0}
+  checks:
+    max_road_distance: 10.0    # ancillaries within this of a road
+    fire_access_distance: 45.0 # facade within this of a road/hardstanding (placeholder: set from the fire strategy)
+    gate_zone_depth: 48.0      # clear depth from main access to the core (guardhouse + queuing)

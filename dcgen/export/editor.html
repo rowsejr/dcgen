@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dcgen layout editor</title>
+<style>
+  :root { --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --hair:#e1e0d9; --surf:#fcfcfb;
+          --good:#0ca30c; --warn:#fab219; --crit:#d03b3b; --blue:#2a78d6; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:#f9f9f7; }
+  header { display:flex; gap:12px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--hair); background:#fff; flex-wrap:wrap; }
+  header b { font-size:14px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border:1px solid var(--hair); border-radius:12px; font-size:12px; background:#fff; }
+  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  main { display:flex; height:calc(100vh - 46px); }
+  #wrap { flex:1; position:relative; min-width:0; }
+  svg { width:100%; height:100%; touch-action:none; background:#fff; display:block; }
+  aside { width:320px; border-left:1px solid var(--hair); background:#fff; overflow:auto; padding:10px 12px; }
+  aside h3 { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:14px 0 6px; }
+  .check { display:flex; gap:8px; padding:4px 0; border-bottom:1px solid var(--hair); font-size:12px; }
+  .check .lab { font-weight:600; min-width:38px; }
+  button { font:inherit; padding:5px 10px; border:1px solid #c3c2b7; border-radius:6px; background:#fff; cursor:pointer; }
+  button:hover { background:#f1f0ec; }
+  .tools { position:absolute; left:10px; top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+  .tools label { background:#fff; border:1px solid #c3c2b7; border-radius:6px; padding:4px 8px; font-size:12px; }
+  .sel { stroke:#0b0b0b !important; stroke-width:0.8 !important; }
+  .drag { cursor:grab; }
+  #info { font-size:12px; color:var(--ink2); }
+  pre { font-size:11px; background:#f6f5f2; padding:6px; border-radius:4px; max-height:140px; overflow:auto; }
+  @media (max-width: 760px) { main { flex-direction:column; height:auto; } #wrap { height:62vh; } aside { width:auto; border-left:0; border-top:1px solid var(--hair); } }
+</style>
+</head>
+<body>
+<header>
+  <b id="title">dcgen editor</b>
+  <span class="chip" id="mode">standalone</span>
+  <span class="chip"><span class="dot" style="background:var(--good)"></span><span id="npass">0</span> pass</span>
+  <span class="chip"><span class="dot" style="background:var(--warn)"></span><span id="nwarn">0</span> warn</span>
+  <span class="chip"><span class="dot" style="background:var(--crit)"></span><span id="nfail">0</span> fail</span>
+</header>
+<main>
+  <div id="wrap">
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="tools">
+      <label><input type="checkbox" id="group" checked> move whole array/group</label>
+      <button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">&minus;</button>
+      <button id="fit">Fit</button>
+    </div>
+  </div>
+  <aside>
+    <div id="info">Drag plant to move it (0.5 m snap). Checks update live: clashes, redline, fuel separation, noise at receptors.</div>
+    <h3>Selected</h3><div id="selinfo" style="font-size:12px">none</div>
+    <h3>Noise at receptors</h3><div id="noise"></div>
+    <h3>Checks</h3><div id="checks"></div>
+    <h3>Moves (patch for the agent)</h3>
+    <pre id="patch">[]</pre>
+    <button id="copy">Copy patch</button> <button id="copyscene">Copy scene JSON</button>
+    <button id="dl" hidden>Download scene.json</button> <span id="copied" style="font-size:12px;color:var(--ink2)"></span>
+  </aside>
+</main>
+<script>
+/* Scene is injected by dcgen (standalone) or delivered by the MCP host (MCP App). */
+let scene = /*SCENE_JSON*/null;
+const COLORS = {data_hall:"#bdd5f3", support:"#e6e4de", corridor:"#efeee9", mech_gallery:"#c3eadc",
+  elec_room:"#f9d5c4", sts_room:"#f6c3ad", mv_room:"#f3b79f", transformer:"#a94b25", genset:"#eb6834",
+  chiller:"#1baf7a", dry_cooler:"#1baf7a", substation:"#fbe1d6", sprinkler_tank:"#bab7ae", pump_house:"#a3a097",
+  fuel_bund:"#e2e0da", fuel_tank:"#7f7c75", guardhouse:"#6f6c66", gate:"#0b0b0b", road:"#d2d0ca",
+  parking:"#e4e2dc", landscape:"#e1eedb"};
+const GROUND = new Set(["road","parking","landscape","gate"]);
+const FIXED = new Set(["data_hall","support","corridor","mech_gallery","elec_room","sts_room","mv_room"]);
+const SVGNS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+let rot = 0, view = {x:0, y:0, w:100, h:100}, nodes = {}, selected = null, moves = [];
+const inHost = window.parent !== window;      // maybe an MCP host - confirmed only when it answers ui/initialize
+let hostConnected = false, project = null, rpcId = 10, pending = {};
+
+function toDisp(x, y) { const c = Math.cos(rot), s = Math.sin(rot); return [c*x - s*y, -(s*x + c*y)]; }
+function dispDeltaToLocal(dx, dy) { const c = Math.cos(rot), s = Math.sin(rot), X = dx, Y = -dy; return [c*X + s*Y, -s*X + c*Y]; }
+function corners(e) { return [[e.x,e.y],[e.x+e.w,e.y],[e.x+e.w,e.y+e.d],[e.x,e.y+e.d]]; }
+function ptsAttr(pts) { return pts.map(p => toDisp(p[0], p[1]).map(v => v.toFixed(2)).join(",")).join(" "); }
+
+function shapeFor(e) {
+  let el;
+  if (e.shape === "cyl") {
+    el = document.createElementNS(SVGNS, "circle");
+    const [cx, cy] = toDisp(e.x + e.w/2, e.y + e.d/2);
+    el.setAttribute("cx", cx); el.setAttribute("cy", cy); el.setAttribute("r", e.w/2);
+  } else if (e.shape === "poly" && e.polygon) {
+    el = document.createElementNS(SVGNS, "path");
+    const ring = r => "M" + r.map(p => toDisp(p[0], p[1]).map(v => v.toFixed(2)).join(",")).join("L") + "Z";
+    el.setAttribute("d", ring(e.polygon) + (e.holes || []).map(ring).join(""));
+    el.setAttribute("fill-rule", "evenodd");
+  } else {
+    el = document.createElementNS(SVGNS, "polygon");
+    el.setAttribute("points", ptsAttr(corners(e)));
+  }
+  el.setAttribute("fill", COLORS[e.kind] || "#ccc");
+  el.setAttribute("stroke", e.z > 0.01 ? "#0b0b0b" : "#52514e");
+  el.setAttribute("stroke-width", e.z > 0.01 ? 0.35 : 0.25);
+  if (e.z > 0.01) { el.setAttribute("stroke-dasharray", "1.5 1"); el.setAttribute("fill-opacity", 0.85); }
+  el.dataset.id = e.id;
+  return el;
+}
+
+function render() {
+  svg.innerHTML = "";
+  nodes = {};
+  rot = (scene.frame.rotation_deg - (scene.site.true_north_deg || 0)) * Math.PI / 180;
+  const g = document.createElementNS(SVGNS, "g");
+  const rl = document.createElementNS(SVGNS, "polygon");
+  rl.setAttribute("points", ptsAttr(scene.redline_local)); rl.setAttribute("fill", "#fff");
+  g.appendChild(rl);
+  const order = [...scene.elements].sort((a, b) => (GROUND.has(b.kind) - GROUND.has(a.kind)) || (a.z - b.z));
+  for (const e of order) {
+    if (e.z > 0.01 && ["elec_room","sts_room","mv_room","data_hall","genset"].includes(e.kind)) continue;
+    const s = shapeFor(e);
+    if (!GROUND.has(e.kind) && !FIXED.has(e.kind)) s.classList.add("drag");
+    g.appendChild(s); nodes[e.id] = s;
+  }
+  const line = document.createElementNS(SVGNS, "polygon");
+  line.setAttribute("points", ptsAttr(scene.redline_local));
+  line.setAttribute("fill", "none"); line.setAttribute("stroke", "#d03b3b"); line.setAttribute("stroke-width", 0.9);
+  line.setAttribute("stroke-dasharray", "5 2.5"); line.style.pointerEvents = "none";
+  g.appendChild(line);
+  for (const r of receptorsLocal()) {
+    const [x, y] = toDisp(r.x, r.y);
+    const c = document.createElementNS(SVGNS, "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 3); c.setAttribute("fill", "#fff");
+    c.setAttribute("stroke", "#0b0b0b"); c.setAttribute("stroke-width", 0.8); g.appendChild(c);
+    const t = document.createElementNS(SVGNS, "text");
+    t.setAttribute("x", x + 5); t.setAttribute("y", y - 4); t.setAttribute("font-size", 7); t.textContent = r.name;
+    g.appendChild(t);
+  }
+  svg.appendChild(g);
+  document.getElementById("title").textContent = `${scene.brief.project} - option ${scene.option}`;
+  if (!view.init) fit();
+  applyView();
+  runChecks();
+}
+
+function fit() {
+  const pts = scene.redline_local.map(p => toDisp(p[0], p[1])).concat(receptorsLocal().map(r => toDisp(r.x, r.y)));
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const pad = 20;
+  view = {x: Math.min(...xs) - pad, y: Math.min(...ys) - pad, w: Math.max(...xs) - Math.min(...xs) + 2*pad,
+          h: Math.max(...ys) - Math.min(...ys) + 2*pad, init: true};
+  applyView();
+}
+function applyView() { svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`); }
+function zoom(f) { const cx = view.x + view.w/2, cy = view.y + view.h/2; view.w *= f; view.h *= f; view.x = cx - view.w/2; view.y = cy - view.h/2; applyView(); }
+
+function receptorsLocal() {
+  const f = scene.frame, t = f.rotation_deg * Math.PI / 180, c = Math.cos(t), s = Math.sin(t);
+  return (scene.site.receptors || []).map(r => { const dx = r.x - f.origin[0], dy = r.y - f.origin[1];
+    return {name: r.name, x: c*dx + s*dy, y: -s*dx + c*dy, z: r.z ?? 1.5, limit: r.limit_dba}; });
+}
+
+/* ------------------------------------------------------------ live checks (mirror of dcgen.checks, simplified) */
+function pip(x, y, poly) { let ins = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+  const [xi, yi] = poly[i], [xj, yj] = poly[j];
+  if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) ins = !ins; } return ins; }
+function overlap(a, b) { return a.x < b.x + b.w - 0.05 && b.x < a.x + a.w - 0.05 && a.y < b.y + b.d - 0.05 && b.y < a.y + a.d - 0.05
+  && Math.min(a.z + a.h, b.z + b.h) - Math.max(a.z, b.z) > 0.05; }
+function boxDist(a, b) { const dx = Math.max(0, a.x - (b.x + b.w), b.x - (a.x + a.w)); const dy = Math.max(0, a.y - (b.y + b.d), b.y - (a.y + a.d)); return Math.hypot(dx, dy); }
+function segHitsBox(p, q, b) {  // Liang-Barsky
+  let t0 = 0, t1 = 1; const dx = q[0] - p[0], dy = q[1] - p[1];
+  for (const [pp, qq] of [[-dx, p[0] - b.x], [dx, b.x + b.w - p[0]], [-dy, p[1] - b.y], [dy, b.y + b.d - p[1]]]) {
+    if (pp === 0) { if (qq < 0) return false; } else { const r = qq / pp; if (pp < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; } } }
+  return true;
+}
+function noiseLevels() {
+  const b = scene.brief, src = scene.elements.filter(e => e.kind === "chiller" || e.kind === "dry_cooler");
+  const bldg = scene.elements.filter(e => e.props && e.props.enclosed);
+  return receptorsLocal().map(r => {
+    let sum = 0;
+    for (const e of src) {
+      const cx = e.x + e.w/2, cy = e.y + e.d/2, cz = e.z + e.h, roof = e.props && e.props.on_roof;
+      const d = Math.max(1, Math.hypot(r.x - cx, r.y - cy, r.z - cz));
+      let att = roof ? b.roof_screen_db : b.yard_barrier_db;
+      if (!roof && bldg.some(k => segHitsBox([cx, cy], [r.x, r.y], {x: k.x + 0.5, y: k.y + 0.5, w: k.w - 1, d: k.d - 1}))) att += b.building_screen_db;
+      sum += Math.pow(10, ((e.props.lw_dba ?? 90) - 20*Math.log10(d) - 8 - att) / 10);
+    }
+    const lp = 10 * Math.log10(sum || 1e-12);
+    return {name: r.name, lp, limit: r.limit, margin: r.limit - lp};
+  });
+}
+function runChecks() {
+  const solids = scene.elements.filter(e => e.solid !== false && !GROUND.has(e.kind));
+  const out = [], bad = new Set();
+  const outside = solids.filter(e => !corners(e).every(p => pip(p[0], p[1], scene.redline_local)));
+  outside.forEach(e => bad.add(e.id));
+  out.push({sev: outside.length ? "fail" : "pass", msg: outside.length ? `${outside.length} outside redline: ${outside.map(e => e.id).slice(0, 5).join(", ")}` : "All inside redline"});
+  const clashes = [];
+  for (let i = 0; i < solids.length; i++) for (let j = i + 1; j < solids.length; j++)
+    if (overlap(solids[i], solids[j])) clashes.push([solids[i].id, solids[j].id]);
+  clashes.forEach(c => { bad.add(c[0]); bad.add(c[1]); });
+  out.push({sev: clashes.length ? "fail" : "pass", msg: clashes.length ? `${clashes.length} clash(es): ${clashes.slice(0, 4).map(c => c.join("/")).join(", ")}` : "No clashes"});
+  const roads = scene.elements.filter(e => e.kind === "road");
+  const bund = scene.elements.find(e => e.kind === "fuel_bund");
+  if (bund) {
+    const plant = scene.elements.filter(e => (e.props && e.props.enclosed) || e.kind === "genset" || e.kind === "transformer");
+    const dmin = Math.min(...plant.map(p => boxDist(bund, p)));
+    out.push({sev: dmin >= 10 ? "pass" : "fail", msg: `Fuel store ${dmin.toFixed(1)} m from building/plant (min 10)`});
+  }
+  for (const k of ["substation", "pump_house", "fuel_bund", "guardhouse"]) {
+    const e = scene.elements.find(x => x.kind === k); if (!e) continue;
+    const d = Math.min(...roads.map(r => boxDist(e, r)));
+    if (d > 10) out.push({sev: "warn", msg: `${e.id} ${d.toFixed(0)} m from a road (route a connector)`});
+  }
+  const nz = noiseLevels();
+  nz.forEach(n => out.push({sev: n.margin >= 0 ? "pass" : "fail", msg: `${n.name}: ${n.lp.toFixed(1)} dB(A) vs ${n.limit}`}));
+  showChecks(out, nz, bad);
+}
+function showChecks(list, nz, bad) {
+  const box = document.getElementById("checks"); box.innerHTML = "";
+  const cnt = {pass: 0, warn: 0, fail: 0, info: 0};
+  const col = {pass: "var(--good)", warn: "var(--warn)", fail: "var(--crit)", info: "var(--muted)"};
+  for (const c of list) {
+    cnt[c.sev] = (cnt[c.sev] || 0) + 1;
+    const d = document.createElement("div"); d.className = "check";
+    d.innerHTML = `<span class="lab"><span class="dot" style="background:${col[c.sev]}"></span> ${c.sev.toUpperCase()}</span><span></span>`;
+    d.lastChild.textContent = c.msg; box.appendChild(d);
+  }
+  ["pass", "warn", "fail"].forEach(k => document.getElementById("n" + k).textContent = cnt[k] || 0);
+  if (nz) document.getElementById("noise").innerHTML = nz.map(n => `<div class="check"><span class="lab"><span class="dot" style="background:${n.margin >= 0 ? "var(--good)" : "var(--crit)"}"></span></span><span>${n.name}: <b>${n.lp.toFixed(1)}</b> dB(A), limit ${n.limit} (${n.margin >= 0 ? "+" : ""}${n.margin.toFixed(1)} dB)</span></div>`).join("");
+  for (const [id, n] of Object.entries(nodes)) n.setAttribute("stroke", bad && bad.has(id) ? "#d03b3b" : n.getAttribute("stroke") === "#d03b3b" ? "#52514e" : n.getAttribute("stroke"));
+}
+
+/* ------------------------------------------------------------ interaction */
+let drag = null, pan = null;
+function svgPoint(evt) { const p = svg.createSVGPoint(); p.x = evt.clientX; p.y = evt.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+svg.addEventListener("pointerdown", evt => {
+  const id = evt.target.dataset && evt.target.dataset.id;
+  const e = id && scene.elements.find(x => x.id === id);
+  if (e && !GROUND.has(e.kind) && !FIXED.has(e.kind)) {
+    const grp = document.getElementById("group").checked && e.group;
+    const members = grp ? scene.elements.filter(x => x.group === e.group) : [e];
+    drag = {e, members, start: svgPoint(evt), orig: members.map(m => [m.x, m.y, m.polygon && m.polygon.map(p => [...p])]), total: [0, 0]};
+    select(e); svg.setPointerCapture(evt.pointerId);
+  } else { pan = {start: {x: evt.clientX, y: evt.clientY}, view: {...view}}; svg.setPointerCapture(evt.pointerId); }
+});
+svg.addEventListener("pointermove", evt => {
+  if (drag) {
+    const p = svgPoint(evt);
+    let [dx, dy] = dispDeltaToLocal(p.x - drag.start.x, p.y - drag.start.y);
+    dx = Math.round(dx * 2) / 2; dy = Math.round(dy * 2) / 2;
+    drag.total = [dx, dy];
+    drag.members.forEach((m, i) => { m.x = drag.orig[i][0] + dx; m.y = drag.orig[i][1] + dy;
+      if (drag.orig[i][2]) m.polygon = drag.orig[i][2].map(q => [q[0] + dx, q[1] + dy]);
+      const n = nodes[m.id]; if (!n) return; const s = shapeFor(m); n.replaceWith(s); nodes[m.id] = s; s.classList.add("drag"); });
+    nodes[drag.e.id] && nodes[drag.e.id].classList.add("sel");
+    runChecks();
+  } else if (pan) {
+    const r = svg.getBoundingClientRect(), k = view.w / r.width;
+    view.x = pan.view.x - (evt.clientX - pan.start.x) * k; view.y = pan.view.y - (evt.clientY - pan.start.y) * k; applyView();
+  }
+});
+svg.addEventListener("pointerup", () => {
+  if (drag && (drag.total[0] || drag.total[1])) {
+    const mv = {element_id: drag.e.id, dx: drag.total[0], dy: drag.total[1], whole_group: drag.members.length > 1};
+    moves.push(mv); document.getElementById("patch").textContent = JSON.stringify(moves, null, 1);
+    if (hostConnected && project) callTool("move_element", {project, ...mv}).then(r => applyPayload(payload(r))).catch(() => {});
+    else if (window.DCGEN_API !== undefined && window.DCGEN_PROJECT)      // served by dcgen's web app: re-check on the server
+      fetch(`${window.DCGEN_API}/api/projects/${encodeURIComponent(window.DCGEN_PROJECT)}/move`, {method: "POST",
+        headers: {"Content-Type": "application/json"}, body: JSON.stringify(mv)}).then(r => r.json()).then(applyPayload).catch(() => {});
+  }
+  drag = null; pan = null;
+});
+svg.addEventListener("wheel", evt => { evt.preventDefault(); zoom(evt.deltaY > 0 ? 1.12 : 1 / 1.12); }, {passive: false});
+document.getElementById("zin").onclick = () => zoom(1 / 1.25);
+document.getElementById("zout").onclick = () => zoom(1.25);
+document.getElementById("fit").onclick = fit;
+function copyText(text, what) {
+  const done = ok => { document.getElementById("copied").textContent = ok ? what + " copied" : "copy blocked here"; };
+  try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch (_) { done(false); }
+}
+document.getElementById("copy").onclick = () => copyText(JSON.stringify(moves), "Patch");
+document.getElementById("copyscene").onclick = () => copyText(JSON.stringify(scene), "Scene");
+if (window.parent === window) {           // downloads only work outside sandboxed frames
+  const dl = document.getElementById("dl"); dl.hidden = false;
+  dl.onclick = () => { const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(scene)], {type: "application/json"})); a.download = "scene.json"; a.click(); };
+}
+function select(e) {
+  Object.values(nodes).forEach(n => n.classList.remove("sel")); selected = e;
+  nodes[e.id] && nodes[e.id].classList.add("sel");
+  document.getElementById("selinfo").textContent = `${e.id} - ${e.name || e.kind} - ${e.w.toFixed(1)} x ${e.d.toFixed(1)} x ${e.h.toFixed(1)} m${e.group ? " - group " + e.group : ""}`;
+}
+
+/* ------------------------------------------------------------ MCP Apps bridge (ext-apps, spec 2026-01-26) */
+function send(msg) { window.parent.postMessage(msg, "*"); }
+function callTool(name, args) { const id = ++rpcId; send({jsonrpc: "2.0", id, method: "tools/call", params: {name, arguments: args}});
+  return new Promise((res, rej) => { pending[id] = {res, rej}; setTimeout(() => rej("timeout"), 30000); }); }
+function payload(result) {
+  if (!result) return null;
+  if (result.structuredContent) return result.structuredContent;
+  const t = (result.content || []).find(c => c.type === "text");
+  try { return t ? JSON.parse(t.text) : null; } catch (_) { return null; }
+}
+function applyPayload(p) {
+  if (!p) return;
+  if (p.scene) { scene = p.scene; render(); }
+  if (p.checks) showChecks(p.checks.map(c => ({sev: c.severity, msg: c.message})), noiseLevels(), null);
+}
+if (inHost) {
+  window.addEventListener("message", ev => {
+    const m = ev.data; if (!m || m.jsonrpc !== "2.0") return;
+    if (m.id === 1 && m.result) { hostConnected = true; document.getElementById("mode").textContent = "MCP App";
+      send({jsonrpc: "2.0", method: "ui/notifications/initialized"}); return; }
+    if (m.id && pending[m.id]) { (m.error ? pending[m.id].rej : pending[m.id].res)(m.error || m.result); delete pending[m.id]; return; }
+    if (m.method === "ui/notifications/tool-input") { project = (m.params && m.params.arguments || {}).project || project; }
+    if (m.method === "ui/notifications/tool-result") {
+      const p = payload(m.params);
+      if (p && p.scene) { project = p.project || project; scene = p.scene; view.init = false; render(); }
+      else if (p && p.project) { project = p.project;   // small result: fetch the scene via the app-only tool
+        callTool("editor_scene", {project}).then(r => { const q = payload(r); if (q && q.scene) { scene = q.scene; view.init = false; render(); } }); }
+    }
+    if (m.method === "ui/resource-teardown" && m.id) send({jsonrpc: "2.0", id: m.id, result: {}});
+  });
+  send({jsonrpc: "2.0", id: 1, method: "ui/initialize", params: {appInfo: {name: "dcgen-editor", version: "0.1.0"}, appCapabilities: {}, protocolVersion: "2026-01-26"}});
+}
+if (window.DCGEN_PROJECT) document.getElementById("mode").textContent = "web app";
+if (scene) render();
+</script>
+</body>
+</html>

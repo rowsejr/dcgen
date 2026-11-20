@@ -1,0 +1,6 @@
+.git
+.dcgen-projects
+out
+**/__pycache__
+tests
+revit

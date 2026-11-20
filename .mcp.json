@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "dcgen": {
+      "command": "dcgen-mcp",
+      "args": [],
+      "env": { "DCGEN_HOME": ".dcgen-projects" }
+    }
+  }
+}

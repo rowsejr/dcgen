@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "dcgen": {
+      "type": "stdio",
+      "command": "dcgen-mcp",
+      "env": { "DCGEN_HOME": "${workspaceFolder}/.dcgen-projects" }
+    }
+  }
+}

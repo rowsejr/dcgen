@@ -1,0 +1,9 @@
+{
+  "_comment": "Map dcgen element kinds to your practice families (family name + type name). Kinds not listed become DirectShape massing.",
+  "genset": {"family": "M_Generator - Containerised", "type": "3500kVA"},
+  "transformer": {"family": "M_Transformer - Outdoor", "type": "3150kVA"},
+  "chiller": {"family": "M_Chiller - Air Cooled", "type": "1400kW"},
+  "dry_cooler": {"family": "M_Dry Cooler - V Bank", "type": "1100kW"},
+  "sprinkler_tank": {"family": "M_Tank - Vertical", "type": "11m dia x 7m"},
+  "fuel_tank": {"family": "M_Tank - Horizontal Bunded", "type": "100m3"}
+}

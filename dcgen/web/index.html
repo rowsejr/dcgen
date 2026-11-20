@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dcgen test fit</title>
+<style>
+  :root { --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --hair:#e1e0d9; --bg:#f9f9f7;
+          --good:#0ca30c; --warn:#fab219; --crit:#d03b3b; --blue:#2a78d6; --orange:#eb6834; --aqua:#1baf7a; }
+  * { box-sizing:border-box; min-width:0; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:var(--bg); }
+  header { padding:14px 20px; background:#fff; border-bottom:1px solid var(--hair); display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
+  header b { font-size:18px; } header span { color:var(--ink2); font-size:13px; }
+  main { display:grid; grid-template-columns:minmax(0,380px) minmax(0,1fr); gap:20px; padding:20px; max-width:1400px; margin:auto; }
+  form, section { background:#fff; border:1px solid var(--hair); border-radius:10px; padding:16px; }
+  fieldset { border:0; border-top:1px solid var(--hair); margin:12px 0 0; padding:10px 0 0; }
+  legend { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; padding:0 6px 0 0; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 10px; }
+  label { display:flex; flex-direction:column; gap:3px; font-size:13px; color:var(--ink2); }
+  input, select, textarea { font:inherit; font-size:15px; padding:7px 9px; border:1px solid #c3c2b7; border-radius:6px; background:#fff; color:var(--ink); }
+  textarea { min-height:64px; font-size:13px; }
+  .full { grid-column:1 / -1; }
+  button { font:inherit; padding:9px 14px; border-radius:6px; border:1px solid #c3c2b7; background:#fff; cursor:pointer; min-height:40px; }
+  button.primary { background:var(--ink); color:#fff; border-color:var(--ink); width:100%; margin-top:14px; }
+  button:disabled { opacity:.5; cursor:wait; }
+  .hint { font-size:12px; color:var(--muted); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:7px 6px; border-bottom:1px solid var(--hair); vertical-align:top; }
+  th { color:var(--ink2); font-weight:600; } td.num, th.num { text-align:right; white-space:nowrap; }
+  .dot { width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:12px 0; }
+  .kpi { border:1px solid var(--hair); border-radius:8px; padding:10px; } .kpi b { display:block; font-size:18px; }
+  .kpi span { font-size:12px; color:var(--ink2); }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .row a { text-decoration:none; color:var(--ink); border:1px solid #c3c2b7; border-radius:6px; padding:8px 12px; font-size:14px; background:#fff; }
+  #status { font-size:14px; color:var(--ink2); min-height:20px; margin-top:8px; }
+  .err { color:var(--crit); }
+  @media (max-width: 860px) { main { grid-template-columns:1fr; padding:12px; } }
+</style>
+</head>
+<body>
+<header><b>dcgen test fit</b><span>RIBA Stage 2 layouts from a brief and a redline. Runs on the engine directly, no AI. Catalogue values are placeholders until signed off.</span></header>
+<main>
+<form id="f">
+  <label>Project name<input name="project" value="example-b1" required pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}"></label>
+  <fieldset><legend>IT and halls</legend><div class="grid">
+    <label>IT load (MW)<input name="it_load_mw" type="number" step="0.5" value="24"></label>
+    <label>Per hall (MW)<input name="hall_it_mw" type="number" step="0.5" value="6"></label>
+    <label>Rack density (kW)<input name="rack_kw" type="number" step="1" value="20"></label>
+    <label>Hall storeys<select name="storeys"><option>1</option><option>2</option></select></label>
+    <label class="full">Cooling<select name="cooling"><option value="air_chw">Air (chilled water)</option><option value="liquid_dtc">Liquid direct-to-chip</option><option value="hybrid">Hybrid</option></select></label>
+  </div></fieldset>
+  <fieldset><legend>Electrical</legend><div class="grid">
+    <label>Topology<select name="topology"><option>4M3</option><option>5M4</option><option>6M5</option><option>N+1 catcher</option><option>2N</option></select></label>
+    <label>Catcher group<input name="catcher_group" type="number" value="4" min="2"></label>
+    <label>Blocks per elec room<input name="blocks_per_elec_room" type="number" value="1" min="1"></label>
+    <label>Design PUE<input name="design_pue" type="number" step="0.05" value="1.3"></label>
+    <label>Fuel autonomy (h)<input name="fuel_autonomy_h" type="number" value="24"></label>
+  </div></fieldset>
+  <fieldset><legend>Heat rejection and noise</legend><div class="grid">
+    <label>Location<select name="hr_location"><option value="auto">Test both</option><option value="roof">Roof</option><option value="ground">Ground yard</option></select></label>
+    <label>Design ambient (&deg;C)<input name="ambient_design_c" type="number" step="0.5" value="36"></label>
+    <label>Water return to HR (&deg;C)<input name="fwr_c" type="number" step="1" value="30"></label>
+    <label>Redundancy<select name="hr_redundancy"><option>N+1</option><option>N+2</option><option>N+20%</option></select></label>
+  </div></fieldset>
+  <fieldset><legend>Site</legend><div class="grid">
+    <label class="full">Redline (.dxf, .kml, .geojson)<input name="redline" type="file" accept=".dxf,.kml,.geojson,.json"></label>
+    <label class="full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" name="example" checked> Use the example site instead</label>
+    <label>Boundary setback (m)<input name="setback" type="number" value="10"></label>
+    <label>True north (&deg;)<input name="north" type="number" value="0"></label>
+    <label>Main access x, y<input name="access" placeholder="optional"></label>
+    <label>Grid connection x, y<input name="utility" placeholder="optional"></label>
+    <label class="full">Noise receptors: name, x, y, limit dB(A) per line<textarea name="receptors" placeholder="NSR1 Farmhouse, 1460, 2150, 45"></textarea></label>
+  </div><p class="hint">Coordinates are in the redline's own system (metres). Leave access blank to use the longest boundary edge.</p></fieldset>
+  <button class="primary" id="go">Generate options</button>
+  <div id="status"></div>
+</form>
+<section id="out"><p class="hint">Results appear here: ranked options, plant, checks and downloads (PDF with 3D views, IFC for Revit/Navisworks, DXF, GLB) plus the drag editor.</p></section>
+</main>
+<script>
+{
+const $ = s => document.querySelector(s);
+const f = $("#f"), out = $("#out"), status = $("#status");
+const SEV = {pass: "var(--good)", warn: "var(--warn)", fail: "var(--crit)", info: "var(--muted)"};
+const num = v => v === "" || v == null ? undefined : Number(v);
+const xy = s => { const p = (s || "").split(",").map(Number); return p.length === 2 && p.every(isFinite) ? p : null; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+let project = null;
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  const body = r.headers.get("content-type")?.includes("json") ? await r.json() : await r.text();
+  if (!r.ok) throw new Error(body.detail ? (typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail)) : r.statusText);
+  return body;
+}
+const json = (method, body) => ({method, headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+
+f.addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const d = new FormData(f);
+  project = d.get("project");
+  const brief = {project, it_load_mw: num(d.get("it_load_mw")), hall_it_mw: num(d.get("hall_it_mw")), rack_kw: num(d.get("rack_kw")),
+    storeys: num(d.get("storeys")), cooling: d.get("cooling"), topology: d.get("topology"), catcher_group: num(d.get("catcher_group")),
+    blocks_per_elec_room: num(d.get("blocks_per_elec_room")), design_pue: num(d.get("design_pue")), fuel_autonomy_h: num(d.get("fuel_autonomy_h")),
+    hr_location: d.get("hr_location"), ambient_design_c: num(d.get("ambient_design_c")), fwr_c: num(d.get("fwr_c")), hr_redundancy: d.get("hr_redundancy")};
+  const receptors = (d.get("receptors") || "").split("\n").map(l => l.split(",").map(s => s.trim())).filter(p => p.length === 4 && p[0])
+    .map(([name, x, y, lim]) => ({name, x: +x, y: +y, limit_dba: +lim}));
+  const site = {boundary_setback_m: num(d.get("setback")) ?? 10, true_north_deg: num(d.get("north")) ?? 0};
+  const a = xy(d.get("access")), u = xy(d.get("utility"));
+  if (a) site.access_points = [a];
+  if (u) site.utility_point = u;
+  if (receptors.length) site.receptors = receptors;
+  $("#go").disabled = true; status.className = ""; status.textContent = "Creating project...";
+  try {
+    await api("/api/projects", json("POST", {name: project, brief}));
+    const file = d.get("redline");
+    if (d.get("example") === "on" || !file || !file.size) {
+      const ex = await api("/api/example");
+      await api(`/api/projects/${project}/site`, json("PUT", {...ex.site, ...site, receptors: site.receptors || ex.site.receptors,
+        access_points: site.access_points || ex.site.access_points, utility_point: site.utility_point || ex.site.utility_point}));
+    } else {
+      const fd = new FormData(); fd.append("file", file); fd.append("options", JSON.stringify(site));
+      await api(`/api/projects/${project}/site/upload`, {method: "POST", body: fd});
+    }
+    status.textContent = "Searching arrangements (about 10-20 s)...";
+    const res = await api(`/api/projects/${project}/options?max_options=4`, {method: "POST"});
+    status.textContent = res.options.length ? `${res.options.length} options ranked.` : res.message;
+    render(res.options, res.selected_summary);
+  } catch (e) { status.className = "err"; status.textContent = e.message; }
+  $("#go").disabled = false;
+});
+
+function render(options, s) {
+  if (!s) { out.innerHTML = ""; return; }
+  const sev = r => r.fails ? "fail" : r.warns ? "warn" : "pass";
+  const e = s.electrical, c = s.cooling, m = s.metrics;
+  out.innerHTML = `
+    <table><thead><tr><th>Opt</th><th>Arrangement</th><th>Checks</th><th class="num">Noise margin dB</th><th class="num">Spare ha</th><th class="num">Score</th><th></th></tr></thead><tbody>
+    ${options.map(o => `<tr><td><b>${o.option}</b></td><td>${esc(o.arrangement)}</td>
+      <td><span class="dot" style="background:${SEV[sev(o)]}"></span>${o.fails} fail, ${o.warns} warn</td>
+      <td class="num">${o.noise_margins_db.map(v => (v >= 0 ? "+" : "") + v.toFixed(1)).join(" / ") || "-"}</td>
+      <td class="num">${o.spare_land_ha.toFixed(1)}</td><td class="num">${o.score.toFixed(0)}</td>
+      <td>${o.option === s.option ? "selected" : `<button data-opt="${o.option}">Select</button>`}</td></tr>`).join("")}
+    </tbody></table>
+    <div class="kpis">
+      <div class="kpi"><b>${m.data_halls} halls / ${m.racks} racks</b><span>${m.it_load_mw} MW IT</span></div>
+      <div class="kpi"><b>${e.blocks} x ${(e.block_ups_kw / 1000).toFixed(1)} MW</b><span>${esc(e.topology)}, ${e.normal_loading_pct}% normal loading</span></div>
+      <div class="kpi"><b>${e.gensets} gensets</b><span>${esc(e.genset)}; ${e.elec_rooms} elec rooms</span></div>
+      <div class="kpi"><b>${c.total} x ${c.unit_capacity_at_design_kw} kW</b><span>${esc(c.type.replaceAll("_", " "))}, ${c.duty}+${c.standby}</span></div>
+      <div class="kpi"><b>${m.site_area_ha} ha, ${m.coverage_pct}%</b><span>site area, coverage; ~${m.spare_land_ha} ha spare</span></div>
+    </div>
+    <div class="row">${["pdf", "ifc", "dxf", "glb", "json"].map(x => `<a href="/api/projects/${project}/files/${x}">${x.toUpperCase()}</a>`).join("")}
+      <a href="/editor/${project}" target="_blank" rel="noopener">Open drag editor</a></div>
+    <h3 style="font-size:14px;margin:16px 0 4px">Checks for option ${s.option}</h3>
+    <table><tbody>${s.checks.map(k => `<tr><td style="white-space:nowrap"><span class="dot" style="background:${SEV[k.severity]}"></span>${k.severity.toUpperCase()}</td><td>${esc(k.message)}</td></tr>`).join("")}</tbody></table>`;
+  out.querySelectorAll("button[data-opt]").forEach(b => b.addEventListener("click", async () => {
+    try { const sum = await api(`/api/projects/${project}/options/${b.dataset.opt}/select`, {method: "POST"});
+      const p = await api(`/api/projects/${project}`); render(p.options, sum); } catch (err) { status.className = "err"; status.textContent = err.message; }
+  }));
+}
+}
+</script>
+</body>
+</html>

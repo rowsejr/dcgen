@@ -1,0 +1,6472 @@
+{
+ "schema_version": "0.1",
+ "option": "B",
+ "variant": {
+  "rotation_deg": -4.9,
+  "mirror_x": false,
+  "mirror_y": true,
+  "hr_location": "roof",
+  "offset": [
+   -14.985348702492047,
+   -38.59446494595463
+  ],
+  "label": "support W end, electrical/gen yard N, heat rejection on roof"
+ },
+ "brief": {
+  "project": "Example DC campus - Building 1",
+  "client": "Example client",
+  "stage": "RIBA Stage 2",
+  "it_load_mw": 24.0,
+  "hall_it_mw": 6.0,
+  "storeys": 1,
+  "rack_kw": 20.0,
+  "rack_w": 0.6,
+  "rack_d": 1.2,
+  "max_racks_per_row": 30,
+  "cooling": "air_chw",
+  "topology": "4M3",
+  "catcher_group": 4,
+  "halls_per_group": 1,
+  "max_block_kw": 3000.0,
+  "blocks_per_elec_room": 1,
+  "elec_room_levels": null,
+  "genset_tiers": 1,
+  "design_pue": 1.3,
+  "mech_on_blocks": true,
+  "fuel_autonomy_h": 24.0,
+  "heat_rejection": "auto",
+  "hr_location": "auto",
+  "hr_redundancy": "N+1",
+  "hr_overhead_frac": 0.06,
+  "ambient_design_c": 36.0,
+  "ambient_design_wb_c": 21.0,
+  "fwr_c": 30.0,
+  "roof_screen_db": 5.0,
+  "yard_barrier_db": 0.0,
+  "building_screen_db": 10.0,
+  "staff_parking": 60
+ },
+ "site": {
+  "name": "Example greenfield site",
+  "redline": [
+   [
+    1000.0,
+    2000.0
+   ],
+   [
+    1290.0,
+    1975.0
+   ],
+   [
+    1315.0,
+    2210.0
+   ],
+   [
+    1180.0,
+    2255.0
+   ],
+   [
+    985.0,
+    2240.0
+   ]
+  ],
+  "access_points": [
+   [
+    1140.0,
+    1988.0
+   ]
+  ],
+  "utility_point": [
+   1420.0,
+   2090.0
+  ],
+  "true_north_deg": 0.0,
+  "boundary_setback_m": 10.0,
+  "receptors": [
+   {
+    "name": "NSR1 Farmhouse",
+    "x": 1460.0,
+    "y": 2150.0,
+    "z": 1.5,
+    "limit_dba": 45.0
+   },
+   {
+    "name": "NSR2 Village edge",
+    "x": 1120.0,
+    "y": 2430.0,
+    "z": 1.5,
+    "limit_dba": 42.0
+   }
+  ],
+  "boundary_noise_limit_dba": null,
+  "building_orientation_deg": null,
+  "crs": null
+ },
+ "frame": {
+  "rotation_deg": -4.9,
+  "origin": [
+   1148.2559608400443,
+   2117.426969840518
+  ]
+ },
+ "redline_local": [
+  [
+   -137.68387875811987,
+   -129.66137705828197
+  ],
+  [
+   153.39168021567718,
+   -129.79910175321808
+  ],
+  [
+   158.22733568316846,
+   106.47746593007912
+  ],
+  [
+   19.876959156214586,
+   139.78171963512528
+  ],
+  [
+   -173.12911975395167,
+   108.18024018047505
+  ]
+ ],
+ "buildable_local": [
+  [
+   -129.06312060036686,
+   -119.6654549185598
+  ],
+  [
+   -161.78534870249206,
+   99.90443465787654
+  ],
+  [
+   19.499900544929496,
+   129.58682659015355
+  ],
+  [
+   148.06480196063285,
+   98.63817143070305
+  ],
+  [
+   143.5943418437874,
+   -119.79446494595463
+  ]
+ ],
+ "elements": [
+  {
+   "id": "SUP",
+   "kind": "support",
+   "name": "Support / admin / loading",
+   "x": -14.985348702492047,
+   "y": -68.99446494595463,
+   "w": 24.0,
+   "d": 56.0,
+   "z": 0.0,
+   "h": 11.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true
+   }
+  },
+  {
+   "id": "COR",
+   "kind": "corridor",
+   "name": "Corridor",
+   "x": 9.014651297507953,
+   "y": -32.994464945954626,
+   "w": 123.2,
+   "d": 4.0,
+   "z": 0.0,
+   "h": 8.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true
+   }
+  },
+  {
+   "id": "MECH",
+   "kind": "mech_gallery",
+   "name": "Mechanical gallery",
+   "x": 9.014651297507953,
+   "y": -68.99446494595463,
+   "w": 123.2,
+   "d": 8.0,
+   "z": 0.0,
+   "h": 8.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true
+   }
+  },
+  {
+   "id": "DH01",
+   "kind": "data_hall",
+   "name": "Data Hall 1",
+   "x": 9.014651297507953,
+   "y": -60.994464945954626,
+   "w": 30.8,
+   "d": 28.0,
+   "z": 0.0,
+   "h": 8.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "it_kw": 6000.0,
+    "racks": 300,
+    "rows": 10,
+    "pods": 5,
+    "area_m2": 862.4,
+    "storey": 0,
+    "pod_rects": [
+     [
+      2.8,
+      5.0,
+      6.3999999999999995,
+      23.0
+     ],
+     [
+      8.2,
+      5.0,
+      11.799999999999999,
+      23.0
+     ],
+     [
+      13.599999999999998,
+      5.0,
+      17.199999999999996,
+      23.0
+     ],
+     [
+      19.0,
+      5.0,
+      22.6,
+      23.0
+     ],
+     [
+      24.4,
+      5.0,
+      28.0,
+      23.0
+     ]
+    ],
+    "aisle_rects": [
+     [
+      4.0,
+      5.0,
+      5.2,
+      23.0
+     ],
+     [
+      9.399999999999999,
+      5.0,
+      10.599999999999998,
+      23.0
+     ],
+     [
+      14.799999999999997,
+      5.0,
+      15.999999999999996,
+      23.0
+     ],
+     [
+      20.2,
+      5.0,
+      21.4,
+      23.0
+     ],
+     [
+      25.599999999999998,
+      5.0,
+      26.799999999999997,
+      23.0
+     ]
+    ],
+    "gallery": 3.5
+   }
+  },
+  {
+   "id": "DH02",
+   "kind": "data_hall",
+   "name": "Data Hall 2",
+   "x": 39.81465129750795,
+   "y": -60.994464945954626,
+   "w": 30.8,
+   "d": 28.0,
+   "z": 0.0,
+   "h": 8.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "it_kw": 6000.0,
+    "racks": 300,
+    "rows": 10,
+    "pods": 5,
+    "area_m2": 862.4,
+    "storey": 0,
+    "pod_rects": [
+     [
+      2.8,
+      5.0,
+      6.3999999999999995,
+      23.0
+     ],
+     [
+      8.2,
+      5.0,
+      11.799999999999999,
+      23.0
+     ],
+     [
+      13.599999999999998,
+      5.0,
+      17.199999999999996,
+      23.0
+     ],
+     [
+      19.0,
+      5.0,
+      22.6,
+      23.0
+     ],
+     [
+      24.4,
+      5.0,
+      28.0,
+      23.0
+     ]
+    ],
+    "aisle_rects": [
+     [
+      4.0,
+      5.0,
+      5.2,
+      23.0
+     ],
+     [
+      9.399999999999999,
+      5.0,
+      10.599999999999998,
+      23.0
+     ],
+     [
+      14.799999999999997,
+      5.0,
+      15.999999999999996,
+      23.0
+     ],
+     [
+      20.2,
+      5.0,
+      21.4,
+      23.0
+     ],
+     [
+      25.599999999999998,
+      5.0,
+      26.799999999999997,
+      23.0
+     ]
+    ],
+    "gallery": 3.5
+   }
+  },
+  {
+   "id": "DH03",
+   "kind": "data_hall",
+   "name": "Data Hall 3",
+   "x": 70.61465129750795,
+   "y": -60.994464945954626,
+   "w": 30.8,
+   "d": 28.0,
+   "z": 0.0,
+   "h": 8.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "it_kw": 6000.0,
+    "racks": 300,
+    "rows": 10,
+    "pods": 5,
+    "area_m2": 862.4,
+    "storey": 0,
+    "pod_rects": [
+     [
+      2.8,
+      5.0,
+      6.3999999999999995,
+      23.0
+     ],
+     [
+      8.2,
+      5.0,
+      11.799999999999999,
+      23.0
+     ],
+     [
+      13.599999999999998,
+      5.0,
+      17.199999999999996,
+      23.0
+     ],
+     [
+      19.0,
+      5.0,
+      22.6,
+      23.0
+     ],
+     [
+      24.4,
+      5.0,
+      28.0,
+      23.0
+     ]
+    ],
+    "aisle_rects": [
+     [
+      4.0,
+      5.0,
+      5.2,
+      23.0
+     ],
+     [
+      9.399999999999999,
+      5.0,
+      10.599999999999998,
+      23.0
+     ],
+     [
+      14.799999999999997,
+      5.0,
+      15.999999999999996,
+      23.0
+     ],
+     [
+      20.2,
+      5.0,
+      21.4,
+      23.0
+     ],
+     [
+      25.599999999999998,
+      5.0,
+      26.799999999999997,
+      23.0
+     ]
+    ],
+    "gallery": 3.5
+   }
+  },
+  {
+   "id": "DH04",
+   "kind": "data_hall",
+   "name": "Data Hall 4",
+   "x": 101.41465129750796,
+   "y": -60.994464945954626,
+   "w": 30.8,
+   "d": 28.0,
+   "z": 0.0,
+   "h": 8.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "it_kw": 6000.0,
+    "racks": 300,
+    "rows": 10,
+    "pods": 5,
+    "area_m2": 862.4,
+    "storey": 0,
+    "pod_rects": [
+     [
+      2.8,
+      5.0,
+      6.3999999999999995,
+      23.0
+     ],
+     [
+      8.2,
+      5.0,
+      11.799999999999999,
+      23.0
+     ],
+     [
+      13.599999999999998,
+      5.0,
+      17.199999999999996,
+      23.0
+     ],
+     [
+      19.0,
+      5.0,
+      22.6,
+      23.0
+     ],
+     [
+      24.4,
+      5.0,
+      28.0,
+      23.0
+     ]
+    ],
+    "aisle_rects": [
+     [
+      4.0,
+      5.0,
+      5.2,
+      23.0
+     ],
+     [
+      9.399999999999999,
+      5.0,
+      10.599999999999998,
+      23.0
+     ],
+     [
+      14.799999999999997,
+      5.0,
+      15.999999999999996,
+      23.0
+     ],
+     [
+      20.2,
+      5.0,
+      21.4,
+      23.0
+     ],
+     [
+      25.599999999999998,
+      5.0,
+      26.799999999999997,
+      23.0
+     ]
+    ],
+    "gallery": 3.5
+   }
+  },
+  {
+   "id": "EB01",
+   "kind": "elec_room",
+   "name": "EB01",
+   "x": 9.014651297507953,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     0
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "EB02",
+   "kind": "elec_room",
+   "name": "EB02",
+   "x": 21.014651297507953,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     1
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "EB03",
+   "kind": "elec_room",
+   "name": "EB03",
+   "x": 33.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     2
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "EB04",
+   "kind": "elec_room",
+   "name": "EB04",
+   "x": 45.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     3
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "EB05",
+   "kind": "elec_room",
+   "name": "EB05",
+   "x": 57.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     4
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     1
+    ]
+   }
+  },
+  {
+   "id": "EB06",
+   "kind": "elec_room",
+   "name": "EB06",
+   "x": 69.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     5
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     1
+    ]
+   }
+  },
+  {
+   "id": "EB07",
+   "kind": "elec_room",
+   "name": "EB07",
+   "x": 81.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     6
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     1
+    ]
+   }
+  },
+  {
+   "id": "EB08",
+   "kind": "elec_room",
+   "name": "EB08",
+   "x": 93.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     7
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     1
+    ]
+   }
+  },
+  {
+   "id": "EB09",
+   "kind": "elec_room",
+   "name": "EB09",
+   "x": 105.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     8
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "EB10",
+   "kind": "elec_room",
+   "name": "EB10",
+   "x": 117.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 0.0,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 0,
+    "blocks": [
+     9
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "EB11",
+   "kind": "elec_room",
+   "name": "EB11",
+   "x": 9.014651297507953,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 5.5,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 1,
+    "blocks": [
+     10
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "EB12",
+   "kind": "elec_room",
+   "name": "EB12",
+   "x": 21.014651297507953,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 5.5,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 1,
+    "blocks": [
+     11
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "EB13",
+   "kind": "elec_room",
+   "name": "EB13",
+   "x": 33.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 5.5,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 1,
+    "blocks": [
+     12
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     3
+    ]
+   }
+  },
+  {
+   "id": "EB14",
+   "kind": "elec_room",
+   "name": "EB14",
+   "x": 45.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 5.5,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 1,
+    "blocks": [
+     13
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     3
+    ]
+   }
+  },
+  {
+   "id": "EB15",
+   "kind": "elec_room",
+   "name": "EB15",
+   "x": 57.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 5.5,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 1,
+    "blocks": [
+     14
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     3
+    ]
+   }
+  },
+  {
+   "id": "EB16",
+   "kind": "elec_room",
+   "name": "EB16",
+   "x": 69.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 5.5,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 1,
+    "blocks": [
+     15
+    ],
+    "ups_kw": 2000,
+    "groups": [
+     3
+    ]
+   }
+  },
+  {
+   "id": "MV01",
+   "kind": "mv_room",
+   "name": "MV01",
+   "x": 81.01465129750795,
+   "y": -28.994464945954626,
+   "w": 12.0,
+   "d": 16.0,
+   "z": 5.5,
+   "h": 5.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "enclosed": true,
+    "level": 1,
+    "blocks": []
+   }
+  },
+  {
+   "id": "TX01",
+   "kind": "transformer",
+   "name": "TX01",
+   "x": 11.464651297507956,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 0,
+    "group_no": 0
+   }
+  },
+  {
+   "id": "TX02",
+   "kind": "transformer",
+   "name": "TX02",
+   "x": 19.16465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 1,
+    "group_no": 0
+   }
+  },
+  {
+   "id": "TX03",
+   "kind": "transformer",
+   "name": "TX03",
+   "x": 26.864651297507955,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 2,
+    "group_no": 0
+   }
+  },
+  {
+   "id": "TX04",
+   "kind": "transformer",
+   "name": "TX04",
+   "x": 34.56465129750796,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 3,
+    "group_no": 0
+   }
+  },
+  {
+   "id": "TX05",
+   "kind": "transformer",
+   "name": "TX05",
+   "x": 42.26465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 4,
+    "group_no": 1
+   }
+  },
+  {
+   "id": "TX06",
+   "kind": "transformer",
+   "name": "TX06",
+   "x": 49.96465129750794,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 5,
+    "group_no": 1
+   }
+  },
+  {
+   "id": "TX07",
+   "kind": "transformer",
+   "name": "TX07",
+   "x": 57.66465129750796,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 6,
+    "group_no": 1
+   }
+  },
+  {
+   "id": "TX08",
+   "kind": "transformer",
+   "name": "TX08",
+   "x": 65.36465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 7,
+    "group_no": 1
+   }
+  },
+  {
+   "id": "TX09",
+   "kind": "transformer",
+   "name": "TX09",
+   "x": 73.06465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 8,
+    "group_no": 2
+   }
+  },
+  {
+   "id": "TX10",
+   "kind": "transformer",
+   "name": "TX10",
+   "x": 80.76465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 9,
+    "group_no": 2
+   }
+  },
+  {
+   "id": "TX11",
+   "kind": "transformer",
+   "name": "TX11",
+   "x": 88.46465129750796,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 10,
+    "group_no": 2
+   }
+  },
+  {
+   "id": "TX12",
+   "kind": "transformer",
+   "name": "TX12",
+   "x": 96.16465129750794,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 11,
+    "group_no": 2
+   }
+  },
+  {
+   "id": "TX13",
+   "kind": "transformer",
+   "name": "TX13",
+   "x": 103.86465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 12,
+    "group_no": 3
+   }
+  },
+  {
+   "id": "TX14",
+   "kind": "transformer",
+   "name": "TX14",
+   "x": 111.56465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 13,
+    "group_no": 3
+   }
+  },
+  {
+   "id": "TX15",
+   "kind": "transformer",
+   "name": "TX15",
+   "x": 119.26465129750795,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 14,
+    "group_no": 3
+   }
+  },
+  {
+   "id": "TX16",
+   "kind": "transformer",
+   "name": "TX16",
+   "x": 126.96465129750797,
+   "y": -10.994464945954626,
+   "w": 2.8,
+   "d": 3.9,
+   "z": 0.0,
+   "h": 3.4,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "tx-array",
+   "catalogue_key": "tx_3150",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3150,
+    "block": 15,
+    "group_no": 3
+   }
+  },
+  {
+   "id": "GEN01",
+   "kind": "genset",
+   "name": "G01",
+   "x": 11.114651297507955,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 0,
+    "group_no": 0,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN02",
+   "kind": "genset",
+   "name": "G02",
+   "x": 18.81465129750795,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 1,
+    "group_no": 0,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN03",
+   "kind": "genset",
+   "name": "G03",
+   "x": 26.514651297507953,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 2,
+    "group_no": 0,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN04",
+   "kind": "genset",
+   "name": "G04",
+   "x": 34.214651297507956,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 3,
+    "group_no": 0,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN05",
+   "kind": "genset",
+   "name": "G05",
+   "x": 41.91465129750795,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 4,
+    "group_no": 1,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN06",
+   "kind": "genset",
+   "name": "G06",
+   "x": 49.61465129750795,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 5,
+    "group_no": 1,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN07",
+   "kind": "genset",
+   "name": "G07",
+   "x": 57.314651297507965,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 6,
+    "group_no": 1,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN08",
+   "kind": "genset",
+   "name": "G08",
+   "x": 65.01465129750795,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 7,
+    "group_no": 1,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN09",
+   "kind": "genset",
+   "name": "G09",
+   "x": 72.71465129750796,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 8,
+    "group_no": 2,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN10",
+   "kind": "genset",
+   "name": "G10",
+   "x": 80.41465129750796,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 9,
+    "group_no": 2,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN11",
+   "kind": "genset",
+   "name": "G11",
+   "x": 88.11465129750796,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 10,
+    "group_no": 2,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN12",
+   "kind": "genset",
+   "name": "G12",
+   "x": 95.81465129750795,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 11,
+    "group_no": 2,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN13",
+   "kind": "genset",
+   "name": "G13",
+   "x": 103.51465129750795,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 12,
+    "group_no": 3,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN14",
+   "kind": "genset",
+   "name": "G14",
+   "x": 111.21465129750796,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 13,
+    "group_no": 3,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN15",
+   "kind": "genset",
+   "name": "G15",
+   "x": 118.91465129750796,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 14,
+    "group_no": 3,
+    "tier": 0
+   }
+  },
+  {
+   "id": "GEN16",
+   "kind": "genset",
+   "name": "G16",
+   "x": 126.61465129750798,
+   "y": -1.094464945954627,
+   "w": 3.5,
+   "d": 14.5,
+   "z": 0.0,
+   "h": 4.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "gen-array",
+   "catalogue_key": "gen_3500",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "kva": 3500,
+    "kwe": 2800,
+    "lw_dba": 105,
+    "block": 15,
+    "group_no": 3,
+    "tier": 0
+   }
+  },
+  {
+   "id": "HR01",
+   "kind": "chiller",
+   "name": "HR01",
+   "x": 13.339651297507956,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR02",
+   "kind": "chiller",
+   "name": "HR02",
+   "x": 27.989651297507955,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR03",
+   "kind": "chiller",
+   "name": "HR03",
+   "x": 42.63965129750795,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR04",
+   "kind": "chiller",
+   "name": "HR04",
+   "x": 57.28965129750796,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR05",
+   "kind": "chiller",
+   "name": "HR05",
+   "x": 71.93965129750795,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR06",
+   "kind": "chiller",
+   "name": "HR06",
+   "x": 86.58965129750796,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR07",
+   "kind": "chiller",
+   "name": "HR07",
+   "x": 101.23965129750796,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR08",
+   "kind": "chiller",
+   "name": "HR08",
+   "x": 115.88965129750795,
+   "y": -46.34446494595463,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR09",
+   "kind": "chiller",
+   "name": "HR09",
+   "x": 13.339651297507956,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR10",
+   "kind": "chiller",
+   "name": "HR10",
+   "x": 27.989651297507955,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR11",
+   "kind": "chiller",
+   "name": "HR11",
+   "x": 42.63965129750795,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR12",
+   "kind": "chiller",
+   "name": "HR12",
+   "x": 57.28965129750796,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR13",
+   "kind": "chiller",
+   "name": "HR13",
+   "x": 71.93965129750795,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR14",
+   "kind": "chiller",
+   "name": "HR14",
+   "x": 86.58965129750796,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR15",
+   "kind": "chiller",
+   "name": "HR15",
+   "x": 101.23965129750796,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR16",
+   "kind": "chiller",
+   "name": "HR16",
+   "x": 115.88965129750795,
+   "y": -52.144464945954624,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR17",
+   "kind": "chiller",
+   "name": "HR17",
+   "x": 20.66465129750795,
+   "y": -57.94446494595462,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR18",
+   "kind": "chiller",
+   "name": "HR18",
+   "x": 49.964651297507956,
+   "y": -57.94446494595462,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR19",
+   "kind": "chiller",
+   "name": "HR19",
+   "x": 79.26465129750795,
+   "y": -57.94446494595462,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "HR20",
+   "kind": "chiller",
+   "name": "HR20",
+   "x": 108.56465129750796,
+   "y": -57.94446494595462,
+   "w": 12.0,
+   "d": 2.3,
+   "z": 8.0,
+   "h": 2.6,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "hr-roof",
+   "catalogue_key": "acc_fc_1400",
+   "locked": false,
+   "solid": true,
+   "props": {
+    "lw_dba": 92,
+    "capacity_kw": 1383,
+    "on_roof": true,
+    "operating_kg": 13000
+   }
+  },
+  {
+   "id": "GH",
+   "kind": "guardhouse",
+   "name": "Guardhouse",
+   "x": -8.820566724737768,
+   "y": -101.72786203937241,
+   "w": 6.0,
+   "d": 10.0,
+   "z": 0.0,
+   "h": 3.5,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {}
+  },
+  {
+   "id": "GATE1",
+   "kind": "gate",
+   "name": "Security gate / HVM line",
+   "x": -1.2205667247377674,
+   "y": -88.12786203937242,
+   "w": 8.100000000000001,
+   "d": 0.8000000000000114,
+   "z": 0.0,
+   "h": 1.2,
+   "shape": "poly",
+   "polygon": [
+    [
+     -0.8205667247377675,
+     -88.12786203937242
+    ],
+    [
+     -0.8597735808695917,
+     -88.1259359300413
+    ],
+    [
+     -0.898602853544219,
+     -88.1201761515337
+    ],
+    [
+     -0.9366805956395525,
+     -88.1106381736653
+    ],
+    [
+     -0.9736400976838037,
+     -88.09741385237693
+    ],
+    [
+     -1.0091254194681667,
+     -88.08063054511176
+    ],
+    [
+     -1.0427948179456084,
+     -88.06044988429343
+    ],
+    [
+     -1.0743240384032258,
+     -88.0370662207175
+    ],
+    [
+     -1.1034094372123866,
+     -88.01070475184703
+    ],
+    [
+     -1.1297709060828622,
+     -87.98161935303787
+    ],
+    [
+     -1.1531545696587857,
+     -87.95009013258026
+    ],
+    [
+     -1.1733352304771096,
+     -87.91642073410281
+    ],
+    [
+     -1.1901185377422823,
+     -87.88093541231845
+    ],
+    [
+     -1.2033428590306512,
+     -87.8439759102742
+    ],
+    [
+     -1.2128808368990596,
+     -87.80589816817886
+    ],
+    [
+     -1.2186406154066463,
+     -87.76706889550424
+    ],
+    [
+     -1.2205667247377674,
+     -87.72786203937241
+    ],
+    [
+     -1.2186406154066463,
+     -87.68865518324058
+    ],
+    [
+     -1.2128808368990596,
+     -87.64982591056597
+    ],
+    [
+     -1.203342859030651,
+     -87.61174816847063
+    ],
+    [
+     -1.1901185377422823,
+     -87.57478866642637
+    ],
+    [
+     -1.1733352304771094,
+     -87.53930334464201
+    ],
+    [
+     -1.1531545696587857,
+     -87.50563394616456
+    ],
+    [
+     -1.1297709060828622,
+     -87.47410472570695
+    ],
+    [
+     -1.1034094372123864,
+     -87.44501932689779
+    ],
+    [
+     -1.0743240384032258,
+     -87.41865785802732
+    ],
+    [
+     -1.0427948179456084,
+     -87.39527419445139
+    ],
+    [
+     -1.0091254194681665,
+     -87.37509353363306
+    ],
+    [
+     -0.9736400976838033,
+     -87.35831022636789
+    ],
+    [
+     -0.9366805956395523,
+     -87.34508590507953
+    ],
+    [
+     -0.8986028535442189,
+     -87.33554792721112
+    ],
+    [
+     -0.8597735808695918,
+     -87.32978814870353
+    ],
+    [
+     -0.8205667247377675,
+     -87.3278620393724
+    ],
+    [
+     6.479433275262233,
+     -87.3278620393724
+    ],
+    [
+     6.518640131394057,
+     -87.32978814870353
+    ],
+    [
+     6.5574694040686845,
+     -87.33554792721112
+    ],
+    [
+     6.595547146164018,
+     -87.34508590507953
+    ],
+    [
+     6.632506648208269,
+     -87.35831022636789
+    ],
+    [
+     6.667991969992632,
+     -87.37509353363306
+    ],
+    [
+     6.701661368470074,
+     -87.39527419445139
+    ],
+    [
+     6.733190588927691,
+     -87.41865785802732
+    ],
+    [
+     6.762275987736852,
+     -87.44501932689779
+    ],
+    [
+     6.7886374566073275,
+     -87.47410472570695
+    ],
+    [
+     6.812021120183251,
+     -87.50563394616456
+    ],
+    [
+     6.832201781001575,
+     -87.53930334464201
+    ],
+    [
+     6.848985088266748,
+     -87.57478866642637
+    ],
+    [
+     6.862209409555116,
+     -87.61174816847063
+    ],
+    [
+     6.871747387423525,
+     -87.64982591056597
+    ],
+    [
+     6.877507165931112,
+     -87.68865518324058
+    ],
+    [
+     6.879433275262233,
+     -87.72786203937241
+    ],
+    [
+     6.877507165931112,
+     -87.76706889550424
+    ],
+    [
+     6.871747387423525,
+     -87.80589816817886
+    ],
+    [
+     6.862209409555116,
+     -87.8439759102742
+    ],
+    [
+     6.848985088266748,
+     -87.88093541231845
+    ],
+    [
+     6.832201781001575,
+     -87.91642073410281
+    ],
+    [
+     6.812021120183251,
+     -87.95009013258026
+    ],
+    [
+     6.7886374566073275,
+     -87.98161935303787
+    ],
+    [
+     6.762275987736852,
+     -88.01070475184703
+    ],
+    [
+     6.733190588927691,
+     -88.0370662207175
+    ],
+    [
+     6.701661368470074,
+     -88.06044988429343
+    ],
+    [
+     6.667991969992632,
+     -88.08063054511176
+    ],
+    [
+     6.632506648208269,
+     -88.09741385237693
+    ],
+    [
+     6.595547146164018,
+     -88.1106381736653
+    ],
+    [
+     6.5574694040686845,
+     -88.1201761515337
+    ],
+    [
+     6.518640131394057,
+     -88.1259359300413
+    ],
+    [
+     6.479433275262233,
+     -88.12786203937242
+    ]
+   ],
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  },
+  {
+   "id": "SUB",
+   "kind": "substation",
+   "name": "33 kV substation",
+   "x": 126.21465129750794,
+   "y": 32.20553505404537,
+   "w": 20.0,
+   "d": 30.0,
+   "z": 0.0,
+   "h": 4.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "voltage": "33 kV",
+    "mva": 32.8
+   }
+  },
+  {
+   "id": "SPR-T1",
+   "kind": "sprinkler_tank",
+   "name": "Sprinkler tank 1",
+   "x": 10.214651297507942,
+   "y": -95.79446494595463,
+   "w": 11.0,
+   "d": 11.0,
+   "z": 0.0,
+   "h": 7.0,
+   "shape": "cyl",
+   "polygon": null,
+   "holes": null,
+   "group": "sprinkler",
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "volume_m3": 665
+   }
+  },
+  {
+   "id": "SPR-T2",
+   "kind": "sprinkler_tank",
+   "name": "Sprinkler tank 2",
+   "x": 24.21465129750794,
+   "y": -95.79446494595463,
+   "w": 11.0,
+   "d": 11.0,
+   "z": 0.0,
+   "h": 7.0,
+   "shape": "cyl",
+   "polygon": null,
+   "holes": null,
+   "group": "sprinkler",
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "volume_m3": 665
+   }
+  },
+  {
+   "id": "SPR-PH",
+   "kind": "pump_house",
+   "name": "Sprinkler pump house",
+   "x": 38.21465129750794,
+   "y": -94.29446494595463,
+   "w": 12.0,
+   "d": 8.0,
+   "z": 0.0,
+   "h": 4.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "sprinkler",
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {}
+  },
+  {
+   "id": "FUEL-BUND",
+   "kind": "fuel_bund",
+   "name": "Bulk fuel store (bunded)",
+   "x": 62.21465129750794,
+   "y": 32.20553505404537,
+   "w": 18.0,
+   "d": 13.0,
+   "z": 0.0,
+   "h": 1.2,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "fuel-store",
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {
+    "volume_m3": 195,
+    "tanks": 2
+   }
+  },
+  {
+   "id": "FUEL-T1",
+   "kind": "fuel_tank",
+   "name": "Fuel tank 1",
+   "x": 63.71465129750794,
+   "y": 33.70553505404537,
+   "w": 4.0,
+   "d": 15.0,
+   "z": 0.3,
+   "h": 4.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "fuel-store",
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "volume_m3": 100
+   }
+  },
+  {
+   "id": "FUEL-T2",
+   "kind": "fuel_tank",
+   "name": "Fuel tank 2",
+   "x": 69.71465129750794,
+   "y": 33.70553505404537,
+   "w": 4.0,
+   "d": 15.0,
+   "z": 0.3,
+   "h": 4.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": "fuel-store",
+   "catalogue_key": null,
+   "locked": false,
+   "solid": true,
+   "props": {
+    "volume_m3": 100
+   }
+  },
+  {
+   "id": "PARK",
+   "kind": "parking",
+   "name": "Parking (60 spaces)",
+   "x": -45.78534870249206,
+   "y": -79.79446494595463,
+   "w": 16.0,
+   "d": 75.0,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "box",
+   "polygon": null,
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {
+    "spaces": 60,
+    "bay_w": 2.5,
+    "bay_d": 5.0,
+    "aisle": 6.0
+   }
+  },
+  {
+   "id": "RD-RING",
+   "kind": "road",
+   "name": "Perimeter road",
+   "x": -25.285348702492044,
+   "y": -79.29446494595463,
+   "w": 167.8,
+   "d": 107.0,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "poly",
+   "polygon": [
+    [
+     -25.285348702492044,
+     -79.29446494595463
+    ],
+    [
+     -25.285348702492044,
+     27.705535054045374
+    ],
+    [
+     142.51465129750795,
+     27.705535054045374
+    ],
+    [
+     142.51465129750795,
+     -79.29446494595463
+    ]
+   ],
+   "holes": [
+    [
+     [
+      135.21465129750794,
+      20.405535054045373
+     ],
+     [
+      -17.985348702492047,
+      20.405535054045373
+     ],
+     [
+      -17.985348702492047,
+      -71.99446494595463
+     ],
+     [
+      135.21465129750794,
+      -71.99446494595463
+     ]
+    ]
+   ],
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  },
+  {
+   "id": "RD-SPUR1",
+   "kind": "road",
+   "name": "Main access",
+   "x": -0.8205667247377675,
+   "y": -129.72958906564108,
+   "w": 7.300000000000001,
+   "d": 51.43512411968645,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "poly",
+   "polygon": [
+    [
+     6.479433275262233,
+     -78.29446494595463
+    ],
+    [
+     6.479433275262233,
+     -129.72958906564108
+    ],
+    [
+     -0.8205667247377675,
+     -129.72613501310374
+    ],
+    [
+     -0.8205667247377675,
+     -78.29446494595463
+    ]
+   ],
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  },
+  {
+   "id": "RD-C1",
+   "kind": "road",
+   "name": "Access to substation",
+   "x": 123.21465129750794,
+   "y": 24.705535054045374,
+   "w": 6.0,
+   "d": 7.5000000000000036,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "poly",
+   "polygon": [
+    [
+     129.21465129750794,
+     32.20553505404538
+    ],
+    [
+     129.21465129750794,
+     27.705535054045384
+    ],
+    [
+     129.21465129750794,
+     27.705535054045374
+    ],
+    [
+     129.20020547752455,
+     27.41148363305669
+    ],
+    [
+     129.15700713871766,
+     27.12026408799699
+    ],
+    [
+     129.08547230470458,
+     26.834681022281988
+    ],
+    [
+     128.9862898950418,
+     26.557484756950103
+    ],
+    [
+     128.86041509055303,
+     26.29134484356738
+    ],
+    [
+     128.70906013441558,
+     26.038824354986566
+    ],
+    [
+     128.53368265759616,
+     25.802355201554438
+    ],
+    [
+     128.3359716410676,
+     25.584214710485732
+    ],
+    [
+     128.1178311499989,
+     25.386503693957163
+    ],
+    [
+     127.88136199656677,
+     25.21112621713774
+    ],
+    [
+     127.62884150798595,
+     25.059771261000307
+    ],
+    [
+     127.36270159460322,
+     24.933896456511512
+    ],
+    [
+     127.08550532927134,
+     24.834714046848745
+    ],
+    [
+     126.79992226355634,
+     24.76317921283568
+    ],
+    [
+     126.50870271849664,
+     24.719980874028785
+    ],
+    [
+     126.21465129750796,
+     24.705535054045374
+    ],
+    [
+     125.92059987651928,
+     24.719980874028785
+    ],
+    [
+     125.62938033145957,
+     24.76317921283568
+    ],
+    [
+     125.34379726574457,
+     24.834714046848745
+    ],
+    [
+     125.06660100041269,
+     24.933896456511512
+    ],
+    [
+     124.80046108702996,
+     25.059771261000307
+    ],
+    [
+     124.54794059844914,
+     25.21112621713774
+    ],
+    [
+     124.31147144501702,
+     25.386503693957163
+    ],
+    [
+     124.09333095394831,
+     25.584214710485732
+    ],
+    [
+     123.89561993741974,
+     25.802355201554438
+    ],
+    [
+     123.72024246060032,
+     26.038824354986566
+    ],
+    [
+     123.5688875044629,
+     26.29134484356738
+    ],
+    [
+     123.44301269997409,
+     26.557484756950103
+    ],
+    [
+     123.34383029031133,
+     26.834681022281988
+    ],
+    [
+     123.27229545629827,
+     27.120264087996986
+    ],
+    [
+     123.22909711749136,
+     27.41148363305669
+    ],
+    [
+     123.21465129750796,
+     27.705535054045363
+    ],
+    [
+     123.21465129750794,
+     32.20553505404536
+    ]
+   ],
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  },
+  {
+   "id": "RD-C2",
+   "kind": "road",
+   "name": "Access to sprinkler group",
+   "x": 3.479433275262233,
+   "y": -87.79446494595463,
+   "w": 6.735218022245709,
+   "d": 6.0,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "poly",
+   "polygon": [
+    [
+     10.214651297507942,
+     -87.79446494595463
+    ],
+    [
+     6.479433275262233,
+     -87.79446494595463
+    ],
+    [
+     6.185381854273551,
+     -87.78001912597122
+    ],
+    [
+     5.894162309213848,
+     -87.73682078716432
+    ],
+    [
+     5.608579243498847,
+     -87.66528595315125
+    ],
+    [
+     5.331382978166964,
+     -87.5661035434885
+    ],
+    [
+     5.06524306478424,
+     -87.44022873899969
+    ],
+    [
+     4.812722576203427,
+     -87.28887378286227
+    ],
+    [
+     4.5762534227712965,
+     -87.11349630604285
+    ],
+    [
+     4.358112931702591,
+     -86.91578528951428
+    ],
+    [
+     4.160401915174022,
+     -86.69764479844557
+    ],
+    [
+     3.9850244383545967,
+     -86.46117564501344
+    ],
+    [
+     3.833669482217168,
+     -86.20865515643263
+    ],
+    [
+     3.707794677728373,
+     -85.9425152430499
+    ],
+    [
+     3.608612268065606,
+     -85.66531897771802
+    ],
+    [
+     3.5370774340525415,
+     -85.37973591200301
+    ],
+    [
+     3.493879095245642,
+     -85.08851636694331
+    ],
+    [
+     3.479433275262233,
+     -84.79446494595463
+    ],
+    [
+     3.493879095245642,
+     -84.50041352496595
+    ],
+    [
+     3.5370774340525415,
+     -84.20919397990625
+    ],
+    [
+     3.608612268065606,
+     -83.92361091419124
+    ],
+    [
+     3.7077946777283723,
+     -83.64641464885936
+    ],
+    [
+     3.8336694822171675,
+     -83.38027473547663
+    ],
+    [
+     3.9850244383545963,
+     -83.12775424689582
+    ],
+    [
+     4.160401915174021,
+     -82.8912850934637
+    ],
+    [
+     4.35811293170259,
+     -82.67314460239498
+    ],
+    [
+     4.576253422771295,
+     -82.47543358586643
+    ],
+    [
+     4.812722576203426,
+     -82.30005610904699
+    ],
+    [
+     5.065243064784239,
+     -82.14870115290957
+    ],
+    [
+     5.331382978166962,
+     -82.02282634842076
+    ],
+    [
+     5.608579243498846,
+     -81.923643938758
+    ],
+    [
+     5.894162309213847,
+     -81.85210910474494
+    ],
+    [
+     6.185381854273551,
+     -81.80891076593804
+    ],
+    [
+     6.479433275262233,
+     -81.79446494595463
+    ],
+    [
+     10.214651297507942,
+     -81.79446494595463
+    ]
+   ],
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  },
+  {
+   "id": "RD-C3",
+   "kind": "road",
+   "name": "Access to fuel bund",
+   "x": 77.21465129750794,
+   "y": 24.705535054045374,
+   "w": 6.0,
+   "d": 7.4999999999999964,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "poly",
+   "polygon": [
+    [
+     83.21465129750794,
+     32.20553505404537
+    ],
+    [
+     83.21465129750794,
+     27.705535054045374
+    ],
+    [
+     83.20020547752453,
+     27.41148363305669
+    ],
+    [
+     83.15700713871763,
+     27.12026408799699
+    ],
+    [
+     83.08547230470457,
+     26.834681022281988
+    ],
+    [
+     82.9862898950418,
+     26.557484756950103
+    ],
+    [
+     82.860415090553,
+     26.29134484356738
+    ],
+    [
+     82.70906013441558,
+     26.038824354986566
+    ],
+    [
+     82.53368265759616,
+     25.802355201554438
+    ],
+    [
+     82.33597164106759,
+     25.584214710485732
+    ],
+    [
+     82.11783114999888,
+     25.386503693957163
+    ],
+    [
+     81.88136199656675,
+     25.21112621713774
+    ],
+    [
+     81.62884150798594,
+     25.059771261000307
+    ],
+    [
+     81.36270159460321,
+     24.933896456511512
+    ],
+    [
+     81.08550532927133,
+     24.834714046848745
+    ],
+    [
+     80.79992226355633,
+     24.76317921283568
+    ],
+    [
+     80.50870271849662,
+     24.719980874028785
+    ],
+    [
+     80.21465129750794,
+     24.705535054045374
+    ],
+    [
+     79.92059987651926,
+     24.719980874028785
+    ],
+    [
+     79.62938033145956,
+     24.76317921283568
+    ],
+    [
+     79.34379726574456,
+     24.834714046848745
+    ],
+    [
+     79.06660100041267,
+     24.933896456511512
+    ],
+    [
+     78.80046108702994,
+     25.059771261000307
+    ],
+    [
+     78.54794059844913,
+     25.21112621713774
+    ],
+    [
+     78.311471445017,
+     25.386503693957163
+    ],
+    [
+     78.0933309539483,
+     25.584214710485732
+    ],
+    [
+     77.89561993741972,
+     25.802355201554438
+    ],
+    [
+     77.7202424606003,
+     26.038824354986566
+    ],
+    [
+     77.56888750446288,
+     26.29134484356738
+    ],
+    [
+     77.44301269997408,
+     26.557484756950103
+    ],
+    [
+     77.34383029031132,
+     26.834681022281988
+    ],
+    [
+     77.27229545629825,
+     27.120264087996986
+    ],
+    [
+     77.22909711749135,
+     27.41148363305669
+    ],
+    [
+     77.21465129750794,
+     27.705535054045374
+    ],
+    [
+     77.21465129750794,
+     32.20553505404537
+    ]
+   ],
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  },
+  {
+   "id": "RD-C4",
+   "kind": "road",
+   "name": "Access to parking",
+   "x": -29.78534870249206,
+   "y": -82.29446494595463,
+   "w": 7.500000000000014,
+   "d": 6.0,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "poly",
+   "polygon": [
+    [
+     -29.78534870249206,
+     -76.29446494595463
+    ],
+    [
+     -25.285348702492044,
+     -76.29446494595463
+    ],
+    [
+     -24.991297281503364,
+     -76.30891076593804
+    ],
+    [
+     -24.70007773644366,
+     -76.35210910474494
+    ],
+    [
+     -24.414494670728658,
+     -76.423643938758
+    ],
+    [
+     -24.137298405396773,
+     -76.52282634842076
+    ],
+    [
+     -23.87115849201405,
+     -76.64870115290957
+    ],
+    [
+     -23.61863800343324,
+     -76.80005610904699
+    ],
+    [
+     -23.382168850001108,
+     -76.97543358586643
+    ],
+    [
+     -23.164028358932402,
+     -77.17314460239498
+    ],
+    [
+     -22.966317342403833,
+     -77.3912850934637
+    ],
+    [
+     -22.79093986558441,
+     -77.62775424689582
+    ],
+    [
+     -22.63958490944698,
+     -77.88027473547663
+    ],
+    [
+     -22.513710104958186,
+     -78.14641464885936
+    ],
+    [
+     -22.41452769529542,
+     -78.42361091419124
+    ],
+    [
+     -22.342992861282355,
+     -78.70919397990625
+    ],
+    [
+     -22.29979452247545,
+     -79.00041352496595
+    ],
+    [
+     -22.285348702492044,
+     -79.29446494595463
+    ],
+    [
+     -22.29979452247545,
+     -79.58851636694331
+    ],
+    [
+     -22.342992861282355,
+     -79.87973591200301
+    ],
+    [
+     -22.41452769529542,
+     -80.16531897771802
+    ],
+    [
+     -22.513710104958186,
+     -80.4425152430499
+    ],
+    [
+     -22.639584909446977,
+     -80.70865515643263
+    ],
+    [
+     -22.79093986558441,
+     -80.96117564501344
+    ],
+    [
+     -22.966317342403833,
+     -81.19764479844557
+    ],
+    [
+     -23.164028358932402,
+     -81.41578528951428
+    ],
+    [
+     -23.382168850001108,
+     -81.61349630604285
+    ],
+    [
+     -23.618638003433237,
+     -81.78887378286227
+    ],
+    [
+     -23.87115849201405,
+     -81.94022873899969
+    ],
+    [
+     -24.137298405396773,
+     -82.0661035434885
+    ],
+    [
+     -24.414494670728658,
+     -82.16528595315125
+    ],
+    [
+     -24.70007773644366,
+     -82.23682078716432
+    ],
+    [
+     -24.99129728150336,
+     -82.28001912597122
+    ],
+    [
+     -25.285348702492044,
+     -82.29446494595463
+    ],
+    [
+     -29.78534870249206,
+     -82.29446494595463
+    ]
+   ],
+   "holes": null,
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  },
+  {
+   "id": "LAND",
+   "kind": "landscape",
+   "name": "Landscape buffer",
+   "x": -173.12911975395167,
+   "y": -129.79910175321808,
+   "w": 331.35645543712013,
+   "d": 269.58082138834334,
+   "z": 0.0,
+   "h": 0.0,
+   "shape": "poly",
+   "polygon": [
+    [
+     -173.12911975395167,
+     108.18024018047505
+    ],
+    [
+     19.876959156214586,
+     139.78171963512528
+    ],
+    [
+     158.22733568316846,
+     106.47746593007912
+    ],
+    [
+     153.39168021567718,
+     -129.79910175321808
+    ],
+    [
+     -137.68387875811987,
+     -129.66137705828197
+    ]
+   ],
+   "holes": [
+    [
+     [
+      143.5943418437874,
+      -119.79446494595463
+     ],
+     [
+      148.06480196063285,
+      98.63817143070305
+     ],
+     [
+      19.499900544929496,
+      129.58682659015355
+     ],
+     [
+      -161.78534870249206,
+      99.90443465787654
+     ],
+     [
+      -129.06312060036686,
+      -119.6654549185598
+     ]
+    ]
+   ],
+   "group": null,
+   "catalogue_key": null,
+   "locked": false,
+   "solid": false,
+   "props": {}
+  }
+ ],
+ "arrays": [
+  {
+   "id": "tx-array",
+   "kind": "transformer",
+   "count": 16,
+   "pitch": [
+    5.8,
+    0.0
+   ],
+   "rows": 1,
+   "row_pitch": [
+    0.0,
+    6.9
+   ],
+   "member_ids": [
+    "TX01",
+    "TX02",
+    "TX03",
+    "TX04",
+    "TX05",
+    "TX06",
+    "TX07",
+    "TX08",
+    "TX09",
+    "TX10",
+    "TX11",
+    "TX12",
+    "TX13",
+    "TX14",
+    "TX15",
+    "TX16"
+   ]
+  },
+  {
+   "id": "gen-array",
+   "kind": "genset",
+   "count": 16,
+   "pitch": [
+    5.0,
+    0.0
+   ],
+   "rows": 1,
+   "row_pitch": [
+    0.0,
+    18.5
+   ],
+   "member_ids": [
+    "GEN01",
+    "GEN02",
+    "GEN03",
+    "GEN04",
+    "GEN05",
+    "GEN06",
+    "GEN07",
+    "GEN08",
+    "GEN09",
+    "GEN10",
+    "GEN11",
+    "GEN12",
+    "GEN13",
+    "GEN14",
+    "GEN15",
+    "GEN16"
+   ]
+  },
+  {
+   "id": "hr-roof",
+   "kind": "chiller",
+   "count": 20,
+   "pitch": [
+    14.0,
+    0.0
+   ],
+   "rows": 3,
+   "row_pitch": [
+    0.0,
+    -5.8
+   ],
+   "member_ids": [
+    "HR01",
+    "HR02",
+    "HR03",
+    "HR04",
+    "HR05",
+    "HR06",
+    "HR07",
+    "HR08",
+    "HR09",
+    "HR10",
+    "HR11",
+    "HR12",
+    "HR13",
+    "HR14",
+    "HR15",
+    "HR16",
+    "HR17",
+    "HR18",
+    "HR19",
+    "HR20"
+   ]
+  }
+ ],
+ "designs": {
+  "halls": {
+   "it_kw": 6000.0,
+   "racks_required": 300,
+   "racks_per_row": 30,
+   "rows": 10,
+   "pods": 5,
+   "racks_provided": 300,
+   "width_x": 30.8,
+   "depth_y": 28.0,
+   "gallery": 3.5,
+   "area_m2": 862.4,
+   "density_kw_m2": 6.96,
+   "n_halls": 4
+  },
+  "electrical": {
+   "topology": "4M3",
+   "topology_kind": "DR",
+   "blocks": 16,
+   "groups": 4,
+   "catcher_blocks": 0,
+   "block_ups_kw": 2000,
+   "installed_ups_mw": 32.0,
+   "normal_loading_pct": 75,
+   "facility_kw_per_block": 2600,
+   "genset": "3,500 kVA genset",
+   "gensets": 16,
+   "transformer": "3,150 kVA transformer",
+   "transformers": 16,
+   "elec_rooms": 16,
+   "sts_rooms": 0,
+   "site_demand_mva": 32.8,
+   "substation": "33 kV",
+   "fuel_m3": 195,
+   "fuel_tanks": 2,
+   "substation_spec": {
+    "voltage": "33 kV",
+    "max_mva": 40,
+    "length": 30,
+    "width": 20,
+    "height": 4
+   },
+   "x": 4,
+   "y": 3,
+   "pairs": [
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "block_kw": 2000.0,
+   "genset_kva": 3500,
+   "tx_kva": 3150
+  },
+  "cooling": {
+   "unit": "Air-cooled free-cooling chiller ~1.4 MW",
+   "type": "air_cooled_chiller",
+   "heat_load_mw": 25.44,
+   "unit_capacity_at_design_kw": 1383,
+   "duty": 19,
+   "standby": 1,
+   "total": 20,
+   "capacity_margin_pct": 3.3
+  },
+  "core": {
+   "building_length": 147.2,
+   "building_depth": 56.0,
+   "halls_per_storey": 4,
+   "hall_height": 8.0,
+   "elec_levels": 2,
+   "elec_band_length": 123.2,
+   "hr_on_roof": 20,
+   "hr_on_ground": 0,
+   "gen_rows": 1,
+   "tx_rows": 1
+  },
+  "anchors": {
+   "entrance": [
+    -14.985348702492047,
+    -40.994464945954626
+   ],
+   "elec_centre": [
+    70.61465129750795,
+    -20.994464945954626
+   ],
+   "gen_centre": [
+    70.61465129750795,
+    8.155535054045373
+   ],
+   "building_centre": [
+    58.61465129750795,
+    -40.994464945954626
+   ]
+  },
+  "spare_land": {
+   "area_ha": 4.24,
+   "largest_ha": 3.86,
+   "polygons": [
+    [
+     [
+      -160.62294650651376,
+      92.10458310076982
+     ],
+     [
+      -160.70006740660614,
+      92.87866567073155
+     ],
+     [
+      -160.7016414298695,
+      93.6565788926274
+     ],
+     [
+      -160.62765369314027,
+      94.43096721457144
+     ],
+     [
+      -160.4788037868369,
+      95.19450841433938
+     ],
+     [
+      -160.2564991599886,
+      95.93998283457891
+     ],
+     [
+      -159.9628418121132,
+      96.66034164821862
+     ],
+     [
+      -159.60060841777818,
+      97.34877350859271
+     ],
+     [
+      -159.17322407177798,
+      97.99876895407183
+     ],
+     [
+      -158.68472990317917,
+      98.60418195822237
+     ],
+     [
+      -158.13974486445863,
+      99.15928804350733
+     ],
+     [
+      -157.54342205703765,
+      99.65883840903535
+     ],
+     [
+      -156.90140000617495,
+      100.09810956055301
+     ],
+     [
+      -156.2197493459388,
+      100.4729479734048
+     ],
+     [
+      -155.5049154183781,
+      100.77980936615039
+     ],
+     [
+      -154.76365732964504,
+      101.0157922134877
+     ],
+     [
+      -154.00298403932416,
+      101.17866518160095
+     ],
+     [
+      17.9056014779017,
+      129.3257870959794
+     ],
+     [
+      18.697282351031514,
+      129.41521098072926
+     ],
+     [
+      19.493931882893726,
+      129.42544618600584
+     ],
+     [
+      20.2876488631502,
+      129.3563911985257
+     ],
+     [
+      21.0705611666579,
+      129.2087309091463
+     ],
+     [
+      141.80708249336078,
+      100.14455458617233
+     ],
+     [
+      142.54994322868083,
+      99.92721829230965
+     ],
+     [
+      143.2683244717372,
+      99.63911149555716
+     ],
+     [
+      143.95550175724622,
+      99.28293104270962
+     ],
+     [
+      144.60504270707324,
+      98.86201098948335
+     ],
+     [
+      145.21086724102457,
+      98.3802913918201
+     ],
+     [
+      145.767304489926,
+      97.8422814246771
+     ],
+     [
+      146.26914587824896,
+      97.25301717353308
+     ],
+     [
+      146.71169387939966,
+      96.61801449370589
+     ],
+     [
+      147.09080598729395,
+      95.94321737874603
+     ],
+     [
+      147.40293349261796,
+      95.23494232120805
+     ],
+     [
+      147.6451547008064,
+      94.49981918661499
+     ],
+     [
+      147.81520228079904,
+      93.74472915406997
+     ],
+     [
+      147.91148448857524,
+      92.97674030442698
+     ],
+     [
+      147.9331000668013,
+      92.20304145895275
+     ],
+     [
+      147.6023436161488,
+      76.04184068179593
+     ],
+     [
+      147.54898915571388,
+      75.26881642630345
+     ],
+     [
+      147.4210993012094,
+      74.50457995560683
+     ],
+     [
+      147.2198738457063,
+      73.75630092069702
+     ],
+     [
+      146.9472005770055,
+      73.03099926857975
+     ],
+     [
+      146.60563756743954,
+      72.33547938495006
+     ],
+     [
+      146.19838917542873,
+      71.67626625914582
+     ],
+     [
+      145.729275983933,
+      71.05954427024585
+     ],
+     [
+      145.2026989578203,
+      70.49109916858845
+     ],
+     [
+      144.62359815640707,
+      69.97626379700782
+     ],
+     [
+      143.9974063885083,
+      69.51986806100253
+     ],
+     [
+      143.32999824477935,
+      69.12619361718853
+     ],
+     [
+      142.6276349855009,
+      68.7989337051251
+     ],
+     [
+      141.89690580083987,
+      68.54115849934952
+     ],
+     [
+      141.14466599465024,
+      68.3552863066692
+     ],
+     [
+      140.3779726717401,
+      68.24306087892212
+     ],
+     [
+      139.60401853195188,
+      68.20553505404537
+     ],
+     [
+      126.31283099654456,
+      68.20553505404537
+     ],
+     [
+      126.11658986021857,
+      68.20071760454748
+     ],
+     [
+      125.82270087327868,
+      68.18627976443719
+     ],
+     [
+      125.43228509279315,
+      68.14782716632438
+     ],
+     [
+      125.23837272814838,
+      68.1190629842189
+     ],
+     [
+      124.85360592006316,
+      68.04252810753356
+     ],
+     [
+      124.66344667932938,
+      67.99489569736987
+     ],
+     [
+      124.28803435834044,
+      67.88101561481253
+     ],
+     [
+      124.103459578958,
+      67.81497370273912
+     ],
+     [
+      123.7410171709382,
+      67.66484514175816
+     ],
+     [
+      123.56380440893115,
+      67.5810297474904
+     ],
+     [
+      123.21782243240074,
+      67.39609852819665
+     ],
+     [
+      123.04967834354169,
+      67.29531683979957
+     ],
+     [
+      122.72348879406724,
+      67.07736395092822
+     ],
+     [
+      122.56603269784888,
+      66.96058655115401
+     ],
+     [
+      122.26277695910606,
+      66.71171099817072
+     ],
+     [
+      122.11752524380883,
+      66.5800625172159
+     ],
+     [
+      121.84012383433742,
+      66.30266110774448
+     ],
+     [
+      121.7084753533826,
+      66.15740939244725
+     ],
+     [
+      121.4595998003993,
+      65.85415365370443
+     ],
+     [
+      121.34282240062502,
+      65.69669755748598
+     ],
+     [
+      121.12486951175369,
+      65.37050800801153
+     ],
+     [
+      121.02408782335667,
+      65.20236391915257
+     ],
+     [
+      120.83915660406291,
+      64.85638194262216
+     ],
+     [
+      120.75534120979515,
+      64.6791691806151
+     ],
+     [
+      120.60521264881419,
+      64.31672677259533
+     ],
+     [
+      120.53917073674076,
+      64.1321519932128
+     ],
+     [
+      120.42529065418348,
+      63.75673967222404
+     ],
+     [
+      120.3776582440198,
+      63.56658043149026
+     ],
+     [
+      120.30112336733444,
+      63.181813623405006
+     ],
+     [
+      120.27235918522891,
+      62.987901258759926
+     ],
+     [
+      120.23390658711612,
+      62.59748547827464
+     ],
+     [
+      120.21946874700583,
+      62.30359649133476
+     ],
+     [
+      120.21465129750794,
+      62.107355355008735
+     ],
+     [
+      120.21465129750794,
+      41.70553505404537
+     ],
+     [
+      120.17612911088551,
+      40.92139793140888
+     ],
+     [
+      120.06093354073379,
+      40.144812477916346
+     ],
+     [
+      119.87017398336562,
+      39.383257636009674
+     ],
+     [
+      119.60568755759823,
+      38.64406759512465
+     ],
+     [
+      119.27002141229478,
+      37.93436115943739
+     ],
+     [
+      118.8664081959283,
+      37.26097318988855
+     ],
+     [
+      118.39873492440984,
+      36.630388780736205
+     ],
+     [
+      117.87150554700033,
+      36.04868080455299
+     ],
+     [
+      117.2897975708171,
+      35.521451427143475
+     ],
+     [
+      116.65921316166477,
+      35.05377815562501
+     ],
+     [
+      115.98582519211593,
+      34.65016493925853
+     ],
+     [
+      115.27611875642866,
+      34.314498793955075
+     ],
+     [
+      114.53692871554364,
+      34.0500123681877
+     ],
+     [
+      113.77537387363697,
+      33.85925281081953
+     ],
+     [
+      112.99878842014442,
+      33.74405724066779
+     ],
+     [
+      112.21465129750794,
+      33.70553505404537
+     ],
+     [
+      94.21465129750794,
+      33.70553505404537
+     ],
+     [
+      93.43051417487146,
+      33.74405724066779
+     ],
+     [
+      92.65392872137892,
+      33.85925281081953
+     ],
+     [
+      91.89237387947225,
+      34.0500123681877
+     ],
+     [
+      91.15318383858722,
+      34.31449879395508
+     ],
+     [
+      90.44347740289996,
+      34.65016493925853
+     ],
+     [
+      89.77008943335113,
+      35.05377815562501
+     ],
+     [
+      89.13950502419877,
+      35.521451427143475
+     ],
+     [
+      88.55779704801556,
+      36.04868080455299
+     ],
+     [
+      88.03056767060605,
+      36.63038878073621
+     ],
+     [
+      87.56289439908758,
+      37.26097318988855
+     ],
+     [
+      87.1592811827211,
+      37.93436115943739
+     ],
+     [
+      86.82361503741765,
+      38.64406759512465
+     ],
+     [
+      86.55912861165027,
+      39.383257636009674
+     ],
+     [
+      86.3683690542821,
+      40.144812477916346
+     ],
+     [
+      86.25317348413037,
+      40.92139793140888
+     ],
+     [
+      86.21465129750794,
+      41.70553505404537
+     ],
+     [
+      86.21465129750794,
+      45.107355355008735
+     ],
+     [
+      86.20983384801005,
+      45.30359649133476
+     ],
+     [
+      86.19539600789975,
+      45.59748547827468
+     ],
+     [
+      86.15694340978696,
+      45.98790125876011
+     ],
+     [
+      86.12817922768147,
+      46.18181362340489
+     ],
+     [
+      86.05164435099611,
+      46.56658043149022
+     ],
+     [
+      86.00401194083243,
+      46.75673967222398
+     ],
+     [
+      85.89013185827511,
+      47.132151993212815
+     ],
+     [
+      85.82408994620165,
+      47.31672677259544
+     ],
+     [
+      85.67396138522076,
+      47.67916918061505
+     ],
+     [
+      85.59014599095298,
+      47.85638194262218
+     ],
+     [
+      85.40521477165922,
+      48.20236391915258
+     ],
+     [
+      85.30443308326213,
+      48.370508008011676
+     ],
+     [
+      85.08648019439097,
+      48.69669755748583
+     ],
+     [
+      84.96970279461658,
+      48.85415365370444
+     ],
+     [
+      84.72082724163322,
+      49.15740939244731
+     ],
+     [
+      84.58917876067844,
+      49.302661107744505
+     ],
+     [
+      84.31177735120704,
+      49.5800625172159
+     ],
+     [
+      84.16652563591,
+      49.711710998170545
+     ],
+     [
+      83.86326989716692,
+      49.96058655115407
+     ],
+     [
+      83.70581380094848,
+      50.07736395092834
+     ],
+     [
+      83.37962425147417,
+      50.29531683979958
+     ],
+     [
+      83.2114801626153,
+      50.39609852819655
+     ],
+     [
+      82.86549818608464,
+      50.58102974749046
+     ],
+     [
+      82.68828542407768,
+      50.664845141758164
+     ],
+     [
+      82.32584301605789,
+      50.814973702739124
+     ],
+     [
+      82.14126823667533,
+      50.88101561481257
+     ],
+     [
+      81.76585591568653,
+      50.994895697369856
+     ],
+     [
+      81.41990501602326,
+      51.08155188660196
+     ],
+     [
+      80.66304987799401,
+      51.31144747178824
+     ],
+     [
+      79.93259749577354,
+      51.614961882249816
+     ],
+     [
+      79.23568897363843,
+      51.98912787726391
+     ],
+     [
+      78.57913748182263,
+      52.430287506699635
+     ],
+     [
+      77.96936164908297,
+      52.93412787214892
+     ],
+     [
+      77.65506831061549,
+      53.221113782039374
+     ],
+     [
+      77.36326989716692,
+      53.46058655115407
+     ],
+     [
+      77.20581380094848,
+      53.57736395092834
+     ],
+     [
+      76.87962425147417,
+      53.79531683979958
+     ],
+     [
+      76.7114801626153,
+      53.89609852819655
+     ],
+     [
+      76.36549818608464,
+      54.08102974749046
+     ],
+     [
+      76.18828542407768,
+      54.164845141758164
+     ],
+     [
+      75.82584301605789,
+      54.314973702739124
+     ],
+     [
+      75.64126823667533,
+      54.38101561481257
+     ],
+     [
+      75.26585591568654,
+      54.494895697369856
+     ],
+     [
+      75.07569667495288,
+      54.54252810753352
+     ],
+     [
+      74.6909298668675,
+      54.61906298421889
+     ],
+     [
+      74.49701750222249,
+      54.64782716632441
+     ],
+     [
+      74.10660172173738,
+      54.686279764437174
+     ],
+     [
+      73.81271273479732,
+      54.70071760454748
+     ],
+     [
+      73.61647159847132,
+      54.70553505404537
+     ],
+     [
+      69.81283099654456,
+      54.70553505404537
+     ],
+     [
+      69.61658986021857,
+      54.70071760454748
+     ],
+     [
+      69.12654845553058,
+      54.676643414078555
+     ],
+     [
+      69.1263399500292,
+      54.6808876410614
+     ],
+     [
+      68.90470688145969,
+      54.667358576360144
+     ],
+     [
+      68.30957336143771,
+      54.675362777718554
+     ],
+     [
+      67.80643754365802,
+      54.700871651843414
+     ],
+     [
+      67.61647159847132,
+      54.70553505404537
+     ],
+     [
+      63.81283099654458,
+      54.70553505404537
+     ],
+     [
+      63.616589860218554,
+      54.70071760454748
+     ],
+     [
+      63.3227008732786,
+      54.68627976443718
+     ],
+     [
+      62.93228509279331,
+      54.6478271663244
+     ],
+     [
+      62.73837272814835,
+      54.61906298421889
+     ],
+     [
+      62.353605920063025,
+      54.54252810753352
+     ],
+     [
+      62.1634466793293,
+      54.49489569736984
+     ],
+     [
+      61.78803435834056,
+      54.381015614812576
+     ],
+     [
+      61.60345957895808,
+      54.31497370273916
+     ],
+     [
+      61.24101717093815,
+      54.16484514175814
+     ],
+     [
+      61.06380440893125,
+      54.08102974749047
+     ],
+     [
+      60.71782243240059,
+      53.89609852819657
+     ],
+     [
+      60.54967834354161,
+      53.79531683979953
+     ],
+     [
+      60.223488794067464,
+      53.57736395092839
+     ],
+     [
+      60.06603269784894,
+      53.46058655115406
+     ],
+     [
+      59.76277695910586,
+      53.211710998170524
+     ],
+     [
+      59.617525243808885,
+      53.08006251721594
+     ],
+     [
+      59.34012383433737,
+      52.80266110774443
+     ],
+     [
+      59.20847535338278,
+      52.65740939244745
+     ],
+     [
+      58.95959980039927,
+      52.35415365370439
+     ],
+     [
+      58.84282240062491,
+      52.19669755748583
+     ],
+     [
+      58.62486951175377,
+      51.870508008011676
+     ],
+     [
+      58.52408782335672,
+      51.702363919152674
+     ],
+     [
+      58.33915660406288,
+      51.356381942622136
+     ],
+     [
+      58.255341209795155,
+      51.17916918061512
+     ],
+     [
+      58.10521264881417,
+      50.81672677259526
+     ],
+     [
+      58.03917073674078,
+      50.632151993212865
+     ],
+     [
+      57.8734141202994,
+      50.08572565859723
+     ],
+     [
+      57.53156948006998,
+      49.16607256459304
+     ],
+     [
+      57.07972031444393,
+      48.295181123087204
+     ],
+     [
+      57.0240878233567,
+      48.20236391915263
+     ],
+     [
+      56.83915660406288,
+      47.856381942622136
+     ],
+     [
+      56.755341209795155,
+      47.67916918061512
+     ],
+     [
+      56.60521264881417,
+      47.31672677259526
+     ],
+     [
+      56.539170736740765,
+      47.13215199321282
+     ],
+     [
+      56.42529065418345,
+      46.756739672223944
+     ],
+     [
+      56.377658244019784,
+      46.566580431490266
+     ],
+     [
+      56.30112336733443,
+      46.181813623404985
+     ],
+     [
+      56.272359185228915,
+      45.987901258760026
+     ],
+     [
+      56.23390658711614,
+      45.597485478274784
+     ],
+     [
+      56.219468747005834,
+      45.30359649133476
+     ],
+     [
+      56.21465129750794,
+      45.107355355008735
+     ],
+     [
+      56.21465129750794,
+      41.70553505404537
+     ],
+     [
+      56.17612911088552,
+      40.92139793140888
+     ],
+     [
+      56.060933540733785,
+      40.144812477916346
+     ],
+     [
+      55.87017398336561,
+      39.383257636009674
+     ],
+     [
+      55.60568755759824,
+      38.64406759512465
+     ],
+     [
+      55.27002141229478,
+      37.93436115943739
+     ],
+     [
+      54.8664081959283,
+      37.26097318988855
+     ],
+     [
+      54.39873492440984,
+      36.630388780736205
+     ],
+     [
+      53.871505547000325,
+      36.04868080455299
+     ],
+     [
+      53.28979757081711,
+      35.521451427143475
+     ],
+     [
+      52.65921316166476,
+      35.05377815562501
+     ],
+     [
+      51.985825192115925,
+      34.65016493925853
+     ],
+     [
+      51.27611875642866,
+      34.314498793955075
+     ],
+     [
+      50.53692871554364,
+      34.0500123681877
+     ],
+     [
+      49.775373873636966,
+      33.85925281081953
+     ],
+     [
+      48.99878842014443,
+      33.74405724066779
+     ],
+     [
+      48.21465129750794,
+      33.70553505404537
+     ],
+     [
+      -25.187169003455416,
+      33.70553505404537
+     ],
+     [
+      -25.383410139781425,
+      33.70071760454748
+     ],
+     [
+      -25.677299126721493,
+      33.686279764437174
+     ],
+     [
+      -26.06771490720657,
+      33.64782716632442
+     ],
+     [
+      -26.26162727185158,
+      33.61906298421891
+     ],
+     [
+      -26.646394079937007,
+      33.54252810753351
+     ],
+     [
+      -26.83655332067067,
+      33.494895697369856
+     ],
+     [
+      -27.21196564165946,
+      33.38101561481257
+     ],
+     [
+      -27.396540421041934,
+      33.31497370273915
+     ],
+     [
+      -27.75898282906182,
+      33.16484514175815
+     ],
+     [
+      -27.93619559106873,
+      33.081029747490476
+     ],
+     [
+      -28.282177567599344,
+      32.896098528196596
+     ],
+     [
+      -28.45032165645839,
+      32.795316839799526
+     ],
+     [
+      -28.776511205932522,
+      32.57736395092839
+     ],
+     [
+      -28.933967302151135,
+      32.46058655115399
+     ],
+     [
+      -29.237223040894044,
+      32.21171099817061
+     ],
+     [
+      -29.38247475619112,
+      32.08006251721593
+     ],
+     [
+      -29.659876165662578,
+      31.80266110774447
+     ],
+     [
+      -29.791524646617226,
+      31.657409392447434
+     ],
+     [
+      -30.0404001996007,
+      31.354153653704405
+     ],
+     [
+      -30.157177599375093,
+      31.196697557485805
+     ],
+     [
+      -30.375130488246175,
+      30.87050800801175
+     ],
+     [
+      -30.475912176643302,
+      30.702363919152614
+     ],
+     [
+      -30.66084339593711,
+      30.356381942622136
+     ],
+     [
+      -30.744658790204838,
+      30.179169180615126
+     ],
+     [
+      -30.89478735118582,
+      29.81672677259528
+     ],
+     [
+      -30.960829263259242,
+      29.632151993212787
+     ],
+     [
+      -31.074709345816537,
+      29.256739672223965
+     ],
+     [
+      -31.1223417559802,
+      29.066580431490294
+     ],
+     [
+      -31.19887663266556,
+      28.68181362340501
+     ],
+     [
+      -31.227640814771075,
+      28.48790125875997
+     ],
+     [
+      -31.266093412883844,
+      28.09748547827478
+     ],
+     [
+      -31.280531252994155,
+      27.80359649133469
+     ],
+     [
+      -31.285348702492044,
+      27.607355355008785
+     ],
+     [
+      -31.285348702492044,
+      9.20553505404537
+     ],
+     [
+      -31.323870889114467,
+      8.421397931408885
+     ],
+     [
+      -31.4390664592662,
+      7.644812477916345
+     ],
+     [
+      -31.629826016634375,
+      6.883257636009672
+     ],
+     [
+      -31.89431244240175,
+      6.1440675951246515
+     ],
+     [
+      -32.229978587705205,
+      5.434361159437389
+     ],
+     [
+      -32.633591804071685,
+      4.760973189888553
+     ],
+     [
+      -33.10126507559015,
+      4.130388780736206
+     ],
+     [
+      -33.62849445299966,
+      3.5486808045529905
+     ],
+     [
+      -34.21020242918288,
+      3.0214514271434743
+     ],
+     [
+      -34.84078683833523,
+      2.5537781556250083
+     ],
+     [
+      -35.51417480788406,
+      2.1501649392585307
+     ],
+     [
+      -36.22388124357133,
+      1.8144987939550763
+     ],
+     [
+      -36.96307128445635,
+      1.5500123681876987
+     ],
+     [
+      -37.72462612636302,
+      1.3592528108195268
+     ],
+     [
+      -38.50121157985556,
+      1.2440572406677957
+     ],
+     [
+      -39.285348702492044,
+      1.2055350540453702
+     ],
+     [
+      -45.68716900345552,
+      1.2055350540453702
+     ],
+     [
+      -45.88341013978134,
+      1.2007176045474817
+     ],
+     [
+      -46.17729912672149,
+      1.1862797644371719
+     ],
+     [
+      -46.56771490720662,
+      1.1478271663244082
+     ],
+     [
+      -46.761627271851616,
+      1.1190629842188968
+     ],
+     [
+      -47.14639407993699,
+      1.0425281075335207
+     ],
+     [
+      -47.336553320670674,
+      0.9948956973698535
+     ],
+     [
+      -47.71196564165949,
+      0.8810156148125613
+     ],
+     [
+      -47.89654042104195,
+      0.8149737027391506
+     ],
+     [
+      -48.25898282906184,
+      0.6648451417581466
+     ],
+     [
+      -48.436195591068845,
+      0.5810297474904252
+     ],
+     [
+      -48.78217756759931,
+      0.39609852819662555
+     ],
+     [
+      -48.95032165645836,
+      0.29531683979954915
+     ],
+     [
+      -49.27651120593255,
+      0.0773639509283745
+     ],
+     [
+      -49.43396730215108,
+      -0.03941344884595863
+     ],
+     [
+      -49.73722304089406,
+      -0.2882890018294012
+     ],
+     [
+      -49.88247475619115,
+      -0.41993748278409415
+     ],
+     [
+      -50.15987616566265,
+      -0.6973388922555998
+     ],
+     [
+      -50.291524646617255,
+      -0.8425906075525851
+     ],
+     [
+      -50.540400199600725,
+      -1.1458463462956026
+     ],
+     [
+      -50.657177599375025,
+      -1.3033024425140902
+     ],
+     [
+      -50.87513048824622,
+      -1.6294919919883157
+     ],
+     [
+      -50.975912176643355,
+      -1.7976360808474579
+     ],
+     [
+      -51.16084339593706,
+      -2.143618057377739
+     ],
+     [
+      -51.24465879020486,
+      -2.320830819384898
+     ],
+     [
+      -51.39478735118584,
+      -2.683273227404756
+     ],
+     [
+      -51.46082926325923,
+      -2.867848006787147
+     ],
+     [
+      -51.57470934581655,
+      -3.243260327776058
+     ],
+     [
+      -51.62234175598021,
+      -3.433419568509716
+     ],
+     [
+      -51.69887663266558,
+      -3.8181863765950523
+     ],
+     [
+      -51.727640814771085,
+      -4.0120987412400035
+     ],
+     [
+      -51.76609341288386,
+      -4.402514521725199
+     ],
+     [
+      -51.780531252994166,
+      -4.696403508665248
+     ],
+     [
+      -51.78534870249206,
+      -4.892644644991256
+     ],
+     [
+      -51.78534870249206,
+      -79.69628524691801
+     ],
+     [
+      -51.780531252994166,
+      -79.892526383244
+     ],
+     [
+      -51.76609341288386,
+      -80.18641537018406
+     ],
+     [
+      -51.7276408147711,
+      -80.57683115066918
+     ],
+     [
+      -51.69887663266558,
+      -80.7707435153142
+     ],
+     [
+      -51.62234175598021,
+      -81.15551032339957
+     ],
+     [
+      -51.574709345816544,
+      -81.34566956413323
+     ],
+     [
+      -51.46082926325926,
+      -81.72108188512202
+     ],
+     [
+      -51.39478735118581,
+      -81.90565666450458
+     ],
+     [
+      -51.24465879020485,
+      -82.26809907252436
+     ],
+     [
+      -51.16084339593715,
+      -82.44531183453132
+     ],
+     [
+      -50.97591217664324,
+      -82.79129381106199
+     ],
+     [
+      -50.87513048824627,
+      -82.95943789992086
+     ],
+     [
+      -50.657177599375025,
+      -83.28562744939516
+     ],
+     [
+      -50.54040019960076,
+      -83.4430835456136
+     ],
+     [
+      -50.29152464661723,
+      -83.7463392843567
+     ],
+     [
+      -50.15987616566259,
+      -83.89159099965373
+     ],
+     [
+      -49.88247475619119,
+      -84.16899240912512
+     ],
+     [
+      -49.737223040894,
+      -84.3006408900799
+     ],
+     [
+      -49.433967302151125,
+      -84.54951644306327
+     ],
+     [
+      -49.276511205932614,
+      -84.66629384283759
+     ],
+     [
+      -48.95032165645846,
+      -84.88424673170874
+     ],
+     [
+      -48.78217756759927,
+      -84.9850284201059
+     ],
+     [
+      -48.436195591068866,
+      -85.16995963939966
+     ],
+     [
+      -48.25898282906187,
+      -85.2537750336674
+     ],
+     [
+      -47.89654042104181,
+      -85.40390359464845
+     ],
+     [
+      -47.71196564165953,
+      -85.4699455067218
+     ],
+     [
+      -47.3365533206707,
+      -85.5838255892791
+     ],
+     [
+      -47.14639407993691,
+      -85.6314579994428
+     ],
+     [
+      -46.76162727185158,
+      -85.70799287612816
+     ],
+     [
+      -46.5677149072068,
+      -85.73675705823365
+     ],
+     [
+      -46.177299126721365,
+      -85.77520965634643
+     ],
+     [
+      -45.883410139781446,
+      -85.78964749645674
+     ],
+     [
+      -45.68716900345542,
+      -85.79446494595463
+     ],
+     [
+      -37.756371707257436,
+      -85.79446494595463
+     ],
+     [
+      -36.97223458462095,
+      -85.83298713257706
+     ],
+     [
+      -36.1956491311284,
+      -85.94818270272879
+     ],
+     [
+      -35.434094289221726,
+      -86.13894226009697
+     ],
+     [
+      -34.6949042483367,
+      -86.40342868586434
+     ],
+     [
+      -33.98519781264943,
+      -86.7390948311678
+     ],
+     [
+      -33.3118098431006,
+      -87.14270804753428
+     ],
+     [
+      -32.95032165645845,
+      -87.38424673170876
+     ],
+     [
+      -32.78217756759927,
+      -87.4850284201059
+     ],
+     [
+      -32.436195591068866,
+      -87.66995963939966
+     ],
+     [
+      -32.2589828290619,
+      -87.75377503366738
+     ],
+     [
+      -31.896540421041824,
+      -87.90390359464845
+     ],
+     [
+      -31.711965641659496,
+      -87.96994550672181
+     ],
+     [
+      -31.33655332067067,
+      -88.08382558927912
+     ],
+     [
+      -31.146394079936805,
+      -88.13145799944283
+     ],
+     [
+      -30.761627271851676,
+      -88.20799287612815
+     ],
+     [
+      -30.567714907206835,
+      -88.23675705823364
+     ],
+     [
+      -30.177299126721337,
+      -88.27520965634645
+     ],
+     [
+      -29.88341013978144,
+      -88.28964749645674
+     ],
+     [
+      -29.68716900345543,
+      -88.29446494595463
+     ],
+     [
+      -25.3344367037532,
+      -88.29446494595463
+     ],
+     [
+      -25.236275485619213,
+      -88.29326026609795
+     ],
+     [
+      -25.040015873400414,
+      -88.28844236304235
+     ],
+     [
+      -24.941913783914284,
+      -88.28482904912643
+     ],
+     [
+      -24.794952672828302,
+      -88.27760931270015
+     ],
+     [
+      -24.599184298588373,
+      -88.26316856986428
+     ],
+     [
+      -24.20862137172136,
+      -88.22470147909786
+     ],
+     [
+      -24.013797382729134,
+      -88.20067223193843
+     ],
+     [
+      -23.994410520380903,
+      -88.19779646256673
+     ],
+     [
+      -23.234896969275134,
+      -88.12194509385232
+     ],
+     [
+      -22.471611625815296,
+      -88.11882276963007
+     ],
+     [
+      -21.711502942016157,
+      -88.1884579135036
+     ],
+     [
+      -20.961490451654477,
+      -88.33021661253339
+     ],
+     [
+      -20.22840177934588,
+      -88.54280838796689
+     ],
+     [
+      -19.518910486302758,
+      -88.82429794291546
+     ],
+     [
+      -18.839475318584945,
+      -89.17212278003527
+     ],
+     [
+      -18.19628141088745,
+      -89.58311652883198
+     ],
+     [
+      -17.595183981107645,
+      -90.05353777023299
+     ],
+     [
+      -17.041655028259797,
+      -90.57910409602671
+     ],
+     [
+      -16.54073351896445,
+      -91.15503109311437
+     ],
+     [
+      -16.096979515982305,
+      -91.77607589768687
+     ],
+     [
+      -15.714432666376549,
+      -92.43658492283781
+     ],
+     [
+      -15.396575427200311,
+      -93.13054532513206
+     ],
+     [
+      -15.146301363478628,
+      -93.85163974161121
+     ],
+     [
+      -14.96588880707941,
+      -94.59330379894622
+     ],
+     [
+      -14.856980116265838,
+      -95.34878587121162
+     ],
+     [
+      -14.820566724737766,
+      -96.11120854228494
+     ],
+     [
+      -14.820566724737766,
+      -101.62968234033589
+     ],
+     [
+      -14.815749275239877,
+      -101.82592347666171
+     ],
+     [
+      -14.801311435129568,
+      -102.11981246360186
+     ],
+     [
+      -14.762858837016811,
+      -102.51022824408695
+     ],
+     [
+      -14.734094654911289,
+      -102.70414060873202
+     ],
+     [
+      -14.657559778225927,
+      -103.08890741681732
+     ],
+     [
+      -14.609927368062271,
+      -103.27906665755096
+     ],
+     [
+      -14.49604728550494,
+      -103.6544789785399
+     ],
+     [
+      -14.430005373431559,
+      -103.83905375792227
+     ],
+     [
+      -14.279876812450542,
+      -104.2014961659422
+     ],
+     [
+      -14.196061418182873,
+      -104.37870892794908
+     ],
+     [
+      -14.011130198888976,
+      -104.72469090447974
+     ],
+     [
+      -13.910348510491968,
+      -104.89283499333867
+     ],
+     [
+      -13.69239562162073,
+      -105.21902454281296
+     ],
+     [
+      -13.57561822184653,
+      -105.3764806390313
+     ],
+     [
+      -13.326742668862858,
+      -105.67973637777457
+     ],
+     [
+      -13.195094187908387,
+      -105.82498809307141
+     ],
+     [
+      -12.959223618632432,
+      -106.06085866234737
+     ],
+     [
+      -12.431894186371338,
+      -106.64268855817069
+     ],
+     [
+      -11.964145726598579,
+      -107.27341332871868
+     ],
+     [
+      -11.560484720613442,
+      -107.94695631179374
+     ],
+     [
+      -11.224800204791608,
+      -108.65682831690455
+     ],
+     [
+      -10.960326302007037,
+      -109.39619014479972
+     ],
+     [
+      -10.769611062760262,
+      -110.15791847913003
+     ],
+     [
+      -10.654491916210482,
+      -110.93467451541184
+     ],
+     [
+      -10.6160779676263,
+      -111.71897466609191
+     ],
+     [
+      -10.654739312808804,
+      -112.50326266051185
+     ],
+     [
+      -10.770103472436189,
+      -113.27998234513177
+     ],
+     [
+      -10.961058980682955,
+      -114.04165048262526
+     ],
+     [
+      -11.22576609353941,
+      -114.78092884846981
+     ],
+     [
+      -11.561674513663137,
+      -115.49069493042397
+     ],
+     [
+      -11.96554796099392,
+      -116.16411054974368
+     ],
+     [
+      -12.433495352408666,
+      -116.79468774301245
+     ],
+     [
+      -12.961008290018718,
+      -117.37635126985302
+     ],
+     [
+      -13.54300449693186,
+      -117.90349714429509
+     ],
+     [
+      -14.173876782000992,
+      -118.37104662588419
+     ],
+     [
+      -14.84754706181289,
+      -118.7744951503588
+     ],
+     [
+      -15.557524919447033,
+      -119.10995572847764
+     ],
+     [
+      -16.29697013582522,
+      -119.37419639487479
+     ],
+     [
+      -17.05875859119925,
+      -119.56467134614512
+     ],
+     [
+      -17.83555090185459,
+      -119.67954546816276
+     ],
+     [
+      -18.61986313075572,
+      -119.71771201632637
+     ],
+     [
+      -122.17029933679535,
+      -119.66871631126868
+     ],
+     [
+      -122.9816725492515,
+      -119.62707863740921
+     ],
+     [
+      -123.78463867335606,
+      -119.50336287723142
+     ],
+     [
+      -124.57091636584262,
+      -119.29884496585483
+     ],
+     [
+      -125.33239639858974,
+      -119.01563418656967
+     ],
+     [
+      -126.06122529266177,
+      -118.65665141686955
+     ],
+     [
+      -126.74988631469593,
+      -118.22559900415537
+     ],
+     [
+      -127.39127700028375,
+      -117.72692258179612
+     ],
+     [
+      -127.97878240481457,
+      -117.16576521935404
+     ],
+     [
+      -128.50634332631245,
+      -116.54791437984328
+     ],
+     [
+      -128.96851879665468,
+      -115.87974223107489
+     ],
+     [
+      -129.36054219667233,
+      -115.16813992668398
+     ],
+     [
+      -129.6783704163928,
+      -114.42044653462733
+     ],
+     [
+      -129.91872555341368,
+      -113.64437334614347
+     ],
+     [
+      -130.07912871935383,
+      -112.84792434580997
+     ],
+     [
+      -160.62294650651376,
+      92.10458310076982
+     ]
+    ],
+    [
+     [
+      12.479433275262231,
+      -109.1889503764438
+     ],
+     [
+      12.519450082510602,
+      -108.38978357839
+     ],
+     [
+      12.639100168040121,
+      -107.59861180626545
+     ],
+     [
+      12.83718652824832,
+      -106.82335010214653
+     ],
+     [
+      13.111727467211454,
+      -106.07175434057842
+     ],
+     [
+      13.459976421970453,
+      -105.35134363724096
+     ],
+     [
+      13.878449439701058,
+      -104.66932512619792
+     ],
+     [
+      14.362960031880974,
+      -104.03252185827338
+     ],
+     [
+      14.908661056765943,
+      -103.44730454187425
+     ],
+     [
+      15.510093211173942,
+      -102.9195278091377
+     ],
+     [
+      16.161239646456,
+      -102.45447164500978
+     ],
+     [
+      16.855586162264323,
+      -102.05678856521035
+     ],
+     [
+      17.586186375927248,
+      -101.73045707152701
+     ],
+     [
+      18.34573121546333,
+      -101.4787418500802
+     ],
+     [
+      18.62330824628168,
+      -101.40192594031785
+     ],
+     [
+      19.467166124884912,
+      -101.14594445140763
+     ],
+     [
+      19.653558751991838,
+      -101.08436864474552
+     ],
+     [
+      20.019532470370063,
+      -100.95342115445904
+     ],
+     [
+      20.770809858281755,
+      -100.72552365036682
+     ],
+     [
+      21.540807501865014,
+      -100.57236159620491
+     ],
+     [
+      22.32210990288861,
+      -100.49541002628177
+     ],
+     [
+      23.107192692127345,
+      -100.49541002628177
+     ],
+     [
+      23.88849509315094,
+      -100.57236159620493
+     ],
+     [
+      24.6584927367342,
+      -100.72552365036684
+     ],
+     [
+      25.40977012464589,
+      -100.95342115445905
+     ],
+     [
+      25.775743843024014,
+      -101.08436864474551
+     ],
+     [
+      25.96213647013109,
+      -101.14594445140767
+     ],
+     [
+      26.805994348734288,
+      -101.40192594031788
+     ],
+     [
+      26.995183839387295,
+      -101.45428172350044
+     ],
+     [
+      27.28060914897433,
+      -101.52577704166056
+     ],
+     [
+      27.665375957059627,
+      -101.60231191834592
+     ],
+     [
+      27.956434632399574,
+      -101.64548639438408
+     ],
+     [
+      28.15125862139218,
+      -101.66951564154355
+     ],
+     [
+      29.028841518580496,
+      -101.75595001264986
+     ],
+     [
+      29.22460989281966,
+      -101.77039075548569
+     ],
+     [
+      29.518498879760028,
+      -101.78482859559601
+     ],
+     [
+      29.910803715255856,
+      -101.78482859559601
+     ],
+     [
+      30.20469270219619,
+      -101.77039075548569
+     ],
+     [
+      30.400461076435423,
+      -101.75595001264986
+     ],
+     [
+      31.27804397362388,
+      -101.66951564154353
+     ],
+     [
+      31.472867962616117,
+      -101.64548639438411
+     ],
+     [
+      31.76392663795607,
+      -101.60231191834595
+     ],
+     [
+      32.148693446041484,
+      -101.52577704166056
+     ],
+     [
+      32.43411875562908,
+      -101.45428172350032
+     ],
+     [
+      32.6233082462816,
+      -101.40192594031788
+     ],
+     [
+      33.467166124884535,
+      -101.14594445140774
+     ],
+     [
+      33.6535587519922,
+      -101.0843686447454
+     ],
+     [
+      33.93060189406594,
+      -100.98524102346046
+     ],
+     [
+      34.21597731543463,
+      -100.8670346535616
+     ],
+     [
+      35.049287259274905,
+      -100.57462675832737
+     ],
+     [
+      35.90974966427291,
+      -100.37584977454037
+     ],
+     [
+      36.78687888393764,
+      -100.2731260104507
+     ],
+     [
+      37.66998616897464,
+      -100.26770726401051
+     ],
+     [
+      38.11658986021853,
+      -100.28964749645674
+     ],
+     [
+      38.31283099654458,
+      -100.29446494595463
+     ],
+     [
+      50.11647159847131,
+      -100.29446494595463
+     ],
+     [
+      50.31271273479733,
+      -100.28964749645674
+     ],
+     [
+      50.60660172173725,
+      -100.27520965634643
+     ],
+     [
+      50.99701750222268,
+      -100.23675705823365
+     ],
+     [
+      51.190929866867464,
+      -100.20799287612816
+     ],
+     [
+      51.575696674952795,
+      -100.1314579994428
+     ],
+     [
+      51.765855915686586,
+      -100.0838255892791
+     ],
+     [
+      52.141268236675415,
+      -99.9699455067218
+     ],
+     [
+      52.325843016057696,
+      -99.90390359464845
+     ],
+     [
+      52.688285424077755,
+      -99.7537750336674
+     ],
+     [
+      52.86549818608475,
+      -99.66995963939966
+     ],
+     [
+      53.21148016261515,
+      -99.4850284201059
+     ],
+     [
+      53.37962425147435,
+      -99.38424673170874
+     ],
+     [
+      53.7058138009485,
+      -99.16629384283759
+     ],
+     [
+      53.86326989716701,
+      -99.04951644306327
+     ],
+     [
+      54.166525635909885,
+      -98.8006408900799
+     ],
+     [
+      54.31177735120708,
+      -98.66899240912512
+     ],
+     [
+      54.58917876067847,
+      -98.39159099965373
+     ],
+     [
+      54.72082724163312,
+      -98.2463392843567
+     ],
+     [
+      54.969702794616644,
+      -97.9430835456136
+     ],
+     [
+      55.08648019439091,
+      -97.78562744939516
+     ],
+     [
+      55.304433083262154,
+      -97.45943789992086
+     ],
+     [
+      55.405214771659125,
+      -97.29129381106199
+     ],
+     [
+      55.59014599095303,
+      -96.94531183453132
+     ],
+     [
+      55.673961385220736,
+      -96.76809907252436
+     ],
+     [
+      55.824089946201696,
+      -96.40565666450458
+     ],
+     [
+      55.89013185827514,
+      -96.22108188512202
+     ],
+     [
+      56.00401194083243,
+      -95.84566956413323
+     ],
+     [
+      56.05164435099608,
+      -95.6555103233996
+     ],
+     [
+      56.12817922768146,
+      -95.27074351531422
+     ],
+     [
+      56.15694340978698,
+      -95.07683115066914
+     ],
+     [
+      56.195396007899745,
+      -94.68641537018404
+     ],
+     [
+      56.20983384801005,
+      -94.392526383244
+     ],
+     [
+      56.21465129750794,
+      -94.19628524691801
+     ],
+     [
+      56.21465129750794,
+      -93.29446494595463
+     ],
+     [
+      56.253173484130365,
+      -92.51032782331815
+     ],
+     [
+      56.3683690542821,
+      -91.7337423698256
+     ],
+     [
+      56.55912861165027,
+      -90.97218752791893
+     ],
+     [
+      56.823615037417646,
+      -90.23299748703391
+     ],
+     [
+      57.1592811827211,
+      -89.52329105134665
+     ],
+     [
+      57.56289439908758,
+      -88.8499030817978
+     ],
+     [
+      58.03056767060605,
+      -88.21931867264547
+     ],
+     [
+      58.55779704801556,
+      -87.63761069646225
+     ],
+     [
+      59.139505024198776,
+      -87.11038131905273
+     ],
+     [
+      59.770089433351124,
+      -86.64270804753427
+     ],
+     [
+      60.44347740289996,
+      -86.23909483116779
+     ],
+     [
+      61.153183838587225,
+      -85.90342868586434
+     ],
+     [
+      61.892373879472245,
+      -85.63894226009695
+     ],
+     [
+      62.65392872137892,
+      -85.44818270272879
+     ],
+     [
+      63.430514174871455,
+      -85.33298713257706
+     ],
+     [
+      64.21465129750794,
+      -85.29446494595463
+     ],
+     [
+      136.09761742705854,
+      -85.29446494595463
+     ],
+     [
+      136.89123013116156,
+      -85.33392609008021
+     ],
+     [
+      137.67701361894046,
+      -85.45192022698306
+     ],
+     [
+      138.44721591152955,
+      -85.64728331075258
+     ],
+     [
+      139.1942387430104,
+      -85.91808802868742
+     ],
+     [
+      139.91071251947847,
+      -86.26166281478649
+     ],
+     [
+      140.58956902219487,
+      -86.67461820551176
+     ],
+     [
+      141.22411113758608,
+      -87.15288027781551
+     ],
+     [
+      141.80807892618478,
+      -87.6917308395565
+     ],
+     [
+      142.33571137872332,
+      -88.28585397581496
+     ],
+     [
+      142.80180325013794,
+      -88.92938849191385
+     ],
+     [
+      143.20175641080024,
+      -89.61598573578077
+     ],
+     [
+      143.53162520838114,
+      -90.3388722292166
+     ],
+     [
+      143.78815539283966,
+      -91.09091649019537
+     ],
+     [
+      143.96881622053044,
+      -91.86469938697425
+     ],
+     [
+      144.07182542071362,
+      -92.65258732995031
+     ],
+     [
+      144.09616677816553,
+      -93.4468075792054
+     ],
+     [
+      143.74388129716522,
+      -111.94309286279427
+     ],
+     [
+      143.6915144880873,
+      -112.71713190507067
+     ],
+     [
+      143.56441895728307,
+      -113.48245892518086
+     ],
+     [
+      143.36378995624645,
+      -114.23187651611678
+     ],
+     [
+      143.09151427133168,
+      -114.95833688879058
+     ],
+     [
+      142.75015247974463,
+      -115.65500815194534
+     ],
+     [
+      142.3429148689657,
+      -116.31533856168596
+     ],
+     [
+      141.87363124606657,
+      -116.93311813640483
+     ],
+     [
+      141.34671492084485,
+      -117.5025370576535
+     ],
+     [
+      140.76712120149188,
+      -118.01824030773803
+     ],
+     [
+      140.14030079311527,
+      -118.47537803020661
+     ],
+     [
+      139.47214853737293,
+      -118.86965113962138
+     ],
+     [
+      138.76894797528925,
+      -119.19735175168422
+     ],
+     [
+      138.03731225460453,
+      -119.45539805349706
+     ],
+     [
+      137.28412193738572,
+      -119.64136328602453
+     ],
+     [
+      136.51646029277808,
+      -119.75349856619745
+     ],
+     [
+      135.74154668342732,
+      -119.79074933403012
+     ],
+     [
+      20.47564801263132,
+      -119.73621036556798
+     ],
+     [
+      19.691764633921938,
+      -119.69734045934521
+     ],
+     [
+      18.915462369227075,
+      -119.58184667225588
+     ],
+     [
+      18.1542129340239,
+      -119.39084060316524
+     ],
+     [
+      17.41534316406399,
+      -119.12616063779953
+     ],
+     [
+      16.705964496408516,
+      -118.79035425474234
+     ],
+     [
+      16.03290452362205,
+      -118.38665350658934
+     ],
+     [
+      15.402641279898798,
+      -117.91894391224895
+     ],
+     [
+      14.821240891600851,
+      -117.39172705979296
+     ],
+     [
+      14.2942991923065,
+      -116.81007727979524
+     ],
+     [
+      13.826887864309146,
+      -116.17959280616694
+     ],
+     [
+      13.423505624941491,
+      -115.50634189455273
+     ],
+     [
+      13.088034927544424,
+      -114.7968044168854
+     ],
+     [
+      12.823704593822928,
+      -114.0578094942362
+     ],
+     [
+      12.633058737243335,
+      -113.29646976822971
+     ],
+     [
+      12.517932276576394,
+      -112.52011294364392
+     ],
+     [
+      12.479433275262231,
+      -111.73621126108137
+     ],
+     [
+      12.479433275262231,
+      -109.1889503764438
+     ]
+    ]
+   ],
+   "label_xy": [
+    -98.48577108810979,
+    4.5985206695445076
+   ]
+  }
+ },
+ "metrics": {
+  "it_load_mw": 24.0,
+  "data_halls": 4,
+  "racks": 1200,
+  "white_space_m2": 3450,
+  "gia_m2": 9536,
+  "footprint_m2": 8192,
+  "site_area_ha": 7.92,
+  "coverage_pct": 10.3,
+  "road_area_m2": 4334,
+  "landscape_m2": 10674,
+  "spare_land_ha": 4.24,
+  "building_length_m": 147.2,
+  "building_depth_m": 56.0,
+  "substation_to_elec_m": 94.6,
+  "fuel_to_genyard_m": 30.6,
+  "gate_to_entrance_m": 50.0,
+  "noise": [
+   {
+    "name": "NSR1 Farmhouse",
+    "lp_dba": 43.8,
+    "limit_dba": 45.0,
+    "margin_db": 1.2,
+    "x_local": 307.82241901909197,
+    "y_local": 59.08220201354301
+   },
+   {
+    "name": "NSR2 Village edge",
+    "lp_dba": 40.4,
+    "limit_dba": 42.0,
+    "margin_db": 1.6,
+    "x_local": -54.8517201642791,
+    "y_local": 309.0171310802919
+   }
+  ],
+  "checks_failed": 0,
+  "checks_warn": 1,
+  "variants_tested": 16
+ },
+ "checks": [
+  {
+   "id": "fit.redline",
+   "severity": "pass",
+   "message": "All plant and buildings inside the redline",
+   "element_ids": [],
+   "value": null,
+   "limit": null
+  },
+  {
+   "id": "clash.solids",
+   "severity": "pass",
+   "message": "No clashes between buildings and plant",
+   "element_ids": [],
+   "value": null,
+   "limit": null
+  },
+  {
+   "id": "clash.roads",
+   "severity": "pass",
+   "message": "Roads clear of buildings and plant",
+   "element_ids": [],
+   "value": null,
+   "limit": null
+  },
+  {
+   "id": "access.ancillaries",
+   "severity": "pass",
+   "message": "Every ancillary within 10 m of a road",
+   "element_ids": [],
+   "value": null,
+   "limit": 10.0
+  },
+  {
+   "id": "fire.access",
+   "severity": "pass",
+   "message": "100% of the facade within 45 m of a road (placeholder rule - set from the fire strategy)",
+   "element_ids": [],
+   "value": 100.0,
+   "limit": 100.0
+  },
+  {
+   "id": "fuel.separation",
+   "severity": "pass",
+   "message": "Fuel store 19 m from building/plant (min 10), 76 m from boundary (min 6) - placeholder limits",
+   "element_ids": [
+    "FUEL-BUND"
+   ],
+   "value": 18.8,
+   "limit": 10.0
+  },
+  {
+   "id": "noise.NSR1 Farmhouse",
+   "severity": "pass",
+   "message": "NSR1 Farmhouse: 43.8 dB(A) vs limit 45 (+1.2 dB margin)",
+   "element_ids": [],
+   "value": 43.8,
+   "limit": 45.0
+  },
+  {
+   "id": "noise.NSR2 Village edge",
+   "severity": "pass",
+   "message": "NSR2 Village edge: 40.4 dB(A) vs limit 42 (+1.6 dB margin)",
+   "element_ids": [],
+   "value": 40.4,
+   "limit": 42.0
+  },
+  {
+   "id": "hr.capacity",
+   "severity": "pass",
+   "message": "19 duty x 1383 kW at 36 degC = +3.3% on 25.44 MW, plus 1 standby",
+   "element_ids": [],
+   "value": 3.3,
+   "limit": null
+  },
+  {
+   "id": "elec.topology",
+   "severity": "info",
+   "message": "4M3: 16 blocks x 2000 kW, 32.0 MW installed, 75% normal loading",
+   "element_ids": [],
+   "value": null,
+   "limit": null
+  },
+  {
+   "id": "halls.racks",
+   "severity": "pass",
+   "message": "300 racks per hall for 300 required (20 kW/rack)",
+   "element_ids": [],
+   "value": null,
+   "limit": null
+  },
+  {
+   "id": "roof.load",
+   "severity": "warn",
+   "message": "20 roof units at ~4.6 kN/m2 local load - confirm with structures",
+   "element_ids": [],
+   "value": 4.6,
+   "limit": null
+  }
+ ],
+ "log": [
+  "17 electrical-band rooms on 2 level(s), 204 m of room frontage.",
+  "4M3: 16 blocks x 2000 kW UPS (4 groups, normal loading 75%).",
+  "Selected Air-cooled free-cooling chiller ~1.4 MW: 1383 kW each at 36.0 degC design ambient; 19 duty + 1 standby (N+1)."
+ ],
+ "score": 130.4
+}
