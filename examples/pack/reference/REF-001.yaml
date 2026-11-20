@@ -1,0 +1,36 @@
+# SYNTHETIC EXAMPLE reference card. Expected values are what this version of the engine produced.
+id: REF-001
+name: SYNTHETIC EXAMPLE campus B1 (24 MW, 4M3)
+topology: 4M3
+brief:
+  it_load_mw: 24
+  hall_it_mw: 6
+  rack_kw: 20
+  topology: 4M3
+  ambient_design_c: 36
+metrics:
+  it_mw: 24
+  gia_m2: 9800
+  footprint_m2: 8400
+  site_ha: 7.9
+  white_space_m2: 3500
+  gensets: 16
+  transformers: 16
+  hr_units: 20
+  elec_rooms: 17
+files:
+- drawings/REF-001-GA.pdf (example, does not exist)
+expected:
+  halls: 4
+  hall_w_m: 31.2
+  hall_d_m: 28.2
+  racks_per_hall: 300
+  block_kw: 2000
+  gensets: 16
+  transformers: 16
+  elec_rooms: 16
+  hr_units: 20
+tolerance:
+  default_pct: 0
+  hall_w_m: 0.6
+  hall_d_m: 0.6

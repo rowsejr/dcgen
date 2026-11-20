@@ -185,3 +185,38 @@ def run_checks(scene: Scene, cat: Catalogue) -> list[Check]:
         if msg.startswith("FAIL"):
             out.append(Check(id="placement", severity="fail", message=msg[6:]))
     return out
+
+
+def library_checks(scene: Scene, cat: Catalogue) -> list[Check]:
+    """Plant data provenance, client rules (compliance sheet) and benchmark against reference designs."""
+    out: list[Check] = []
+    lib = scene.designs.get("library") or {}
+    used = lib.get("used", [])
+    if used:
+        draft = [u for u in used if u["status"] in ("draft", "reviewed")]
+        placeholder = [u for u in used if u["status"] == "placeholder"]
+        txt = ", ".join(f"{u['role']} {u['id']} ({u['status']})" for u in used)
+        sev = "warn" if draft else ("info" if placeholder else "pass")
+        out.append(Check(id="data.status", severity=sev, message="Plant data: " + txt +
+                         (" - DRAFT records in use, not for client issue" if draft else
+                          (" - indicative placeholders, check before use" if placeholder else ""))))
+    prof = cat.get("_profile") if hasattr(cat, "get") else None
+    if prof:
+        from .library import profiles
+        rows = profiles.evaluate(scene, prof, cat)
+        scene.designs["compliance"] = {"profile": prof["id"], "revision": prof.get("revision", ""), "rows": rows,
+                                       "summary": profiles.summary(rows)}
+        for r in rows:
+            if r["status"] in ("fail", "warn", "error"):
+                val = "" if r["value"] is None else f" - {r['value']} vs {r['limit']}"
+                out.append(Check(id=f"client.{r['id']}", severity="fail" if r["status"] in ("fail", "error") else "warn",
+                                 element_ids=r["evidence"], message=f"{r['clause']}: {r['text']}{val}"))
+    cards = cat.get("_cards") if hasattr(cat, "get") else None
+    if cards:
+        from .library import reference
+        bm = reference.benchmark(scene, cards)
+        scene.designs["benchmark"] = bm
+        if bm["outliers"]:
+            out.append(Check(id="bench.outliers", severity="warn",
+                             message="Outside reference designs " + ", ".join(bm["refs"][:3]) + ": " + ", ".join(bm["outliers"])))
+    return out

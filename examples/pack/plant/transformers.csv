@@ -1,0 +1,4 @@
+record_id,manufacturer,model,status,source,source_date,conditions,entered_by,checked_by,checked_date,notes,kva,length,width,height,clear,impedance_pct,no_load_loss_kw,load_loss_kw,cooling,oil_litres
+EX-TX-2500,ExampleCo,EX-T2500,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,2500,3.6,2.6,3.2,1.5,,,,,
+EX-TX-3150,ExampleCo,EX-T3150,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,3150,3.9,2.8,3.4,1.5,,,,,
+EX-TX-4000,ExampleCo,EX-T4000,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,4000,4.3,3,3.6,1.5,,,,,

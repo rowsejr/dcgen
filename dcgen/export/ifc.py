@@ -18,7 +18,7 @@ from ..schema import Scene
 IFC_MAP = {
     "data_hall": ("IfcSpace", "SPACE"), "elec_room": ("IfcSpace", "SPACE"), "sts_room": ("IfcSpace", "SPACE"),
     "mv_room": ("IfcSpace", "SPACE"), "support": ("IfcSpace", "SPACE"), "corridor": ("IfcSpace", "SPACE"),
-    "mech_gallery": ("IfcSpace", "SPACE"),
+    "mech_gallery": ("IfcSpace", "SPACE"), "fire_wall": ("IfcWall", "SOLIDWALL"), "stair": ("IfcSpace", "SPACE"),
     "genset": ("IfcElectricGenerator", "ENGINEGENERATOR"),
     "transformer": ("IfcTransformer", "VOLTAGE"),
     "chiller": ("IfcChiller", "AIRCOOLED"),

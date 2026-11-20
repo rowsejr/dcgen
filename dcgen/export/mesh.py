@@ -40,6 +40,7 @@ def export_glb(scene: Scene, path: str) -> str:
 
 LAYERS = {
     "data_hall": ("DC-HALL", 5), "support": ("DC-BLDG", 8), "corridor": ("DC-BLDG", 8), "mech_gallery": ("DC-MECH", 4),
+    "fire_wall": ("DC-BLDG", 8), "stair": ("DC-BLDG", 8), "exit": ("DC-FIRE", 3),
     "elec_room": ("DC-ELEC", 30), "sts_room": ("DC-ELEC", 30), "mv_room": ("DC-ELEC", 30),
     "transformer": ("DC-ELEC-TX", 30), "genset": ("DC-ELEC-GEN", 30), "substation": ("DC-ELEC-SUB", 30),
     "chiller": ("DC-MECH-HR", 4), "dry_cooler": ("DC-MECH-HR", 4),

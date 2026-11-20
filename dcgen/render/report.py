@@ -521,7 +521,9 @@ def sheet_schedules(scene: Scene):
         ["STS / MV rooms", f"{len(scene.by_kind('sts_room')) + len(scene.by_kind('mv_room'))}",
          f"{area('sts_room') + area('mv_room'):,.0f}", ""],
         ["Support / admin", "1", f"{area('support') * s:,.0f}", f"{s} storey(s)"],
-        ["Corridor", "1", f"{area('corridor') * s:,.0f}", ""],
+        ["Corridors", f"{len(scene.by_kind('corridor'))}", f"{area('corridor') * s:,.0f}",
+         f"main + {scene.designs['core']['cross_corridors']} cross; {scene.designs['core']['fire_walls']} fire walls"],
+        ["Escape", f"{len(scene.by_kind('exit'))}", "", f"final exits; {scene.designs['core']['egress']['stairs']} stair core(s)"],
         ["Mechanical gallery", "1", f"{area('mech_gallery') * s:,.0f}", "pipework, pumps"],
         ["GIA (approx.)", "", f"{scene.metrics['gia_m2']:,}", "excludes plant yards"],
     ]
@@ -536,7 +538,8 @@ def sheet_schedules(scene: Scene):
     _heading(ax, 0.0, y - 0.03, "Site")
     table(ax, 0.0, y - 0.075, ["Metric", "Value"], rows, [0.2, 0.15], fs=6.4, row_h=0.034)
 
-    rows = [[("status", c.severity), c.message[:118]] for c in scene.checks]
+    rows = [[("status", c.severity), c.message if len(c.message) <= 100 else c.message[:99] + "…"]
+            for c in scene.checks]
     _heading(ax, 0.6, 1.0, "Rule checks")
     yy = table(ax, 0.6, 0.955, ["Result", "Check"], rows, [0.07, 0.33], fs=5.9, row_h=0.031,
                aligns=["left", "left"])

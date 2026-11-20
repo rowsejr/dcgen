@@ -31,7 +31,10 @@ Workflow: create_project -> set_site (redline) -> update_brief -> generate_optio
 read checks/metrics -> iterate (update_brief, move_element, select_option) -> export.
 Rules: never invent geometry or plant numbers - quote tool results. Catalogue values are
 placeholders until the engineering team signs them off; say so when presenting results.
-When a check fails, propose a concrete change (brief parameter or move) and re-run."""
+When a check fails, propose a concrete change (brief parameter or move) and re-run.
+Plant comes from the library (library_search, plant_options); only approved records are used unless the brief allows
+drafts. You cannot approve records: that is an engineer's sign-off. Client rules come from profiles (apply_profile,
+compliance) with clause references; quote the clause when reporting a failure."""
 
 apps = Apps()
 
@@ -157,6 +160,63 @@ def export(project: str, formats: Optional[list[str]] = None) -> dict:
     if public:   # hosted: give people links they can click (Teams / Copilot / claude.ai)
         out["links"] = {f: f"{public}/api/projects/{project}/files/{f}" for f in files}
         out["links"]["editor_page"] = f"{public}/editor/{project}"
+    return out
+
+
+# ----------------------------------------------------------------------------- plant library, client profiles, reference designs
+@mcp.tool()
+def library_search(type: Optional[str] = None, query: str = "", limit: int = 15, include_drafts: bool = False,
+                   capacity_kw_min: Optional[float] = None, lw_dba_max: Optional[float] = None,
+                   kva_min: Optional[float] = None) -> dict:
+    """Search the approved plant library (type: chiller, dry_cooler, adiabatic_cooler, genset, transformer,
+    elec_room_typical). Returns short rows with record ids; use library_get for one record's full data.
+    Drafts are excluded unless include_drafts (exploration only)."""
+    ranges = {k: v for k, v in (("capacity_kw_min", capacity_kw_min), ("lw_dba_max", lw_dba_max), ("kva_min", kva_min)) if v is not None}
+    rows = service.library_search(type, query, limit, include_drafts, **ranges)
+    return {"count": len(rows), "rows": rows, "library": service.library_info()["by_type"]}
+
+
+@mcp.tool()
+def library_get(record_id: str) -> dict:
+    """One library record in full: dimensions, clearances, sound data, curves, source and approval status."""
+    return service.library_get(record_id)
+
+
+@mcp.tool()
+def plant_options(project: str, top: int = 5) -> dict:
+    """Ranked heat rejection candidates for the project (units needed, footprint, total sound power, runners-up)
+    and the genset/transformer picked. Change the choice with update_brief: hr_prefer (balanced|footprint|noise|count)
+    or hr_unit / genset_unit / tx_unit set to a record id."""
+    return service.plant_options(project, top)
+
+
+@mcp.tool()
+def list_profiles() -> list[dict]:
+    """Client profiles in the loaded packs (id, revision, number of rules, approved manufacturers)."""
+    return service.profiles_list()
+
+
+@mcp.tool()
+def apply_profile(project: str, profile_id: str) -> dict:
+    """Apply a client profile to the brief: its defaults, catalogue overrides and approved-plant filter."""
+    return service.apply_profile(project, profile_id)
+
+
+@mcp.tool()
+def compliance(project: str, only_issues: bool = True) -> dict:
+    """Client rule results with clause references for the current layout (pass/fail/warn/manual)."""
+    c = service.compliance(project)
+    rows = [r for r in c["rows"] if r["status"] != "pass"] if only_issues else c["rows"]
+    return {"profile": c["profile"], "revision": c["revision"], "summary": c["summary"], "rows": rows}
+
+
+@mcp.tool()
+def reference_designs(project: str, benchmark: bool = False) -> dict:
+    """Reference designs closest to this brief; with benchmark=True, how the current layout's per-MW numbers
+    compare (outliers flagged)."""
+    out = {"similar": service.reference_find(project)}
+    if benchmark:
+        out["benchmark"] = service.benchmark(project)
     return out
 
 

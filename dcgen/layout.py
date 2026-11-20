@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import math
+from pathlib import Path
 from dataclasses import asdict, dataclass
 from typing import Optional
 
@@ -14,7 +15,7 @@ import numpy as np
 from shapely.geometry import Polygon
 
 from .catalogue import Catalogue, for_brief, load_catalogue
-from .checks import run_checks
+from .checks import library_checks, run_checks
 from .engines import noise
 from .engines import site as site_eng
 from .engines.cooling import select_heat_rejection
@@ -65,6 +66,18 @@ def _designs(hall, elec, hr, core, n_halls) -> dict:
     return {"halls": h, "electrical": e, "cooling": hr.summary(), "core": core.info}
 
 
+def _library_used(elec, hr, cat) -> dict:
+    """Which plant records the layout rests on, and whether each is approved (shown on every output)."""
+    used = []
+    for role, key, d in (("genset", elec.genset_key, elec.genset), ("transformer", elec.tx_key, elec.transformer),
+                         ("heat rejection", hr.unit_key, hr.unit)):
+        used.append({"role": role, "id": d.get("record_id", key), "label": d["label"],
+                     "status": d.get("status", "placeholder"), "source": d.get("source", "catalogue.yaml")})
+    meta = cat.get("_library") or {}
+    return {"used": used, "profile": meta.get("profile"), "drafts_allowed": meta.get("drafts_allowed", False),
+            "packs": [Path(p).name for p in meta.get("packs", [])]}
+
+
 def generate(brief: Brief, site: SiteInput, variant: Variant, cat: Optional[Catalogue] = None,
              offset_index: int = 0, _prepared=None) -> Optional[Scene]:
     """One layout for one variant. Returns None if the core does not fit the redline."""
@@ -89,6 +102,7 @@ def generate(brief: Brief, site: SiteInput, variant: Variant, cat: Optional[Cata
                   variant=asdict(variant) | {"offset": [float(tx), float(ty)],
                                              "label": variant.label(frame, site.true_north_deg)})
     scene.designs = _designs(hall, elec, hr, core, n_halls)
+    scene.designs["library"] = _library_used(elec, hr, cat)
     scene.designs["anchors"] = anchors
     scene.log += core.notes + elec.notes + hr.notes
     site_eng.layout_site(scene, cat, bbox, anchors)
@@ -149,6 +163,9 @@ def finalize(scene: Scene, cat: Catalogue) -> Scene:
     scene.designs["spare_land"] = spare_land(scene)
     scene.checks = run_checks(scene, cat)
     scene.metrics = compute_metrics(scene)
+    scene.checks += library_checks(scene, cat)             # needs metrics (benchmark), so runs second
+    scene.metrics["checks_failed"] = sum(c.severity == "fail" for c in scene.checks)
+    scene.metrics["checks_warn"] = sum(c.severity == "warn" for c in scene.checks)
     scene.score = score(scene)
     return scene
 

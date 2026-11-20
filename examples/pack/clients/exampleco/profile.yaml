@@ -1,0 +1,39 @@
+# SYNTHETIC EXAMPLE client profile. Shows the structure; replace with a real client standard.
+id: exampleco-standard
+revision: "SYNTHETIC EXAMPLE Rev A"
+brief_defaults:
+  topology: "5M4"
+  fuel_autonomy_h: 48
+  hr_redundancy: "N+2"
+catalogue_overrides:
+  halls.corridor_depth: 4.5
+  halls.cross_corridor_every: 2
+approved:
+  manufacturers: [ExampleCo]
+rules:
+  - id: R-3.2
+    clause: "EXAMPLE-STD 3.2"
+    text: "Main corridor at least 4.5 m clear"
+    check: {type: catalogue, path: halls.corridor_depth, op: ">=", value: 4.5}
+  - id: R-4.2.3
+    clause: "EXAMPLE-STD 4.2.3"
+    text: "Generators at least 15 m from the site boundary"
+    severity: fail
+    check: {type: min_distance, a: {kind: genset}, b: boundary, min: 15}
+  - id: R-5.1
+    clause: "EXAMPLE-STD 5.1"
+    text: "UPS normal loading no higher than 80%"
+    check: {type: metric, path: designs.electrical.normal_loading_pct, op: "<=", value: 80}
+  - id: R-6.3
+    clause: "EXAMPLE-STD 6.3"
+    text: "At least 3 dB below the noise limit at every receptor"
+    severity: warn
+    check: {type: noise_margin, min: 3}
+  - id: R-7.1
+    clause: "EXAMPLE-STD 7.1"
+    text: "Guardhouse at the main access"
+    check: {type: count, kind: guardhouse, op: ">=", value: 1}
+  - id: R-9.1
+    clause: "EXAMPLE-STD 9.1"
+    text: "Fuel delivery vehicle turning circle is provided"
+    check: {type: manual}

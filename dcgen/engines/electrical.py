@@ -7,6 +7,7 @@ from dataclasses import dataclass, field, asdict
 
 from ..catalogue import Catalogue
 from ..schema import Brief
+from .cooling import interp
 from .topology import BlockPlan, Topology, parse_topology, plan_blocks
 
 
@@ -63,13 +64,18 @@ def design_electrical(brief: Brief, cat: Catalogue, n_halls: int) -> ElecDesign:
 
     # Each block's genset/transformer carries its IT block + its share of mechanical load
     facility_kw = plan.block_kw * (brief.design_pue if brief.mech_on_blocks else 1.0)
-    gkey, gen, gpb = cat.pick_min("gensets", "kwe", facility_kw)
+    gkey, gen, gpb = cat.pick_best("gensets", "kwe", facility_kw, brief.genset_unit)
     if gpb > 1:
         notes.append(f"Block facility load {facility_kw:.0f} kW exceeds largest genset; {gpb} sets per block.")
-    tkey, tx, tpb = cat.pick_min("transformers", "kva", facility_kw / 0.95)
+    tkey, tx, tpb = cat.pick_best("transformers", "kva", facility_kw / 0.95, brief.tx_unit, gap_keys=("clear", "clear"))
 
     er = cat["electrical_rooms"]
-    room_w = er["width_base"] + er["width_per_mw"] * plan.block_kw / 1000
+    table = er.get("table")
+    if table:      # reference-design typicals: room width per block rating, interpolated
+        room_w = interp([t["kw"] for t in table], [t["width"] for t in table], plan.block_kw)
+        notes.append(f"Electrical room width {room_w:.1f} m per {plan.block_kw:.0f} kW block from reference typicals.")
+    else:
+        room_w = er["width_base"] + er["width_per_mw"] * plan.block_kw / 1000
     n_rooms = math.ceil(plan.n_blocks / max(1, brief.blocks_per_elec_room))
 
     site_kw = brief.it_load_mw * 1000 * brief.design_pue

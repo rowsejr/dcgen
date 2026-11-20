@@ -1,0 +1,4 @@
+record_id,manufacturer,model,status,source,source_date,conditions,entered_by,checked_by,checked_date,notes,block_kw,room_width_m,room_depth_m,battery_type,reference
+EX-ER-1000,ExampleCo,typical 1 MW block,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,1000,7.5,,,REF-001
+EX-ER-2000,ExampleCo,typical 2 MW block,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,2000,11,,,REF-001
+EX-ER-3000,ExampleCo,typical 3 MW block,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,3000,15,,,REF-001

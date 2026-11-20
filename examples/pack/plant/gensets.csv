@@ -1,0 +1,3 @@
+record_id,manufacturer,model,status,source,source_date,conditions,entered_by,checked_by,checked_date,notes,kva,kwe,length,width,height,side_clear,end_clear,lw_dba,fuel_l_per_kwh,emissions,exhaust_height_m
+EX-GEN-2500,ExampleCo,EX-2500,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,2500,2000,12.5,3.2,4.2,1.5,4,103,0.26,,
+EX-GEN-3500,ExampleCo,EX-3500,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,3500,2800,14.5,3.5,4.6,1.5,4,105,0.26,,

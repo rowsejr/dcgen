@@ -47,6 +47,7 @@ BASE = {
     "sprinkler_tank": "#bab7ae", "pump_house": "#a3a097",
     "fuel_bund": "#e2e0da", "fuel_tank": "#7f7c75",
     "guardhouse": "#6f6c66", "gate": INK,
+    "fire_wall": "#8c8a84", "stair": "#bdb9ae", "exit": "#2f9e62",
     "road": "#d2d0ca", "parking": "#e4e2dc", "landscape": "#e1eedb",
 }
 PLAN_FILL = {k: (tint(v, 0.45) if k in ("data_hall", "mech_gallery", "elec_room", "sts_room", "mv_room")

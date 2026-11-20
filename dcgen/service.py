@@ -84,6 +84,8 @@ def summary(sc: Scene) -> dict:
             "topology", "blocks", "block_ups_kw", "installed_ups_mw", "normal_loading_pct", "gensets", "genset",
             "transformers", "elec_rooms", "sts_rooms", "substation")},
         "cooling": sc.designs["cooling"],
+        "plant_data": [f"{u['role']}: {u['id']} ({u['status']})" for u in sc.designs.get("library", {}).get("used", [])],
+        "compliance": (sc.designs.get("compliance") or {}).get("summary"),
         "checks": [{"id": c.id, "severity": c.severity, "message": c.message} for c in sc.checks],
         "log": sc.log[-8:],
     }
@@ -213,3 +215,131 @@ def export(project: str, formats: Optional[list[str]] = None) -> dict[str, str]:
 
 def scene_json(project: str) -> dict:
     return json.loads(scene_of(project).model_dump_json())
+
+
+# ----------------------------------------------------------------------------- plant library, profiles, reference designs
+def _lib():
+    from . import library
+    return library.active()
+
+
+def library_info() -> dict:
+    """Which packs are loaded and what is in them (counts by type and status)."""
+    lib = _lib()
+    return {"packs": [str(r) for r in lib.roots], "records": len(lib), "by_type": lib.counts(),
+            "profiles": sorted(lib.profiles), "reference_designs": [c["id"] for c in lib.cards],
+            "issues": lib.issues[:10]}
+
+
+def library_search(rtype: Optional[str] = None, query: str = "", limit: int = 15, include_drafts: bool = False,
+                   **ranges: float) -> list[dict]:
+    """Short rows (id, name, status, key numbers). Numeric filters: capacity_kw_min=1200, lw_dba_max=90."""
+    return _lib().search(rtype, query, min(max(limit, 1), 50), include_drafts, **ranges)
+
+
+def library_get(record_id: str) -> dict:
+    hit = _lib().get(record_id)
+    if hit is None:
+        raise ServiceError(f"No library record '{record_id}'")
+    t, r = hit
+    return {"type": t, **{k: v for k, v in r.items() if not k.startswith("_")}}
+
+
+def library_import(path: str, rtype: str, pack_dir: str, mapping: Optional[str] = None, entered_by: str = "",
+                   sheet: Optional[str] = None) -> dict:
+    """Import a CSV/XLSX as DRAFT records into a pack. Human/CLI action; never approves."""
+    from .library.importers import import_file, load_mapping
+    rep = import_file(path, rtype, pack_dir, load_mapping(mapping) if mapping else None, entered_by, sheet=sheet)
+    return rep.summary()
+
+
+def library_validate(include_ok: bool = False) -> list[dict]:
+    from .library.validate import validate_record
+    out = []
+    for t, recs in _lib().records.items():
+        for rid, r in recs.items():
+            issues = validate_record(t, r)
+            if issues or include_ok:
+                out.append({"id": rid, "type": t, "status": r["status"], "issues": [f"{lvl}: {m}" for lvl, m in issues]})
+    return out
+
+
+def library_approve(record_ids: list[str], checked_by: str, status: str = "approved") -> list[str]:
+    """Engineer sign-off. Deliberately not exposed as an agent tool."""
+    msgs = _lib().set_status(record_ids, status, checked_by)
+    from . import library
+    library._CACHE.clear()
+    return msgs
+
+
+def plant_options(project: str, top: int = 5) -> dict:
+    """Heat rejection candidates ranked for this project's brief (runners-up included) plus the genset and
+    transformer the electrical engine would pick, from the catalogue this project actually sees."""
+    from .engines.cooling import rank_heat_rejection
+    from .engines.electrical import design_electrical
+    from .engines.halls import design_hall  # noqa: F401
+    b = state(project)["brief"]
+    cat = for_brief(b)
+    ranked = rank_heat_rejection(b, cat)
+    n_halls, _, elec, _ = layout.run_engines(b, cat)
+    meta = cat.get("_library") or {}
+    return {"project": project, "preference": b.hr_prefer, "profile": meta.get("profile"),
+            "drafts_allowed": b.use_drafts, "library_sections": meta.get("replaced", []),
+            "heat_rejection": [{"id": c.unit.get("record_id", c.key), "label": c.unit["label"], "status": c.unit.get("status", "placeholder"),
+                                "units": c.n_total, "capacity_kw_each": round(c.cap_kw), "footprint_m2": round(c.footprint_m2),
+                                "total_lw_dba": round(c.lw_total_dba, 1), "margin_pct": round(c.margin_pct, 1),
+                                "score": round(c.score, 3)} for c in ranked[:top]],
+            "genset": {"id": elec.genset.get("record_id", elec.genset_key), "label": elec.genset["label"], "per_block": elec.gensets_per_block},
+            "transformer": {"id": elec.transformer.get("record_id", elec.tx_key), "label": elec.transformer["label"],
+                            "per_block": elec.tx_per_block}}
+
+
+def profiles_list() -> list[dict]:
+    return [{"id": p["id"], "revision": p.get("revision", ""), "rules": len(p.get("rules", [])),
+             "approved_manufacturers": (p.get("approved") or {}).get("manufacturers")} for p in _lib().profiles.values()]
+
+
+def apply_profile(project: str, profile_id: str) -> dict:
+    """Set the brief from a client profile (defaults + project catalogue overrides + plant filter)."""
+    from .library import profiles
+    prof = _lib().profiles.get(profile_id)
+    if prof is None:
+        raise ServiceError(f"No client profile '{profile_id}'. Available: {sorted(_lib().profiles)}")
+    up = profiles.brief_updates(prof)
+    up["overrides"] = {**state(project)["brief"].overrides, **up.get("overrides", {})}
+    return update_brief(project, up) | {"profile": {"id": prof["id"], "revision": prof.get("revision", "")}}
+
+
+def compliance(project: str) -> dict:
+    sc = scene_of(project)
+    c = sc.designs.get("compliance")
+    if not c:
+        raise ServiceError("No client profile is set on this project (apply_profile first), or no layout yet.")
+    return c
+
+
+def compliance_csv(project: str) -> str:
+    from .library import profiles
+    c = compliance(project)
+    return profiles.compliance_csv(c["rows"], {"id": c["profile"], "revision": c["revision"]})
+
+
+def reference_find(project: str, n: int = 3) -> list[dict]:
+    from .library import reference
+    cards = _lib().cards
+    return [{"id": c["id"], "name": c.get("name", ""), "metrics": c.get("metrics", {}), "files": c.get("files", [])}
+            for c in reference.similar(state(project)["brief"], cards, n)]
+
+
+def benchmark(project: str) -> dict:
+    from .library import reference
+    cards = _lib().cards
+    if not cards:
+        raise ServiceError("No reference designs loaded (add a pack with reference/*.yaml).")
+    return reference.benchmark(scene_of(project), cards)
+
+
+def regress(ids: Optional[list[str]] = None) -> list[dict]:
+    from .library import reference
+    cards = [c for c in _lib().cards if not ids or c["id"] in ids]
+    return [reference.regress_card(c) for c in cards]

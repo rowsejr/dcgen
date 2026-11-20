@@ -88,6 +88,13 @@ class Brief(BaseModel):
     building_screen_db: float = Field(10.0, description="Extra attenuation when the building blocks the path")
     # --- site
     staff_parking: int = 60
+    # --- plant selection and client profile
+    profile: str = Field("", description="Client profile id (library pack); sets approved plant, defaults, rules")
+    use_drafts: bool = Field(False, description="Allow draft/reviewed library records (exploration only; flagged on outputs)")
+    hr_prefer: Literal["balanced", "footprint", "noise", "count"] = "balanced"
+    hr_unit: Optional[str] = Field(None, description="Force a heat rejection unit (catalogue key / record id)")
+    genset_unit: Optional[str] = None
+    tx_unit: Optional[str] = None
     # --- project overrides of catalogue values (client requirements), dotted paths
     overrides: dict[str, Any] = Field(default_factory=dict, description=(
         "Catalogue overrides for this project, e.g. {'halls.corridor_depth': 5.0, "

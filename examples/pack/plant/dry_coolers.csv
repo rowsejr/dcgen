@@ -1,0 +1,2 @@
+record_id,manufacturer,model,status,source,source_date,conditions,entered_by,checked_by,checked_date,notes,capacity_kw,rated_ambient_c,rated_fluid_in_c,max_ambient_c,curve_ambient_c,curve_capacity_kw,curves_json,fluid_glycol_pct,altitude_m,power_kw,length,width,height,intake_clear,row_clear,lw_dba,lw_63,lw_125,lw_250,lw_500,lw_1k,lw_2k,lw_4k,lw_8k,operating_kg
+EX-DC-1100,ExampleCo,EX-DC1100,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,1100,35,45,42,,,,,,,12.2,2.4,2.7,3,3.5,88,,,,,,,,,6000

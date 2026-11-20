@@ -91,28 +91,78 @@ class HRDesign:
         }
 
 
-def select_heat_rejection(brief: Brief, cat: Catalogue) -> HRDesign:
+@dataclass
+class HRCandidate:
+    key: str
+    unit: dict
+    cap_kw: float
+    n_duty: int
+    n_standby: int
+    footprint_m2: float
+    lw_total_dba: float
+    margin_pct: float
+    score: float = 0.0
+
+    @property
+    def n_total(self) -> int:
+        return self.n_duty + self.n_standby
+
+
+_WEIGHTS = {"balanced": (0.5, 0.3, 0.2), "footprint": (1.0, 0.0, 0.0), "noise": (0.0, 1.0, 0.0), "count": (0.0, 0.0, 1.0)}
+
+
+def rank_heat_rejection(brief: Brief, cat: Catalogue, types: list[str] | None = None) -> list[HRCandidate]:
+    """All workable units of the first suitable type, best first. Deterministic."""
     q = brief.it_load_mw * 1000 * (1 + brief.hr_overhead_frac)
     units = cat["heat_rejection"]
-    notes: list[str] = []
-    if brief.heat_rejection == "auto":
-        prefs = (["dry_cooler", "adiabatic_dry_cooler", "air_cooled_chiller"]
-                 if brief.cooling == "liquid_dtc" else ["air_cooled_chiller"])
+    if brief.hr_unit:
+        if brief.hr_unit not in units:
+            raise KeyError(f"hr_unit '{brief.hr_unit}' is not in the catalogue for this project")
+        keys = [brief.hr_unit]
+        groups = [[brief.hr_unit]]
     else:
-        prefs = [brief.heat_rejection]
-
-    for typ in prefs:
-        for key, u in units.items():
-            if u["type"] != typ:
-                continue
+        if types is None:
+            if brief.heat_rejection == "auto":
+                types = (["dry_cooler", "adiabatic_dry_cooler", "air_cooled_chiller"]
+                         if brief.cooling == "liquid_dtc" else ["air_cooled_chiller"])
+            else:
+                types = [brief.heat_rejection]
+        groups = [[k for k, u in units.items() if u["type"] == t] for t in types]
+    for keys in groups:
+        cands = []
+        for key in keys:
+            u = units[key]
             cap = unit_capacity_kw(u, brief)
             if cap <= 0.25 * u["capacity_kw"]:
-                notes.append(f"{u['label']}: only {cap:.0f} kW at {brief.ambient_design_c} degC - rejected.")
                 continue
             n = math.ceil(q / cap)
             sb = _standby(n, brief.hr_redundancy)
-            margin = (n * cap - q) / q * 100
-            notes.append(f"Selected {u['label']}: {cap:.0f} kW each at {brief.ambient_design_c} degC "
-                         f"design ambient; {n} duty + {sb} standby ({brief.hr_redundancy}).")
-            return HRDesign(key, u, q, cap, n, sb, n + sb, margin, notes)
-    raise ValueError("No heat rejection unit in the catalogue works at this design ambient: " + " ".join(notes))
+            nt = n + sb
+            fp = nt * (u["width"] + u["intake_clear"]) * (u["length"] + u["row_clear"])
+            cands.append(HRCandidate(key, u, cap, n, sb, fp, u["lw_dba"] + 10 * math.log10(nt), (n * cap - q) / q * 100))
+        if cands:
+            fp0 = min(c.footprint_m2 for c in cands)
+            lw0 = min(c.lw_total_dba for c in cands)
+            n0 = min(c.n_total for c in cands)
+            wf, wn, wc = _WEIGHTS[brief.hr_prefer]
+            for c in cands:
+                c.score = wf * c.footprint_m2 / fp0 + wn * (c.lw_total_dba - lw0) / 3.0 + wc * c.n_total / n0
+            return sorted(cands, key=lambda c: (round(c.score, 6), c.key))
+    return []
+
+
+def select_heat_rejection(brief: Brief, cat: Catalogue) -> HRDesign:
+    q = brief.it_load_mw * 1000 * (1 + brief.hr_overhead_frac)
+    ranked = rank_heat_rejection(brief, cat)
+    if not ranked:
+        raise ValueError("No heat rejection unit in the catalogue works at this design ambient "
+                         f"({brief.ambient_design_c} degC) for {brief.heat_rejection} / {brief.cooling}.")
+    c = ranked[0]
+    u = c.unit
+    notes = [f"Selected {u['label']}: {c.cap_kw:.0f} kW each at {brief.ambient_design_c} degC design ambient; "
+             f"{c.n_duty} duty + {c.n_standby} standby ({brief.hr_redundancy}); preference '{brief.hr_prefer}'."]
+    if len(ranked) > 1:
+        alts = "; ".join(f"{a.unit['label']} ({a.n_total} units, {a.footprint_m2:.0f} m2, {a.lw_total_dba:.0f} dB(A) total)"
+                         for a in ranked[1:3])
+        notes.append(f"Runners-up: {alts}.")
+    return HRDesign(c.key, u, q, c.cap_kw, c.n_duty, c.n_standby, c.n_total, c.margin_pct, notes)

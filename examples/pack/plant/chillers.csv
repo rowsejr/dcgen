@@ -1,0 +1,4 @@
+record_id,manufacturer,model,status,source,source_date,conditions,entered_by,checked_by,checked_date,notes,capacity_kw,rated_ambient_c,max_ambient_c,derate_per_k,curve_ambient_c,curve_capacity_kw,chw_supply_c,chw_return_c,glycol_pct,altitude_m,power_kw,length,width,height,intake_clear,row_clear,lw_dba,lw_63,lw_125,lw_250,lw_500,lw_1k,lw_2k,lw_4k,lw_8k,operating_kg
+EX-CH-1400,ExampleCo,EX-1400,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,1400,35,48,0.012,,,,,,,,12,2.3,2.6,3,3.5,92,,,,,,,,,13000
+EX-CH-1800,ExampleCo,EX-1800,approved,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,EXAMPLE,2026-01-02,,1800,35,46,,25;35;40;45,2000;1800;1620;1400,,,,,,14,2.5,2.7,3,3.5,95,,,,,,,,,16500
+EX-CH-1200Q,ExampleCo,EX-1200Q,draft,SYNTHETIC EXAMPLE - NOT MANUFACTURER DATA,2026-01-01,synthetic,example,,,,1200,35,46,0.01,,,,,,,,12,2.3,2.6,3,3.5,86,,,,,,,,,12500

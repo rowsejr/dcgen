@@ -57,6 +57,72 @@ def cmd_topologies(a) -> None:
     print(json.dumps(rows, indent=1))
 
 
+def _packs(a) -> None:
+    import os
+    if getattr(a, "packs", None):
+        os.environ["DCGEN_PACKS"] = os.pathsep.join(a.packs)
+
+
+def cmd_library(a) -> None:
+    from . import service
+    _packs(a)
+    if a.action == "init":
+        from .library.templates import write_templates
+        for f in write_templates(a.target):
+            print("wrote", f)
+    elif a.action == "docs":
+        from .library.templates import fields_markdown
+        print(fields_markdown())
+    elif a.action == "import":
+        rep = service.library_import(a.target, a.type, a.pack, a.mapping, a.entered_by, a.sheet)
+        print(json.dumps(rep, indent=1))
+    elif a.action == "validate":
+        rows = service.library_validate()
+        for r in rows:
+            print(f"{r['id']} [{r['status']}]: " + "; ".join(r["issues"]))
+        print(f"{len(rows)} record(s) with issues; library: {json.dumps(service.library_info()['by_type'])}")
+    elif a.action == "approve":
+        if not a.checked_by:
+            raise SystemExit("approve needs --checked-by (the engineer who checked the records against their sources)")
+        for m in service.library_approve(a.target.split(","), a.checked_by):
+            print(m)
+    elif a.action == "search":
+        for r in service.library_search(a.type, a.target or "", a.limit, a.drafts):
+            print(r)
+
+
+def cmd_profile(a) -> None:
+    _packs(a)
+    brief, site = load_brief(a.brief), load_site(a.site)
+    from . import service
+    from .library import profiles
+    lib = service._lib()
+    prof = lib.profiles.get(a.profile)
+    if prof is None:
+        raise SystemExit(f"No profile {a.profile}; have {sorted(lib.profiles)}")
+    brief = brief.model_copy(update=profiles.brief_updates(prof))
+    opts = layout.generate_options(brief, site, max_options=1)
+    if not opts:
+        raise SystemExit("Does not fit the redline.")
+    c = opts[0].designs["compliance"]
+    print(f"{c['profile']} {c['revision']}: {c['summary']}")
+    print(profiles.compliance_csv(c["rows"], {"id": c["profile"], "revision": c["revision"]}))
+
+
+def cmd_reference(a) -> None:
+    _packs(a)
+    from . import service
+    if a.action == "regress":
+        bad = 0
+        for r in service.regress():
+            print(f"{r['id']}: {'ok' if r['ok'] else 'FAIL'}")
+            for row in r["rows"]:
+                if row["status"] != "pass":
+                    print("   ", row)
+                    bad += 1
+        raise SystemExit(1 if bad else 0)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(prog="dcgen", description="Datacentre Stage 2 test-fit generator")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -71,6 +137,20 @@ def main() -> None:
     t.add_argument("--brief", required=True)
     t.add_argument("--list", default="4M3,5M4,N+1 catcher,2N")
     t.set_defaults(fn=cmd_topologies)
+    lib = sub.add_parser("library", help="plant library: init templates, import drafts, validate, approve, search")
+    lib.add_argument("action", choices=["init", "docs", "import", "validate", "approve", "search"])
+    lib.add_argument("target", nargs="?", default="", help="init: folder | import: file | approve: ids (comma) | search: text")
+    lib.add_argument("--type", choices=["chiller", "dry_cooler", "adiabatic_cooler", "genset", "transformer", "elec_room_typical"])
+    lib.add_argument("--pack", help="import: pack folder to write drafts into")
+    lib.add_argument("--mapping"), lib.add_argument("--entered-by", default=""), lib.add_argument("--checked-by", default="")
+    lib.add_argument("--sheet"), lib.add_argument("--limit", type=int, default=20)
+    lib.add_argument("--drafts", action="store_true"), lib.add_argument("--packs", nargs="*")
+    lib.set_defaults(fn=cmd_library)
+    pr = sub.add_parser("profile", help="run a client profile's rules against a brief + site and print the compliance sheet")
+    pr.add_argument("--brief", required=True), pr.add_argument("--site", required=True), pr.add_argument("--profile", required=True)
+    pr.add_argument("--packs", nargs="*"), pr.set_defaults(fn=cmd_profile)
+    rf = sub.add_parser("reference", help="reference designs: regress the engine against the recorded schemes")
+    rf.add_argument("action", choices=["regress"]), rf.add_argument("--packs", nargs="*"), rf.set_defaults(fn=cmd_reference)
     a = ap.parse_args()
     a.fn(a)
 

@@ -179,6 +179,45 @@ def catalogue() -> str:
     return Path(DEFAULT_PATH).read_text()
 
 
+@app.get("/api/library", operation_id="libraryInfo", summary="Plant library packs loaded and record counts")
+def library_info():
+    return service.library_info()
+
+
+@app.get("/api/library/search", operation_id="librarySearch", summary="Search plant records (short rows)")
+def library_search(type: Optional[str] = None, q: str = "", limit: int = 15, drafts: bool = False,
+                   capacity_kw_min: Optional[float] = None, lw_dba_max: Optional[float] = None):
+    ranges = {k: v for k, v in (("capacity_kw_min", capacity_kw_min), ("lw_dba_max", lw_dba_max)) if v is not None}
+    return service.library_search(type, q, limit, drafts, **ranges)
+
+
+@app.get("/api/library/records/{record_id}", operation_id="libraryGet", summary="One plant record in full")
+def library_get(record_id: str):
+    return service.library_get(record_id)
+
+
+@app.get("/api/projects/{project}/plant", operation_id="plantOptions", summary="Ranked heat rejection options and plant picked")
+def plant_options(project: str, top: int = 5):
+    return service.plant_options(project, top)
+
+
+@app.get("/api/profiles", operation_id="listProfiles", summary="Client profiles")
+def list_profiles():
+    return service.profiles_list()
+
+
+@app.post("/api/projects/{project}/profile/{profile_id}", operation_id="applyProfile", summary="Apply a client profile to the brief")
+def apply_profile(project: str, profile_id: str):
+    return service.apply_profile(project, profile_id)
+
+
+@app.get("/api/projects/{project}/compliance", operation_id="compliance", summary="Client rule results with clause references")
+def compliance(project: str, csv: bool = False):
+    if csv:
+        return PlainTextResponse(service.compliance_csv(project), media_type="text/csv")
+    return service.compliance(project)
+
+
 @app.get("/api/example", operation_id="getExample", summary="The example brief and site, to try the tool")
 def example() -> dict:
     from .io import load_brief, load_site
