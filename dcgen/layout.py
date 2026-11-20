@@ -441,6 +441,7 @@ FIX_LEVERS = {
     "pue.peak": ["chw_flow_c higher", "hr_unit=<higher-EER chiller>", "hr_uplift_k (only with CFD evidence)",
                  "cooling=hybrid/liquid_dtc (less fan power)"],
     "pue.eer_range": ["add the chiller's EER curve to its library record (eer_curve_ambient_c / eer_curve)"],
+    "roof.load": ["hr_location=ground (heat rejection in the yard)", "confirm the roof design load with structures"],
     "maint.zones": ["overrides: cooling.<unit>.row_clear / intake_clear; or move_element on the intruding plant"],
     "noise": ["hr_prefer=noise", "hr_location=roof or ground (screening differs)", "hr_unit=<quieter record id>",
               "move_element on heat rejection away from the receptor"],

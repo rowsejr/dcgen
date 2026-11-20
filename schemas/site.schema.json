@@ -1,0 +1,192 @@
+{
+ "$defs": {
+  "Receptor": {
+   "description": "Noise-sensitive receptor (NSR), in site coordinates.",
+   "properties": {
+    "name": {
+     "description": "Receptor name, e.g. NSR1 Farmhouse",
+     "title": "Name",
+     "type": "string"
+    },
+    "x": {
+     "description": "Easting in site coordinates, m",
+     "title": "X",
+     "type": "number"
+    },
+    "y": {
+     "description": "Northing in site coordinates, m",
+     "title": "Y",
+     "type": "number"
+    },
+    "z": {
+     "default": 1.5,
+     "description": "Receptor height above ground, m",
+     "title": "Z",
+     "type": "number"
+    },
+    "limit_dba": {
+     "default": 45.0,
+     "description": "Rating level limit at the receptor, dB(A)",
+     "title": "Limit Dba",
+     "type": "number"
+    }
+   },
+   "required": [
+    "name",
+    "x",
+    "y"
+   ],
+   "title": "Receptor",
+   "type": "object"
+  }
+ },
+ "properties": {
+  "name": {
+   "default": "Site",
+   "description": "Site name for title blocks",
+   "title": "Name",
+   "type": "string"
+  },
+  "redline": {
+   "description": "Planning redline boundary, site coords (m)",
+   "items": {
+    "maxItems": 2,
+    "minItems": 2,
+    "prefixItems": [
+     {
+      "type": "number"
+     },
+     {
+      "type": "number"
+     }
+    ],
+    "type": "array"
+   },
+   "title": "Redline",
+   "type": "array"
+  },
+  "access_points": {
+   "description": "Vehicle access points on the boundary; first = main gate",
+   "items": {
+    "maxItems": 2,
+    "minItems": 2,
+    "prefixItems": [
+     {
+      "type": "number"
+     },
+     {
+      "type": "number"
+     }
+    ],
+    "type": "array"
+   },
+   "title": "Access Points",
+   "type": "array"
+  },
+  "utility_point": {
+   "anyOf": [
+    {
+     "maxItems": 2,
+     "minItems": 2,
+     "prefixItems": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "number"
+      }
+     ],
+     "type": "array"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Grid connection direction (substation preference)",
+   "title": "Utility Point"
+  },
+  "true_north_deg": {
+   "default": 0.0,
+   "description": "Bearing of site +y from true north, degrees clockwise",
+   "title": "True North Deg",
+   "type": "number"
+  },
+  "boundary_setback_m": {
+   "default": 10.0,
+   "description": "No building or plant within this distance of the redline, m",
+   "title": "Boundary Setback M",
+   "type": "number"
+  },
+  "receptors": {
+   "description": "Noise-sensitive receptors (houses, schools...) in site coordinates",
+   "items": {
+    "$ref": "#/$defs/Receptor"
+   },
+   "title": "Receptors",
+   "type": "array"
+  },
+  "boundary_noise_limit_dba": {
+   "anyOf": [
+    {
+     "type": "number"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Noise limit along the whole boundary, dB(A) (None = not checked)",
+   "title": "Boundary Noise Limit Dba"
+  },
+  "building_orientation_deg": {
+   "anyOf": [
+    {
+     "type": "number"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Force the building long axis bearing (site coords, deg CCW from +x)",
+   "title": "Building Orientation Deg"
+  },
+  "crs": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "e.g. EPSG:27700. Informational; used for IFC georef",
+   "title": "Crs"
+  },
+  "redline_file": {
+   "type": "string",
+   "title": "Redline File",
+   "description": "DXF / GeoJSON / KML with the redline polygon, next to site.yaml (instead of redline)"
+  }
+ },
+ "required": [],
+ "title": "dcgen site",
+ "type": "object",
+ "anyOf": [
+  {
+   "required": [
+    "redline"
+   ]
+  },
+  {
+   "required": [
+    "redline_file"
+   ]
+  }
+ ],
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "description": "Site boundary, access, grid connection and noise receptors in project grid metres.",
+ "additionalProperties": false
+}

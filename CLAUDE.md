@@ -8,6 +8,7 @@ REST API, MCP server and CLI are thin front doors onto `dcgen/service.py`.
 - Fast check after engine edits: `pytest -q tests/test_engines.py` (about 1 s)
 - Full suite: `pytest -q` (a few minutes; run one file while iterating, e.g. `tests/test_agent_tools.py`)
 - Example run, no AI: `dcgen run --brief examples/brief.yaml --site examples/site.yaml --out out --formats json`
+- File-based project (VS Code / Copilot workflow): `python -m dcgen.cli project new|check|run|peak projects/<name>`; schemas: `project schema`
 - Peak PUE and lineups for a brief: `dcgen peak --brief examples/brief.yaml [--chw 24] [--packs packs/cundall --drafts]`
 - Web app + REST + MCP: `uvicorn dcgen.api:app --reload`, then http://localhost:8000 (OpenAPI at /docs)
 - MCP over stdio (agent testing only): `dcgen-mcp`
@@ -34,6 +35,8 @@ REST API, MCP server and CLI are thin front doors onto `dcgen/service.py`.
 - `docs/EDITING.md` where to edit what; `docs/LIBRARY.md` data workflow
 - `packs/cundall/` draft plant pack (quick comparison chillers, benchmark gensets) + import mappings; use with `DCGEN_PACKS=packs/cundall` and `use_drafts`
 - Peak PUE only (sizing). Annual PUE lives in the separate PUE tool; do not add weather/annual simulation here.
+- `workspace.py` project folders, YAML checks (file:line:col), summaries; `schemas/` JSON schemas for the YAML (regenerate with `dcgen project schema`; a test fails if stale)
+- `.vscode/` tasks/settings; `.github/copilot-instructions.md`, `.github/instructions/`, `.github/skills/` for GitHub Copilot (keep them in step with CLI changes)
 - `web/index.html` no-AI form; `copilot/` Copilot Studio agent instructions; `revit/` pyRevit button
 
 ## Keep token use down

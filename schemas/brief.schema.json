@@ -1,0 +1,343 @@
+{
+ "description": "Client requirements and design parameters for one test fit. Every default is a placeholder.",
+ "properties": {
+  "project": {
+   "default": "Data centre test fit",
+   "description": "Project name for title blocks and file names",
+   "title": "Project",
+   "type": "string"
+  },
+  "client": {
+   "default": "",
+   "description": "Client name for title blocks",
+   "title": "Client",
+   "type": "string"
+  },
+  "stage": {
+   "default": "RIBA Stage 2",
+   "description": "Design stage shown on drawings",
+   "title": "Stage",
+   "type": "string"
+  },
+  "it_load_mw": {
+   "default": 24.0,
+   "description": "Total IT load of the building, MW",
+   "title": "It Load Mw",
+   "type": "number"
+  },
+  "hall_it_mw": {
+   "default": 6.0,
+   "description": "IT load per data hall, MW (number of halls = it_load_mw / hall_it_mw, rounded up)",
+   "title": "Hall It Mw",
+   "type": "number"
+  },
+  "storeys": {
+   "default": 1,
+   "description": "Data hall storeys (2 stacks halls and halves the footprint)",
+   "title": "Storeys",
+   "type": "integer"
+  },
+  "rack_kw": {
+   "default": 20.0,
+   "description": "Average IT load per rack, kW",
+   "title": "Rack Kw",
+   "type": "number"
+  },
+  "rack_w": {
+   "default": 0.6,
+   "description": "Rack width, m",
+   "title": "Rack W",
+   "type": "number"
+  },
+  "rack_d": {
+   "default": 1.2,
+   "description": "Rack depth, m",
+   "title": "Rack D",
+   "type": "number"
+  },
+  "max_racks_per_row": {
+   "default": 30,
+   "description": "Longest rack row allowed",
+   "title": "Max Racks Per Row",
+   "type": "integer"
+  },
+  "cooling": {
+   "default": "air_chw",
+   "description": "Air on chilled water (air_chw), direct-to-chip liquid with residual air (liquid_dtc) or a mix (hybrid)",
+   "enum": [
+    "air_chw",
+    "liquid_dtc",
+    "hybrid"
+   ],
+   "title": "Cooling",
+   "type": "string"
+  },
+  "topology": {
+   "default": "4M3",
+   "description": "xMy distributed redundant (4M3, 5M4...), 'N+1 catcher', '2N'",
+   "title": "Topology",
+   "type": "string"
+  },
+  "catcher_group": {
+   "default": 4,
+   "description": "Primary blocks per catcher block",
+   "title": "Catcher Group",
+   "type": "integer"
+  },
+  "halls_per_group": {
+   "default": 1,
+   "description": "Halls served by one redundancy group",
+   "title": "Halls Per Group",
+   "type": "integer"
+  },
+  "max_block_kw": {
+   "default": 3000,
+   "description": "Largest UPS block (IT kW) allowed",
+   "title": "Max Block Kw",
+   "type": "number"
+  },
+  "blocks_per_elec_room": {
+   "default": 1,
+   "description": "UPS blocks (lineups) sharing one electrical room",
+   "title": "Blocks Per Elec Room",
+   "type": "integer"
+  },
+  "elec_room_levels": {
+   "anyOf": [
+    {
+     "type": "integer"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "None = auto (1-3)",
+   "title": "Elec Room Levels"
+  },
+  "genset_tiers": {
+   "default": 1,
+   "description": "Gensets stacked in tiers (2 = double-stacked yard)",
+   "title": "Genset Tiers",
+   "type": "integer"
+  },
+  "design_pue": {
+   "anyOf": [
+    {
+     "type": "number"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Override the computed peak PUE for intake and fuel sizing (None = computed, CUN-CAL-PUE-001 method)",
+   "title": "Design Pue"
+  },
+  "pue_target_peak": {
+   "anyOf": [
+    {
+     "type": "number"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Client peak PUE target, checked if given",
+   "title": "Pue Target Peak"
+  },
+  "mech_lineups": {
+   "default": "auto",
+   "description": "Mechanical load on the IT lineups (shared, mech_kw_per_lineup each), on dedicated mechanical lineups (separate), or shared when it fits (auto)",
+   "enum": [
+    "auto",
+    "shared",
+    "separate"
+   ],
+   "title": "Mech Lineups",
+   "type": "string"
+  },
+  "mech_on_blocks": {
+   "default": true,
+   "description": "Legacy: False is the same as mech_lineups='separate'",
+   "title": "Mech On Blocks",
+   "type": "boolean"
+  },
+  "genset_lp_1m_dba": {
+   "anyOf": [
+    {
+     "type": "number"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Genset noise at 1 m all round (70 / 75 / 85 dB(A)); None = record value",
+   "title": "Genset Lp 1M Dba"
+  },
+  "fuel_autonomy_h": {
+   "default": 24.0,
+   "description": "Hours of fuel stored on site at the peak facility load",
+   "title": "Fuel Autonomy H",
+   "type": "number"
+  },
+  "heat_rejection": {
+   "default": "auto",
+   "description": "Heat rejection type; auto = chillers for air cooling, dry coolers first for liquid",
+   "enum": [
+    "auto",
+    "air_cooled_chiller",
+    "dry_cooler",
+    "adiabatic_dry_cooler"
+   ],
+   "title": "Heat Rejection",
+   "type": "string"
+  },
+  "hr_location": {
+   "default": "auto",
+   "description": "Heat rejection on the roof, in a ground yard, or both tried (auto)",
+   "enum": [
+    "auto",
+    "roof",
+    "ground"
+   ],
+   "title": "Hr Location",
+   "type": "string"
+  },
+  "hr_redundancy": {
+   "default": "N+1",
+   "description": "'N+1', 'N+2' or 'N+20%'",
+   "title": "Hr Redundancy",
+   "type": "string"
+  },
+  "hr_uplift_k": {
+   "default": 5.0,
+   "description": "Air-on uplift over design ambient for heat rejection in arrays (recirculation), K. Applied to capacity and EER. CUN-CAL-PUE-001 used 5 K (DC01), 2 K (project B)",
+   "title": "Hr Uplift K",
+   "type": "number"
+  },
+  "chw_flow_c": {
+   "default": 20.0,
+   "description": "CHW flow temperature, degC (20-26 typical); sets chiller EER",
+   "title": "Chw Flow C",
+   "type": "number"
+  },
+  "ambient_design_c": {
+   "default": 35.0,
+   "description": "Design dry bulb, e.g. N=20 extreme + climate uplift",
+   "title": "Ambient Design C",
+   "type": "number"
+  },
+  "ambient_design_wb_c": {
+   "default": 21.0,
+   "description": "Coincident wet bulb (adiabatic units)",
+   "title": "Ambient Design Wb C",
+   "type": "number"
+  },
+  "fwr_c": {
+   "default": 30.0,
+   "description": "Facility water return temperature to heat rejection, degC",
+   "title": "Fwr C",
+   "type": "number"
+  },
+  "roof_screen_db": {
+   "default": 5.0,
+   "description": "Attenuation from roof parapet/acoustic screen",
+   "title": "Roof Screen Db",
+   "type": "number"
+  },
+  "yard_barrier_db": {
+   "default": 0.0,
+   "description": "Attenuation from a barrier round the ground HR yard",
+   "title": "Yard Barrier Db",
+   "type": "number"
+  },
+  "building_screen_db": {
+   "default": 10.0,
+   "description": "Extra attenuation when the building blocks the path",
+   "title": "Building Screen Db",
+   "type": "number"
+  },
+  "staff_parking": {
+   "default": 60,
+   "description": "Car parking spaces",
+   "title": "Staff Parking",
+   "type": "integer"
+  },
+  "profile": {
+   "default": "",
+   "description": "Client profile id (library pack); sets approved plant, defaults, rules",
+   "title": "Profile",
+   "type": "string"
+  },
+  "use_drafts": {
+   "default": false,
+   "description": "Allow draft/reviewed library records (exploration only; flagged on outputs)",
+   "title": "Use Drafts",
+   "type": "boolean"
+  },
+  "hr_prefer": {
+   "default": "balanced",
+   "description": "How heat rejection units are ranked: footprint, noise, unit count or a balance",
+   "enum": [
+    "balanced",
+    "footprint",
+    "noise",
+    "count"
+   ],
+   "title": "Hr Prefer",
+   "type": "string"
+  },
+  "hr_unit": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Force a heat rejection unit (catalogue key / record id)",
+   "title": "Hr Unit"
+  },
+  "genset_unit": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Force a genset (catalogue key / record id)",
+   "title": "Genset Unit"
+  },
+  "tx_unit": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "Force a transformer (catalogue key / record id)",
+   "title": "Tx Unit"
+  },
+  "overrides": {
+   "additionalProperties": true,
+   "description": "Catalogue overrides for this project, e.g. {'halls.corridor_depth': 5.0, 'halls.cross_corridor_every': 1, 'egress.plant_room_exits': true}",
+   "title": "Overrides",
+   "type": "object"
+  }
+ },
+ "title": "dcgen brief",
+ "type": "object",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false
+}

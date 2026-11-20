@@ -4,15 +4,9 @@ Everything below is configuration, not engine logic. Do not change anything unde
 `dcgen/library/`. Check each result by running the command given. None of this has been tested against a real VS Code or
 Copilot Studio tenant.
 
-## 1. VS Code (GitHub Copilot agent mode)
-`.vscode/mcp.json` already declares the stdio server `dcgen`. Add:
-- an `inputs` entry (`promptString`, id `dcgenPacks`) and set `"DCGEN_PACKS": "${input:dcgenPacks}"` in `env`, so each engineer
-  points at their pack folder (e.g. the shared drive copy of the plant library) without editing the file;
-- a second server `dcgen-http` of `"type": "http"` pointing at `https://<your-host>/mcp`, commented as the hosted alternative;
-- `.vscode/tasks.json` with tasks: "dcgen: fast tests" (`pytest -q tests/test_engines.py`), "dcgen: serve"
-  (`uvicorn dcgen.api:app --reload`), "dcgen: example run" (the CLAUDE.md example command).
-- `.vscode/settings.json`: `python.testing.pytestEnabled: true`, `python.testing.pytestArgs: ["tests"]`.
-Check: `python -m json.tool` on each file (strip comments first if using JSONC); open VS Code, Chat > Agent mode > tools list shows `dcgen`.
+## 1. VS Code (done)
+VS Code tasks, settings, YAML schemas, Copilot instructions and skills are in place (`docs/VSCODE.md`). Left over:
+- try the tasks and the three skills on a real machine (Windows) and note anything that needs adjusting.
 
 ## 2. Copilot Studio / declarative agent YAML
 `copilot/agent-instructions.md` is the prompt. Create `copilot/agent.yaml` containing: name, description, the instructions

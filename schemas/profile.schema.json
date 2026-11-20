@@ -1,0 +1,101 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "dcgen client profile",
+ "description": "Client standard: brief defaults, catalogue overrides, approved plant, clause-referenced rules (docs/LIBRARY.md).",
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+  "id": {
+   "type": "string"
+  },
+  "revision": {
+   "type": "string"
+  },
+  "brief_defaults": {
+   "type": "object",
+   "description": "Brief fields set when the profile is applied"
+  },
+  "catalogue_overrides": {
+   "type": "object",
+   "description": "Dotted catalogue paths -> values for this client"
+  },
+  "approved": {
+   "type": "object",
+   "additionalProperties": false,
+   "properties": {
+    "manufacturers": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Only these manufacturers' records"
+    },
+    "record_ids": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Only these record ids"
+    },
+    "exclude_ids": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Never these record ids"
+    }
+   }
+  },
+  "rules": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "check"
+    ],
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "clause": {
+      "type": "string"
+     },
+     "text": {
+      "type": "string"
+     },
+     "severity": {
+      "enum": [
+       "fail",
+       "warn"
+      ]
+     },
+     "check": {
+      "type": "object",
+      "required": [
+       "type"
+      ],
+      "properties": {
+       "type": {
+        "enum": [
+         "metric",
+         "catalogue",
+         "count",
+         "element_prop",
+         "min_distance",
+         "max_distance",
+         "noise_margin",
+         "manual"
+        ]
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "required": [
+  "id",
+  "rules"
+ ]
+}

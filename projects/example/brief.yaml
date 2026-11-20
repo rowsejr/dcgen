@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../schemas/brief.schema.json
+# Brief for one test fit. Hover a key in VS Code for its meaning; every field is in the schema.
+# Edit, then run the task 'dcgen: check this project' and 'dcgen: run this project'.
+project: "example"
+client: "Example client"
+stage: "RIBA Stage 2"
+it_load_mw: 24
+hall_it_mw: 6
+storeys: 1
+rack_kw: 20
+cooling: air_chw
+topology: 4M3            # try 5M4, "N+1 catcher", 2N
+halls_per_group: 1
+blocks_per_elec_room: 1
+fuel_autonomy_h: 24
+heat_rejection: auto
+hr_location: auto        # the option search tries roof and ground
+hr_redundancy: N+1
+ambient_design_c: 36     # e.g. N=20 extreme + climate uplift (placeholder)
+hr_uplift_k: 5            # air-on uplift for recirculation in the chiller array (CUN-CAL-PUE-001)
+chw_flow_c: 20           # CHW flow temperature (20-26 typical); sets chiller EER and peak PUE
+mech_lineups: auto       # shared IT lineups (600 kW each) if the chillers fit, else separate mechanical lineups
+fwr_c: 30
+staff_parking: 60

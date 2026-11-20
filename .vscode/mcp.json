@@ -3,7 +3,10 @@
     "dcgen": {
       "type": "stdio",
       "command": "dcgen-mcp",
-      "env": { "DCGEN_HOME": "${workspaceFolder}/.dcgen-projects" }
+      "env": {
+        "DCGEN_HOME": "${workspaceFolder}/.dcgen-projects",
+        "DCGEN_PACKS": "${workspaceFolder}/packs/cundall"
+      }
     }
   }
 }

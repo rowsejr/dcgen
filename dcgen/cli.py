@@ -15,10 +15,10 @@ from .io import load_brief, load_site
 
 
 def cmd_run(a) -> None:
+    from .workspace import write_outputs
     t0 = time.time()
     brief, site = load_brief(a.brief), load_site(a.site)
     out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
     opts = layout.generate_options(brief, site, max_options=a.options)
     if not opts:
         raise SystemExit("The building does not fit the redline in any arrangement (try storeys: 2).")
@@ -27,28 +27,8 @@ def cmd_run(a) -> None:
     for c in sc.checks:
         if c.severity != "pass":
             print(f"  {c.severity.upper():4s} {c.message}")
-    stem = out / f"testfit_option_{sc.option}"
     fmts = set(a.formats.split(","))
-    if "json" in fmts:
-        sc.to_json(f"{stem}.json")
-        for o in opts:
-            o.to_json(str(out / f"option_{o.option}.json"))
-    if "pdf" in fmts:
-        from .render.report import build_report
-        topo = layout.compare_topologies(brief, ["4M3", "5M4", "N+1 catcher", "2N"])
-        build_report(sc, opts, f"{stem}.pdf", topo)
-    if "ifc" in fmts:
-        from .export.ifc import export_ifc
-        export_ifc(sc, f"{stem}.ifc")
-    if "glb" in fmts:
-        from .export.mesh import export_glb
-        export_glb(sc, f"{stem}.glb")
-    if "dxf" in fmts:
-        from .export.mesh import export_dxf
-        export_dxf(sc, f"{stem}.dxf")
-    if "editor" in fmts:
-        from .export.editor import export_editor
-        export_editor(sc, f"{stem}_editor.html")
+    write_outputs(opts, out, fmts, brief)
     print(f"Wrote {sorted(fmts)} to {out}/ in {time.time() - t0:.1f}s")
 
 
@@ -131,28 +111,50 @@ def cmd_whatif(a) -> None:
 
 def cmd_peak(a) -> None:
     """Peak PUE build-up and lineup check for a brief (no site needed)."""
-    from .catalogue import for_brief
+    from .workspace import peak_text
     _packs(a)
     brief = load_brief(a.brief)
     upd = {k: v for k, v in (("chw_flow_c", a.chw), ("hr_uplift_k", a.uplift), ("mech_lineups", a.mech)) if v is not None}
     if a.drafts:
         upd["use_drafts"] = True
-    brief = brief.model_copy(update=upd)
-    n, hall, elec, hr = layout.run_engines(brief, for_brief(brief))
-    pk = hr.peak.summary()
-    print(f"Peak PUE {pk['peak_pue']:.3f} at {pk['air_on_c']:g} C air-on, CHW {pk['chw_flow_c']:g} C")
-    print(f"  heat rejection: {hr.n_total} x {hr.unit['label']} ({hr.unit.get('record_id', hr.unit_key)})"
-          + (f", EER {pk['chiller_eer']:.2f} ({pk['eer_source']}), {pk['unit_full_input_kw']:.0f} kW input each" if pk['chiller_eer'] else ""))
-    e = elec.summary()
-    print(f"  mechanical lineups: {e['mech_lineups']}" + (f", {e['mech_per_it_lineup_kw']} kW on busiest IT lineup "
-          f"(allowance {e['mech_allowance_kw']})" if e['mech_lineups'] == 'shared' else
-          f", {e.get('mech_lineup_count', 0)} x {e.get('mech_genset', '')}"))
-    print(f"  gensets {e['gensets']} x {e['genset']}; IT lineup {e['it_lineup_kva']} kVA (max genset {e['genset_max_kva']} kVA)")
-    for k, v in pk["breakdown_kw"].items():
-        if v:
-            print(f"    {k:20s} {v:10,.0f} kW   pPUE {1 + v / pk['it_kw']:.4f}")
-    for line in hr.notes:
-        print("  -", line)
+    print(peak_text(brief.model_copy(update=upd)))
+
+
+def cmd_project(a) -> None:
+    """File-based projects for VS Code / Git (no AI): new, check, run, peak, schema."""
+    from . import workspace as ws
+    _packs(a)
+    if a.action == "new":
+        if not a.target:
+            raise SystemExit("dcgen project new <name>")
+        for f in ws.new_project(a.target, a.root, a.force):
+            print("wrote", f)
+        print(f"Next: edit projects/{a.target}/brief.yaml and site.yaml, then: dcgen project check projects/{a.target}")
+    elif a.action == "check":
+        issues = ws.check(a.target or ".")
+        print(ws.format_issues(issues) or "no issues")
+        if any(i.severity == "error" for i in issues):
+            raise SystemExit(1)
+    elif a.action == "run":
+        t0 = time.time()
+        folder = ws.folder_of(a.target or ".")
+        issues = [i for i in ws.check(folder) if i.severity == "error"]
+        if issues:
+            print(ws.format_issues(issues))
+            raise SystemExit("Fix the errors above first (dcgen project check).")
+        s = ws.run(folder, [f for f in a.formats.split(",") if f], a.options)
+        for i in ws.problems(s, folder):
+            print(i)
+        m = s.get("metrics") or {}
+        if s.get("fits"):
+            print(f"Best = option {s['best']}: {s['arrangement']}; peak PUE {m.get('peak_pue')}; "
+                  f"{m.get('fails')} fail / {m.get('warns')} warn  ({time.time() - t0:.1f}s)")
+        print(f"Summary: {folder / 'out' / 'summary.md'}")
+    elif a.action == "peak":
+        print(ws.peak_text(load_brief(ws.folder_of(a.target or ".") / "brief.yaml")))
+    elif a.action == "schema":
+        for f in ws.write_schemas(a.target or ws.REPO / "schemas"):
+            print("wrote", f)
 
 
 def cmd_reference(a) -> None:
@@ -169,7 +171,7 @@ def cmd_reference(a) -> None:
         raise SystemExit(1 if bad else 0)
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="dcgen", description="Datacentre Stage 2 test-fit generator")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="generate options and deliverables")
@@ -198,6 +200,14 @@ def main() -> None:
     pr.add_argument("--packs", nargs="*"), pr.set_defaults(fn=cmd_profile)
     rf = sub.add_parser("reference", help="reference designs: regress the engine against the recorded schemes")
     rf.add_argument("action", choices=["regress"]), rf.add_argument("--packs", nargs="*"), rf.set_defaults(fn=cmd_reference)
+    pj = sub.add_parser("project", help="file-based projects for VS Code / Git: new | check | run | peak | schema (no AI)")
+    pj.add_argument("action", choices=["new", "check", "run", "peak", "schema"])
+    pj.add_argument("target", nargs="?", default="", help="new: name | check/run/peak: project folder or a file in it | schema: out folder")
+    pj.add_argument("--root", default=".", help="new: repository root (projects/ goes under it)")
+    pj.add_argument("--force", action="store_true", help="new: overwrite existing YAML")
+    pj.add_argument("--formats", default="json", help="run: json,pdf,ifc,dxf,glb,editor")
+    pj.add_argument("--options", type=int, default=4), pj.add_argument("--packs", nargs="*")
+    pj.set_defaults(fn=cmd_project)
     pk = sub.add_parser("peak", help="peak PUE build-up and LV lineup check for a brief (no site needed)")
     pk.add_argument("--brief", required=True), pk.add_argument("--chw", type=float), pk.add_argument("--uplift", type=float)
     pk.add_argument("--mech", choices=["auto", "shared", "separate"]), pk.add_argument("--drafts", action="store_true")
@@ -209,7 +219,11 @@ def main() -> None:
     wi = sub.add_parser("whatif", help="try brief changes (YAML string or file: a list of dicts) and print score/check deltas")
     wi.add_argument("--brief", required=True), wi.add_argument("--site", required=True), wi.add_argument("changes")
     wi.set_defaults(fn=cmd_whatif)
-    a = ap.parse_args()
+    return ap
+
+
+def main(argv: list[str] | None = None) -> None:
+    a = build_parser().parse_args(argv)
     a.fn(a)
 
 

@@ -2,5 +2,9 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .dcgen-projects/
-out/
+/out/
+# project folders: keep the YAML and the summaries in Git, not the heavy deliverables
+projects/*/out/*
+!projects/*/out/summary.md
+!projects/*/out/summary.json
 .env

@@ -1,0 +1,325 @@
+{
+ "project": "example",
+ "folder": "example",
+ "run_at": "2026-11-20 16:45:23",
+ "dcgen": "0.1.0",
+ "inputs": {
+  "it_load_mw": 24.0,
+  "hall_it_mw": 6.0,
+  "storeys": 1,
+  "rack_kw": 20.0,
+  "cooling": "air_chw",
+  "topology": "4M3",
+  "ambient_design_c": 36.0,
+  "hr_uplift_k": 5.0,
+  "chw_flow_c": 20.0,
+  "mech_lineups": "auto",
+  "hr_redundancy": "N+1",
+  "hr_location": "auto",
+  "profile": "",
+  "use_drafts": false,
+  "site_ha": 7.92,
+  "receptors": 2
+ },
+ "fits": true,
+ "best": "A",
+ "arrangement": "support W end, electrical/gen yard N, heat rejection on roof",
+ "variants_tested": 16,
+ "metrics": {
+  "peak_pue": 1.48,
+  "hr_units": 23,
+  "gensets": 22,
+  "transformers": 22,
+  "mech_lineups": "separate",
+  "fails": 0,
+  "warns": 2,
+  "footprint_m2": 8439,
+  "spare_land_ha": 4.1,
+  "worst_noise_margin_db": 0.6,
+  "score": 175.2
+ },
+ "summary": {
+  "option": "A",
+  "arrangement": "support W end, electrical/gen yard N, heat rejection on roof",
+  "score": 175.2,
+  "metrics": {
+   "it_load_mw": 24.0,
+   "data_halls": 4,
+   "racks": 1200,
+   "gia_m2": 10359,
+   "footprint_m2": 8439,
+   "site_area_ha": 7.92,
+   "coverage_pct": 10.7,
+   "spare_land_ha": 4.1,
+   "substation_to_elec_m": 98.3,
+   "fuel_to_genyard_m": 35.2,
+   "road_area_m2": 4500
+  },
+  "noise": [
+   {
+    "name": "NSR1 Farmhouse",
+    "lp_dba": 44.4,
+    "limit_dba": 45.0,
+    "margin_db": 0.6
+   },
+   {
+    "name": "NSR2 Village edge",
+    "lp_dba": 41.1,
+    "limit_dba": 42.0,
+    "margin_db": 0.9
+   }
+  ],
+  "electrical": {
+   "topology": "4M3",
+   "blocks": 16,
+   "block_ups_kw": 2000,
+   "installed_ups_mw": 32.0,
+   "normal_loading_pct": 75,
+   "gensets": 22,
+   "genset": "2,500 kVA genset (2.0 MW standby)",
+   "transformers": 22,
+   "elec_rooms": 16,
+   "sts_rooms": 0,
+   "substation": "33 kV",
+   "mech_lineups": "separate",
+   "mech_per_it_lineup_kw": 0,
+   "mech_allowance_kw": 600,
+   "it_lineup_kva": 2062,
+   "genset_max_kva": 3200
+  },
+  "cooling": {
+   "unit": "Air-cooled free-cooling chiller ~1.4 MW",
+   "type": "air_cooled_chiller",
+   "heat_load_mw": 27.88,
+   "unit_capacity_at_design_kw": 1299,
+   "duty": 22,
+   "standby": 1,
+   "total": 23,
+   "capacity_margin_pct": 2.5,
+   "air_on_c": 41.0,
+   "eer_at_design": 3.368,
+   "eer_source": "generic",
+   "unit_input_at_design_kw": 385.7,
+   "mech_lineups": "separate",
+   "mech_per_it_lineup_kw": null,
+   "units_on_busiest_lineup": null
+  },
+  "peak_pue": {
+   "peak_pue": 1.48,
+   "air_on_c": 41.0,
+   "chw_flow_c": 20.0,
+   "chiller_eer": 3.368,
+   "eer_source": "generic",
+   "mechanical_kw": 9798,
+   "electrical_losses_kw": 1714,
+   "facility_kw": 35512,
+   "mech_sizing_kw": 10006
+  },
+  "plant_data": [
+   "genset: gen_2500 (placeholder)",
+   "transformer: tx_2500 (placeholder)",
+   "heat rejection: acc_fc_1400 (placeholder)"
+  ],
+  "compliance": null,
+  "checks": [
+   {
+    "id": "fit.redline",
+    "severity": "pass",
+    "message": "All plant and buildings inside the redline"
+   },
+   {
+    "id": "clash.solids",
+    "severity": "pass",
+    "message": "No clashes between buildings and plant"
+   },
+   {
+    "id": "clash.roads",
+    "severity": "pass",
+    "message": "Roads clear of buildings and plant"
+   },
+   {
+    "id": "access.ancillaries",
+    "severity": "pass",
+    "message": "Every ancillary within 10 m of a road"
+   },
+   {
+    "id": "fire.access",
+    "severity": "pass",
+    "message": "100% of the facade within 45 m of a road (placeholder rule - set from the fire strategy)"
+   },
+   {
+    "id": "fuel.separation",
+    "severity": "pass",
+    "message": "Fuel store 19 m from building/plant (min 10), 66 m from boundary (min 6) - placeholder limits"
+   },
+   {
+    "id": "noise.NSR1 Farmhouse",
+    "severity": "pass",
+    "message": "NSR1 Farmhouse: 44.4 dB(A) vs limit 45 (+0.6 dB margin)"
+   },
+   {
+    "id": "noise.NSR2 Village edge",
+    "severity": "pass",
+    "message": "NSR2 Village edge: 41.1 dB(A) vs limit 42 (+0.9 dB margin)"
+   },
+   {
+    "id": "maint.zones",
+    "severity": "pass",
+    "message": "Maintenance clearances clear on all plant"
+   },
+   {
+    "id": "egress.hall",
+    "severity": "pass",
+    "message": "Hall: deepest point to a hall door: 22 m vs 25 m (placeholder limit)"
+   },
+   {
+    "id": "egress.hall_exit",
+    "severity": "pass",
+    "message": "Hall: deepest point to a final exit: 38 m vs 45 m (placeholder limit)"
+   },
+   {
+    "id": "egress.plant_rooms",
+    "severity": "warn",
+    "message": "Electrical rooms: worst (EB07) to a final exit: 66 m vs 45 m (placeholder limit) - consider direct plant-room exits (egress.plant_room_exits)"
+   },
+   {
+    "id": "egress.exits",
+    "severity": "pass",
+    "message": "7 final exits, 1 cross corridor(s), 1 stair core(s)"
+   },
+   {
+    "id": "egress.lanes",
+    "severity": "pass",
+    "message": "All final exits have a clear 1.5 m x 12 m lane outside"
+   },
+   {
+    "id": "hr.capacity",
+    "severity": "pass",
+    "message": "22 duty x 1299 kW at 41 degC air-on = +2.5% on 27.88 MW, plus 1 standby"
+   },
+   {
+    "id": "elec.topology",
+    "severity": "info",
+    "message": "4M3: 16 blocks x 2000 kW, 32.0 MW installed, 75% normal loading"
+   },
+   {
+    "id": "elec.mech_lineup",
+    "severity": "info",
+    "message": "Separate mechanical lineups: 6 (5 duty) x 2,500 kVA genset (2.0 MW standby)"
+   },
+   {
+    "id": "elec.genset_limit",
+    "severity": "pass",
+    "message": "IT lineup 2,062 kVA on one 2,500 kVA genset (2.0 MW standby) (largest allowed 3,200 kVA)"
+   },
+   {
+    "id": "pue.peak",
+    "severity": "info",
+    "message": "Peak PUE 1.480 at 41 degC air-on, CHW 20 degC (chillers 8.3 MW, generic EER (no EER data); EER 3.37)"
+   },
+   {
+    "id": "halls.racks",
+    "severity": "pass",
+    "message": "300 racks per hall for 300 required (20 kW/rack)"
+   },
+   {
+    "id": "roof.load",
+    "severity": "warn",
+    "message": "23 roof units at ~4.6 kN/m2 local load - confirm with structures"
+   },
+   {
+    "id": "data.status",
+    "severity": "info",
+    "message": "Plant data: genset gen_2500 (placeholder), transformer tx_2500 (placeholder), heat rejection acc_fc_1400 (placeholder) - indicative placeholders, check before use"
+   }
+  ],
+  "log": [
+   "23 electrical-band rooms on 2 level(s), 240 m of room frontage.",
+   "Upper floors/levels: east stair core modelled; west stair assumed in the support block. Gallery vertical escape is not modelled.",
+   "Heat rejection: 23 units in 4 group(s) of 5-6, perpendicular to the facade, one group per hall column.",
+   "Separate mechanical lineups: 6 (5 duty, N+1) x 2,500 kVA genset (2.0 MW standby) + 2,500 kVA transformer for 10.0 MW design mechanical load.",
+   "4M3: 16 blocks x 2000 kW UPS (4 groups, normal loading 75%).",
+   "Selected Air-cooled free-cooling chiller ~1.4 MW: 1299 kW each at 41 degC air-on (36 + 5 K uplift), EER 3.37 at 100% load -> 386 kW input each (generic); 22 duty + 1 standby (N+1); preference 'balanced'.",
+   "Mechanical plant cannot share the IT lineups (866 kW on the busiest IT lineup (2 x 386 kW + share of pumps/fans) > 600 kW): separate mechanical lineups used.",
+   "Peak PUE 1.480 at 41 C air-on (36 C + 5 K uplift), CHW flow 20 C: chiller EER 3.37 (generic screw EER 4 at 35 C / CHW 20 C (no EER data))."
+  ]
+ },
+ "options": [
+  {
+   "option": "A",
+   "score": 175.2,
+   "arrangement": "support W end, electrical/gen yard N, heat rejection on roof",
+   "fails": 0,
+   "warns": 2,
+   "noise_margins_db": [
+    0.6,
+    0.9
+   ],
+   "spare_land_ha": 4.1,
+   "road_area_m2": 4500
+  },
+  {
+   "option": "B",
+   "score": 181.6,
+   "arrangement": "support W end, electrical/gen yard N, heat rejection on ground",
+   "fails": 0,
+   "warns": 2,
+   "noise_margins_db": [
+    3.7,
+    5.8
+   ],
+   "spare_land_ha": 3.46,
+   "road_area_m2": 4688
+  },
+  {
+   "option": "C",
+   "score": 192.6,
+   "arrangement": "support E end, electrical/gen yard N, heat rejection on roof",
+   "fails": 0,
+   "warns": 2,
+   "noise_margins_db": [
+    1.2,
+    0.8
+   ],
+   "spare_land_ha": 3.85,
+   "road_area_m2": 4494
+  },
+  {
+   "option": "D",
+   "score": 197.2,
+   "arrangement": "support E end, electrical/gen yard N, heat rejection on ground",
+   "fails": 0,
+   "warns": 2,
+   "noise_margins_db": [
+    4.0,
+    4.6
+   ],
+   "spare_land_ha": 3.57,
+   "road_area_m2": 5031
+  }
+ ],
+ "levers": [
+  {
+   "check": "egress.plant_rooms",
+   "severity": "warn",
+   "message": "Electrical rooms: worst (EB07) to a final exit: 66 m vs 45 m (placeholder limit) - consider direct plant-room exits (egress.plant_room_exits",
+   "levers": [
+    "overrides: egress.plant_room_exits=true (adds south exits to ground plant rooms)",
+    "storeys / elec levels: fewer upper levels shortens vertical escape routes",
+    "overrides: egress.travel_two_dir_m only with fire engineer sign-off"
+   ]
+  },
+  {
+   "check": "roof.load",
+   "severity": "warn",
+   "message": "23 roof units at ~4.6 kN/m2 local load - confirm with structures",
+   "levers": [
+    "hr_location=ground (heat rejection in the yard)",
+    "confirm the roof design load with structures"
+   ]
+  }
+ ],
+ "files": [
+  "testfit_option_A.json"
+ ]
+}

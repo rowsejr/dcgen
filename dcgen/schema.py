@@ -27,23 +27,23 @@ XY = tuple[float, float]
 # --------------------------------------------------------------------------- inputs
 class Receptor(BaseModel):
     """Noise-sensitive receptor (NSR), in site coordinates."""
-    name: str
-    x: float
-    y: float
-    z: float = 1.5
+    name: str = Field(..., description="Receptor name, e.g. NSR1 Farmhouse")
+    x: float = Field(..., description="Easting in site coordinates, m")
+    y: float = Field(..., description="Northing in site coordinates, m")
+    z: float = Field(1.5, description="Receptor height above ground, m")
     limit_dba: float = Field(45.0, description="Rating level limit at the receptor, dB(A)")
 
 
 class SiteInput(BaseModel):
-    name: str = "Site"
+    name: str = Field("Site", description="Site name for title blocks")
     redline: list[XY] = Field(..., description="Planning redline boundary, site coords (m)")
     access_points: list[XY] = Field(default_factory=list,
                                     description="Vehicle access points on the boundary; first = main gate")
     utility_point: Optional[XY] = Field(None, description="Grid connection direction (substation preference)")
     true_north_deg: float = Field(0.0, description="Bearing of site +y from true north, degrees clockwise")
-    boundary_setback_m: float = 10.0
-    receptors: list[Receptor] = Field(default_factory=list)
-    boundary_noise_limit_dba: Optional[float] = None
+    boundary_setback_m: float = Field(10.0, description="No building or plant within this distance of the redline, m")
+    receptors: list[Receptor] = Field(default_factory=list, description="Noise-sensitive receptors (houses, schools...) in site coordinates")
+    boundary_noise_limit_dba: Optional[float] = Field(None, description="Noise limit along the whole boundary, dB(A) (None = not checked)")
     building_orientation_deg: Optional[float] = Field(
         None, description="Force the building long axis bearing (site coords, deg CCW from +x)")
     crs: Optional[str] = Field(None, description="e.g. EPSG:27700. Informational; used for IFC georef")
@@ -51,26 +51,26 @@ class SiteInput(BaseModel):
 
 class Brief(BaseModel):
     """Client requirements + design parameters. Every default is a placeholder."""
-    project: str = "Data centre test fit"
-    client: str = ""
-    stage: str = "RIBA Stage 2"
+    project: str = Field("Data centre test fit", description="Project name for title blocks and file names")
+    client: str = Field("", description="Client name for title blocks")
+    stage: str = Field("RIBA Stage 2", description="Design stage shown on drawings")
     # --- IT / white space
-    it_load_mw: float = 24.0
-    hall_it_mw: float = 6.0
-    storeys: int = 1
-    rack_kw: float = 20.0
-    rack_w: float = 0.6
-    rack_d: float = 1.2
-    max_racks_per_row: int = 30
-    cooling: Literal["air_chw", "liquid_dtc", "hybrid"] = "air_chw"
+    it_load_mw: float = Field(24.0, description="Total IT load of the building, MW")
+    hall_it_mw: float = Field(6.0, description="IT load per data hall, MW (number of halls = it_load_mw / hall_it_mw, rounded up)")
+    storeys: int = Field(1, description="Data hall storeys (2 stacks halls and halves the footprint)")
+    rack_kw: float = Field(20.0, description="Average IT load per rack, kW")
+    rack_w: float = Field(0.6, description="Rack width, m")
+    rack_d: float = Field(1.2, description="Rack depth, m")
+    max_racks_per_row: int = Field(30, description="Longest rack row allowed")
+    cooling: Literal["air_chw", "liquid_dtc", "hybrid"] = Field("air_chw", description="Air on chilled water (air_chw), direct-to-chip liquid with residual air (liquid_dtc) or a mix (hybrid)")
     # --- electrical
     topology: str = Field("4M3", description="xMy distributed redundant (4M3, 5M4...), 'N+1 catcher', '2N'")
     catcher_group: int = Field(4, description="Primary blocks per catcher block")
     halls_per_group: int = Field(1, description="Halls served by one redundancy group")
     max_block_kw: float = Field(3000, description="Largest UPS block (IT kW) allowed")
-    blocks_per_elec_room: int = 1
+    blocks_per_elec_room: int = Field(1, description="UPS blocks (lineups) sharing one electrical room")
     elec_room_levels: Optional[int] = Field(None, description="None = auto (1-3)")
-    genset_tiers: int = 1
+    genset_tiers: int = Field(1, description="Gensets stacked in tiers (2 = double-stacked yard)")
     design_pue: Optional[float] = Field(None, description=(
         "Override the computed peak PUE for intake and fuel sizing (None = computed, CUN-CAL-PUE-001 method)"))
     pue_target_peak: Optional[float] = Field(None, description="Client peak PUE target, checked if given")
@@ -79,10 +79,10 @@ class Brief(BaseModel):
         "lineups (separate), or shared when it fits (auto)"))
     mech_on_blocks: bool = Field(True, description="Legacy: False is the same as mech_lineups='separate'")
     genset_lp_1m_dba: Optional[float] = Field(None, description="Genset noise at 1 m all round (70 / 75 / 85 dB(A)); None = record value")
-    fuel_autonomy_h: float = 24.0
+    fuel_autonomy_h: float = Field(24.0, description="Hours of fuel stored on site at the peak facility load")
     # --- heat rejection
-    heat_rejection: Literal["auto", "air_cooled_chiller", "dry_cooler", "adiabatic_dry_cooler"] = "auto"
-    hr_location: Literal["auto", "roof", "ground"] = "auto"
+    heat_rejection: Literal["auto", "air_cooled_chiller", "dry_cooler", "adiabatic_dry_cooler"] = Field("auto", description="Heat rejection type; auto = chillers for air cooling, dry coolers first for liquid")
+    hr_location: Literal["auto", "roof", "ground"] = Field("auto", description="Heat rejection on the roof, in a ground yard, or both tried (auto)")
     hr_redundancy: str = Field("N+1", description="'N+1', 'N+2' or 'N+20%'")
     hr_uplift_k: float = Field(5.0, description=(
         "Air-on uplift over design ambient for heat rejection in arrays (recirculation), K. "
@@ -96,14 +96,14 @@ class Brief(BaseModel):
     yard_barrier_db: float = Field(0.0, description="Attenuation from a barrier round the ground HR yard")
     building_screen_db: float = Field(10.0, description="Extra attenuation when the building blocks the path")
     # --- site
-    staff_parking: int = 60
+    staff_parking: int = Field(60, description="Car parking spaces")
     # --- plant selection and client profile
     profile: str = Field("", description="Client profile id (library pack); sets approved plant, defaults, rules")
     use_drafts: bool = Field(False, description="Allow draft/reviewed library records (exploration only; flagged on outputs)")
-    hr_prefer: Literal["balanced", "footprint", "noise", "count"] = "balanced"
+    hr_prefer: Literal["balanced", "footprint", "noise", "count"] = Field("balanced", description="How heat rejection units are ranked: footprint, noise, unit count or a balance")
     hr_unit: Optional[str] = Field(None, description="Force a heat rejection unit (catalogue key / record id)")
-    genset_unit: Optional[str] = None
-    tx_unit: Optional[str] = None
+    genset_unit: Optional[str] = Field(None, description="Force a genset (catalogue key / record id)")
+    tx_unit: Optional[str] = Field(None, description="Force a transformer (catalogue key / record id)")
     # --- project overrides of catalogue values (client requirements), dotted paths
     overrides: dict[str, Any] = Field(default_factory=dict, description=(
         "Catalogue overrides for this project, e.g. {'halls.corridor_depth': 5.0, "

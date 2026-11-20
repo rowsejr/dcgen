@@ -1,0 +1,158 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "dcgen import mapping",
+ "description": "How one vendor spreadsheet / sheet becomes draft plant records. Imports never approve anything (docs/LIBRARY.md).",
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+  "name": {
+   "type": "string",
+   "description": "What this mapping reads"
+  },
+  "type": {
+   "enum": [
+    "adiabatic_cooler",
+    "chiller",
+    "dry_cooler",
+    "elec_room_typical",
+    "genset",
+    "transformer",
+    "water_cooled_chiller"
+   ],
+   "description": "Record type (CSV file it lands in)"
+  },
+  "sheet": {
+   "type": "string",
+   "description": "Worksheet name (header row found automatically)"
+  },
+  "columns": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "string"
+   },
+   "description": "Source column header -> record field"
+  },
+  "split": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "description": "Source column with 'a/b' -> [field_a, field_b], e.g. fluid in/out"
+  },
+  "values": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "additionalProperties": {
+     "type": [
+      "string",
+      "number"
+     ]
+    }
+   },
+   "description": "field -> {source value: cleaned value} (typos, synonyms)"
+  },
+  "numbers": {
+   "type": "object",
+   "properties": {
+    "alternatives": {
+     "enum": [
+      "max",
+      "min",
+      "first"
+     ]
+    }
+   },
+   "additionalProperties": false,
+   "description": "How to read '15530/16720' options and '2532 - 2700' ranges; 'a + b' always sums"
+  },
+  "units": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "properties": {
+     "factor": {
+      "type": "number"
+     },
+     "offset": {
+      "type": "number"
+     },
+     "fahrenheit": {
+      "type": "boolean"
+     }
+    },
+    "additionalProperties": false
+   },
+   "description": "field -> conversion, e.g. {length: {factor: 0.001}} for mm -> m"
+  },
+  "defaults": {
+   "type": "object",
+   "description": "field -> value used only when the source has none"
+  },
+  "derive": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "properties": {
+     "log10": {
+      "type": "string"
+     },
+     "ref": {
+      "type": "number"
+     },
+     "base": {
+      "type": "number"
+     },
+     "round": {
+      "type": "integer"
+     },
+     "add": {
+      "type": "string"
+     },
+     "value": {},
+     "format": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "description": "Missing fields computed from others, no code evaluated: log10 / add / format"
+  },
+  "assumed": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "description": "Fields flagged as assumptions when filled by defaults/derive"
+  },
+  "always_assumed": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "description": "Always flagged (e.g. eer when the source has none)"
+  },
+  "caveats": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "string"
+   },
+   "description": "field -> note added to the record"
+  },
+  "notes_from": {
+   "type": "string",
+   "description": "Source column copied into notes"
+  },
+  "id_pattern": {
+   "type": "string",
+   "description": "record_id template, e.g. QC-ACC-{manufacturer}-{capacity_kw:g}"
+  }
+ },
+ "required": [
+  "type",
+  "columns"
+ ]
+}

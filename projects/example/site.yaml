@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../schemas/site.schema.json
+# Site in project grid metres (or redline_file: redline.dxf | .geojson | .kml next to this file).
+# Example site (synthetic, project grid in metres). Swap the redline for
+# redline_file: my_redline.dxf | .geojson | .kml
+name: "Example greenfield site"
+redline:
+  - [1000, 2000]
+  - [1290, 1975]
+  - [1315, 2210]
+  - [1180, 2255]
+  - [985, 2240]
+access_points:
+  - [1140, 1988]         # main gate off the highway (south boundary)
+utility_point: [1420, 2090]   # grid connection to the east
+true_north_deg: 0
+boundary_setback_m: 10
+receptors:
+  - {name: "NSR1 Farmhouse", x: 1460, y: 2150, limit_dba: 45}
+  - {name: "NSR2 Village edge", x: 1120, y: 2430, limit_dba: 42}

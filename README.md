@@ -8,6 +8,9 @@ Revit/Navisworks, DXF, GLB, and a drag-and-drop editor. Driven by Claude through
 
 ## Quick start
 
+**VS Code + GitHub Copilot, no Claude:** open the folder, run the task *dcgen: install / update*, then *dcgen: new
+project*, edit the YAML (or let Copilot write it), *dcgen: check this project* and Ctrl+Shift+B. See `docs/VSCODE.md`.
+
 ```bash
 pip install -e ".[all]"                 # Python 3.11+
 pytest -q                               # full suite, a few minutes; fast check: pytest -q tests/test_engines.py
@@ -61,6 +64,7 @@ dcgen/
   layout.py            orchestration, option search, scoring, edits
   checks.py            rule checks
   service.py           project state + actions shared by every front door
+  workspace.py         file-based projects (projects/<name>/brief.yaml + site.yaml -> out/summary.md)
   api.py               web form + REST API + mounted MCP endpoint
   web/index.html       no-AI web form
   render/              A3 PDF sheets, vector axonometric 3D, plans
@@ -69,9 +73,10 @@ dcgen/
   cli.py               command line
 revit/pyrevit/         "Place from scene" button (untested scaffold) + family map
 copilot/               agent instructions for Copilot Studio / declarative agents
+docs/VSCODE.md         VS Code tasks, YAML schemas and Copilot skills (no AI in the engine, no Claude needed)
 docs/EDITING.md        where to edit what, how things are sized
 docs/LIBRARY.md        plant library packs, client profiles, reference designs, approval workflow
-docs/HAIKU_TASKS.md    mechanical VS Code / Copilot YAML wiring still to do
+docs/HAIKU_TASKS.md    Copilot Studio wiring still to do
 docs/ARCHITECTURE.md   design, coordinates, engines, Revit/Navisworks routes, roadmap
 docs/DEPLOYMENT.md     hosting, Copilot wiring, Claude Code setup, costs
 CLAUDE.md, .mcp.json   Claude Code project setup; .vscode/mcp.json for GitHub Copilot

@@ -1,0 +1,38 @@
+{
+  "yaml.schemas": {
+    "./schemas/brief.schema.json": [
+      "projects/**/brief.yaml",
+      "examples/brief.yaml"
+    ],
+    "./schemas/site.schema.json": [
+      "projects/**/site.yaml",
+      "examples/site.yaml"
+    ],
+    "./schemas/mapping.schema.json": [
+      "packs/**/mappings/*.yaml"
+    ],
+    "./schemas/profile.schema.json": [
+      "packs/**/clients/*/profile.yaml",
+      "examples/pack/clients/*/profile.yaml"
+    ]
+  },
+  "yaml.validate": true,
+  "yaml.hover": true,
+  "yaml.completion": true,
+  "dcgen.packs": "packs/cundall",
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.terminal.activateEnvironment": true,
+  "search.exclude": {
+    "**/out/**": true,
+    "examples/output/**": true
+  },
+  "files.watcherExclude": {
+    "**/out/**": true
+  },
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "chat.includeApplyingInstructions": true,
+  "markdown.preview.breaks": false
+}
